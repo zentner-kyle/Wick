@@ -1,0 +1,11 @@
+#! /usr/bin/env python3
+# encoding: utf-8
+
+def options(opt):
+    opt.recurse('utf8proc')
+
+def configure(conf):
+    conf.recurse('utf8proc')
+
+def build(bld):
+    bld.recurse('utf8proc')
