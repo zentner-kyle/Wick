@@ -63,3 +63,5 @@ wbuild
 deps
 
 src/scratch.c
+
+__pycache__

@@ -6,10 +6,6 @@ from fnmatch import fnmatch
 from os.path import relpath, split, join
 from functools import reduce
 from subprocess import Popen, PIPE
-# from io import StringIO
-
-# def join(*args):
-    # return reduce(os_join, args)
 
 all_tests = []
 
@@ -32,8 +28,10 @@ def build(bld):
             if fnmatch(filename, '*.c'):
                 rel_path = relpath(root, bld.path.abspath())
                 target_filename = join(rel_path, filename[:-2])
-                bld.program(source=join(rel_path, filename), target=target_filename,
-                            includes=[join(bld.top_dir, 'src')])
+                bld.program(source=join(rel_path, filename),
+                            target=target_filename,
+                            includes=join(bld.top_dir, 'src'),
+                            use='wick')
                 target_abspath = join(bld.variant_dir, 'tests', target_filename)
                 all_tests.append(target_abspath)
 

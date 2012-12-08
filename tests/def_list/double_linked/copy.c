@@ -1,3 +1,7 @@
+#include <stdlib.h>
+#include <assert.h>
+
+#include "def_list.h"
 #define _LIST_T_ int
 #define _LIST_BIDIRECTIONAL_
 #include "def_list.c"
@@ -7,7 +11,7 @@ int main() {
   int_list * copy = NULL;
   int_list_iterator list_iter;
   int_list_iterator copy_iter;
-  bool repeat = False;
+  bool repeat = false;
   WICK_THROW(int_list_build(3, &list, 1, 2, 3));
   WICK_THROW(int_list_copy(list, &copy));
 

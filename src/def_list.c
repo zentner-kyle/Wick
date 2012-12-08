@@ -26,10 +26,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common.h"
-#include "stdlib.h"
-#include "stdio.h"
-#include "stdarg.h"
 
 /* TODO: slicing. */
 
@@ -493,7 +489,7 @@ void LIST_FUNC(_start)(_LIST_HANDLE_T_ * list, _LIST_ITERATOR_T_ *iter) {
 }
 
 /* Acts similarly to repeated calls to _next and _prev, with some exceptions.
- * Returns True if the iterator arrived at the indicated position, False otherwise.
+ * Returns true if the iterator arrived at the indicated position, false otherwise.
  * If the movement fails, the iterator won't be modified.
  */
 bool LIST_FUNC(_move)(_LIST_ITERATOR_T_ *iterator, int64_t steps) {
@@ -516,14 +512,14 @@ bool LIST_FUNC(_move)(_LIST_ITERATOR_T_ *iterator, int64_t steps) {
   #endif
   if (target) {
     iterator->cell = target;
-    return True;
+    return true;
   } else {
-    return False;
+    return false;
   }
 }
 
 /* Advances the iterator forward.
- * Returns True if movement succeeded, False otherwise.
+ * Returns true if movement succeeded, false otherwise.
  * If the movement fails, the iterator won't be modified.
  */
 bool LIST_FUNC(_next)(_LIST_ITERATOR_T_ *iterator) {
@@ -531,15 +527,15 @@ bool LIST_FUNC(_next)(_LIST_ITERATOR_T_ *iterator) {
   _LIST_CELL_T_ * target = iterator->cell->_LIST_NEXT_NAME_;
   if (target) {
     iterator->cell = target;
-    return True;
+    return true;
   } else {
-    return False;
+    return false;
   }
 }
 
 #ifdef _LIST_BIDIRECTIONAL_
 /* Moves the iterator backward.
- * Returns True if movement succeeded, False otherwise.
+ * Returns true if movement succeeded, false otherwise.
  * If the movement fails, the iterator won't be modified.
  */
 bool LIST_FUNC(_prev)(_LIST_ITERATOR_T_ *iterator) {
@@ -547,19 +543,19 @@ bool LIST_FUNC(_prev)(_LIST_ITERATOR_T_ *iterator) {
   _LIST_CELL_T_ * target = iterator->cell->_LIST_PREV_NAME_;
   if (target) {
     iterator->cell = target;
-    return True;
+    return true;
   } else {
-    return False;
+    return false;
   }
 }
 #endif
 
-/* Returns True if the iterator is valid, False otherwise. */
+/* Returns true if the iterator is valid, false otherwise. */
 bool LIST_FUNC(_valid_iter)(_LIST_HANDLE_T_ * list, _LIST_ITERATOR_T_ *iterator) {
   if (!iterator || !iterator->cell) {
-    return False;
+    return false;
   } else {
-    return True;
+    return true;
   }
 }
 
@@ -751,22 +747,22 @@ wick_error LIST_FUNC(_equal)(_LIST_HANDLE_T_ *a, _LIST_HANDLE_T_ *b, bool * resu
   _LIST_ITERATOR_T_ b_iter;
   LIST_FUNC(_start)(a, &a_iter);
   LIST_FUNC(_start)(b, &b_iter);
-  bool a_next = False;
-  bool b_next = False;
+  bool a_next = false;
+  bool b_next = false;
   int32_t temp_result = 0;
   do {
     WICK_THROW(_LIST_COMPARE_FUNC_(LIST_FUNC(_deref)(&a_iter), LIST_FUNC(_deref)(&b_iter), &temp_result));
     if (temp_result != 0) {
-      result = False;
+      result = false;
       return WICK_SUCCESS;
     }
     a_next = LIST_FUNC(_next)(&a_iter);
     b_next = LIST_FUNC(_next)(&b_iter);
   } while (a_next && b_next);
   if (a_next != b_next) {
-    *result = False;
+    *result = false;
   } else {
-    *result = True;
+    *result = true;
   }
   return WICK_SUCCESS;
 }

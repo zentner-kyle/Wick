@@ -49,45 +49,65 @@
     + 0000 0010 2 byte uint
     + 0000 0011 4 byte uint
     + 0000 0100 8 byte uint
+    + 0000 0101 16 byte uint
 
-    + 0000 0101 Reserved
     + 0000 0110 Reserved
-    + 0000 0111 Reserved
-    + 0000 1000 Reserved
 
-    + 0000 1001 1 byte sint
-    + 0000 1010 2 byte sint
-    + 0000 1011 4 byte sint
-    + 0000 1100 8 byte sint
+    + 0000 0111 1 byte sint
+    + 0000 1000 2 byte sint
+    + 0000 1001 4 byte sint
+    + 0000 1010 8 byte sint
+    + 0000 1011 16 byte sint
 
+    + 0000 1100 2 byte float
     + 0000 1101 4 byte float
     + 0000 1110 8 byte float
     + 0000 1111 16 byte float
 
     + 0001 0000 UTF-8  Encoded String
-    + 0001 0010 UTF-16 Encoded String
-    + 0001 0011 UTF-32 Encoded String
+    + 0001 0001 UTF-16 Encoded String NOT SUPPORTED
+    + 0001 0010 UTF-32 Encoded String NOT SUPPORTED
+    + 0001 0011 Reserved
 
     + 0001 0100 Array
     + 0001 0101 Array firm typed
+
     + 0001 0110 Associative Array
     + 0001 0111 Associative Array firm typed
 
     + 0001 1000 UTF-8  Encoded String Iterator
-    + 0001 1010 UTF-16 Encoded String Iterator
-    + 0001 1011 UTF-32 Encoded String Iterator
+    + 0001 1001 UTF-16 Encoded String Iterator NOT SUPPORTED
+    + 0001 1010 UTF-32 Encoded String Iterator NOT SUPPORTED
+    + 0001 1011 Reserved
 
     + 0001 1100 Array Iterator
     + 0001 1101 Array (Firm Typed) Iterator
     + 0001 1110 Associative Array Iterator
     + 0001 1111 Associative Array (Firm Typed) Iterator
 
-    + 0010 0000 Pointer
-    + 0010 0001 ID
+    + 0010 0000 ID
+    + 0010 0001 Error
+    + 0010 0010 Continuation
+    + 0010 0011 Type
+    + 0010 0100 Thread
+    + 0011 xxxx Interpreted Function
+    + 0011 0000 Interpreted Function Bytecode Version 0
 
-    + 0100 0000 C Function * (void * -> wick_error)
-    + 011x xxxx Interpreted Function
-    + 0110 0001 Interpreted Function Bytecode Version 0
+    + 0100 xxxx RAM Only objects
+
+    + 0100 0000 Dynamically typed pointer
+    + 0100 0001 C Function * (void * -> wick_error)
+
+    + 01xx xxxx Reserved
+
+  + Extended:
+    + 1000 0000 0000 xxxx Reserved for parser
+    + 1000 0000 0000 0000 Whitespace match
+    + 1000 0000 0000 0001 Precise string match
+    + 1000 0000 0000 0010 Function matcher
+    + 1000 0000 0000 0100 C Function * (wick_string * in, wick_string * out) -> wick_error
+    + 1000 0000 0000 1000 Option combinator
+    + 1000 0000 0000 1001 Sequence combinator
 
 
 * Other binary formats:

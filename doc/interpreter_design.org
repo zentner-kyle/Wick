@@ -1,0 +1,36 @@
+globals = core types
+interpreter = place, ...
+continuation = function, start, partial commit
+
+place = [continuation], [id -> channel], parent :: context, channel system, commit system, symbol table
+
+type system = [type]
+type = size, [id -> function]
+
+id = string | u128
+symbol table = [string -> u128]
+
+channel system = [channel rule], [continuation -> [value]], lock
+channel rule = [[continuation, value] -> match?]
+match? = match | no match
+
+commit system = [time, location, value] + lock
+
+interpreter is wick_core
+continuation is wick_target
+
+
+Order of arguments is generally:
+
+init: wick_place * environment, whatever * self, ...
+
+The init functions return NULL if there was an error in the iniatlization.
+
+
+Things to implement:
+* Allocate the interpreter
+* Initialize the interpreter
+  - Allocate a place
+    - Handle allocation failure
+  - Initialize the global place
+* Initialize the global place

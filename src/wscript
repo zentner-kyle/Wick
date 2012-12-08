@@ -9,23 +9,25 @@ def configure(conf):
 
 def build(bld):
     bld.program(
-                source = 'size_test.c', 
-                target = 'size_test', 
+                source = 'size_test.c',
+                target = 'size_test',
                 )
 
     bld.program(
-                source = 'utf8_file_test.c', 
-                target = 'utf8_file_test', 
+                source = 'scratch.c',
+                target = 'scratch',
                 )
 
+    bld.shlib(
+        source = [
+            'wick_core.c', 'wick_alloc.c', 'wick_place.c',
+            'wick_channel.c', 'wick_globals.c', 'wick_dyn.c',
+            'wick_string.c', 'wick_error.c', 'wick_equal.c', 'wick_array.c', 'wick_assoc.c'
+            ],
+        target = 'wick',
+        )
     bld.program(
-                source = 'scratch.c', 
-                target = 'scratch', 
-                )
-
-    bld.program(
-                source = 'parse.c', 
-                target = 'parse', 
-                use = 'utf8proc',
-                includes = ['.', '../deps/utf8proc'], 
+                source = 'type_system_test.c',
+                target = 'type_system_test',
+                use = 'wick',
                 )
