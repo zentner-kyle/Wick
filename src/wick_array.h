@@ -34,6 +34,7 @@ wick_dyn wick_array_pop(wick_place * place, wick_array * self);
 
 wick_array_iter wick_array_new_iter(wick_place * place, wick_array * self);
 
+wick_array_iter * wick_array_iter_init(wick_place * env, wick_array_iter * self, wick_array * array);
 
 bool wick_array_iter_valid(wick_place * place, wick_array_iter * self);
 

@@ -55,6 +55,12 @@ wick_array_iter wick_array_new_iter(wick_place * env, wick_array * self) {
 	return (wick_array_iter){self, 0};
 }
 
+wick_array_iter * wick_array_iter_init(wick_place * env, wick_array_iter * self, wick_array * array) {
+	self->array = array;
+	self->byte_index = 0;
+	return self;
+}
+
 
 bool wick_array_iter_valid(wick_place * env, wick_array_iter * self) {
 	return self->byte_index < self->array->bytes_filled;

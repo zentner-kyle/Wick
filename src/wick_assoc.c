@@ -3,32 +3,29 @@
 #include "wick_thread.h"
 #include "wick_globals.h"
 #include "wick_dyn.h"
+#include "wick_array.h"
 
 
 wick_assoc * wick_assoc_init(wick_place * env, wick_assoc * self) {
-	self->start = 0;
-	self->byte_length = 0;
-	self->bytes_filled = 0;
+	wick_array_init(env, &self->array);
 	return self;
 }
 
 wick_assoc_iter * wick_assoc_iter_init(wick_place * env, wick_assoc_iter * self, wick_assoc * assoc) {
-	self->assoc = assoc;
-	self->byte_index = 0;
+	wick_array_iter_init(env, &self->iter, &assoc->array);
 	return self;
 }
 
 bool wick_assoc_iter_valid(wick_place * env, wick_assoc_iter * self) {
-	return self->byte_index <= self->assoc->bytes_filled;
+	return wick_array_iter_valid(env, &self->iter);
 }
 
 wick_dyn wick_assoc_iter_deref(wick_place * env, wick_assoc_iter * self) {
-	return wick_make_dyn(self->byte_index + (void *)self->assoc->start, &wick_global.type._assoc_cell);
+	return wick_array_iter_deref(env, &self->iter);
 }
 
 bool wick_assoc_iter_next(wick_place * env, wick_assoc_iter * self) {
-	++self->byte_index;
-	return wick_assoc_iter_valid(env, self);
+	return wick_array_iter_next(env, &self->iter);
 }
 
 wick_dyn * wick_assoc_iter_key(wick_place * env, wick_assoc_iter * self) {

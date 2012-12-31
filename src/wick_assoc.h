@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "wick_dyn.h"
+#include "wick_array.h"
 
 struct wick_place;
 
@@ -14,16 +15,13 @@ struct wick_assoc_cell {
 typedef struct wick_assoc_cell wick_assoc_cell;
 
 struct wick_assoc {
-	wick_assoc_cell * start;
-	uint64_t byte_length;
-	uint64_t bytes_filled;
+	wick_array array;
 };
 
 typedef struct wick_assoc wick_assoc;
 
 struct wick_assoc_iter {
-	wick_assoc * assoc;
-	uint64_t byte_index;
+	wick_array_iter iter;
 };
 
 typedef struct wick_assoc_iter wick_assoc_iter;

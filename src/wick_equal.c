@@ -55,25 +55,26 @@ static bool wick_assoc_cell_equal(wick_place * env,
 
 static bool wick_assoc_equal(wick_place * env, wick_assoc a,
                              wick_assoc b) {
-	if (a.bytes_filled != b.bytes_filled) {
-		return false;
-	} else if (a.start == b.start) {
-		return true;
-	}
-	wick_assoc_iter ai;
-	wick_assoc_iter_init(env, &ai, &a);
-	wick_assoc_iter bi;
-	wick_assoc_iter_init(env, &bi, &b);
-	do {
-		if (!wick_equal(env,
-		                wick_assoc_iter_deref(env, &ai),
-		                wick_assoc_iter_deref(env, &bi))) {
-			return false;
-		}
-		wick_assoc_iter_next(env, &bi);
-	} while (wick_assoc_iter_next(env, &ai));
-	assert(!wick_assoc_iter_valid(env, &bi));
-	return true;
+	return wick_array_equal(env, a.array, b.array);
+	/* if (a.array.bytes_filled != b.array.bytes_filled) { */
+	/* 	return false; */
+	/* } else if (a.start == b.start) { */
+	/* 	return true; */
+	/* } */
+	/* wick_assoc_iter ai; */
+	/* wick_assoc_iter_init(env, &ai, &a); */
+	/* wick_assoc_iter bi; */
+	/* wick_assoc_iter_init(env, &bi, &b); */
+	/* do { */
+	/* 	if (!wick_equal(env, */
+	/* 	                wick_assoc_iter_deref(env, &ai), */
+	/* 	                wick_assoc_iter_deref(env, &bi))) { */
+	/* 		return false; */
+	/* 	} */
+	/* 	wick_assoc_iter_next(env, &bi); */
+	/* } while (wick_assoc_iter_next(env, &ai)); */
+	/* assert(!wick_assoc_iter_valid(env, &bi)); */
+	/* return true; */
 }
 
 bool wick_equal(wick_place * env, wick_dyn a, wick_dyn b) {
