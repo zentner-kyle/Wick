@@ -1,176 +1,236 @@
-#include "common.h"
-#include <utf8proc.h>
-#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
-#include <limits.h>
+#include <stdarg.h>
 
-#define WICK_PARSE_CHECK_ARGS(_to_check_) \
-	do{ \
-		if(!(in_buffer && out_buffer && (_to_check_))) { \
-			return WICK_MEMORY_ERROR; \
-		} \
-	} while(0)
+#include <stdio.h>
+#include <ctype.h>
 
-#define _CHAR_NAME_ num_char
-#define _COND_(character) \
-	('9' >= character && \
-	 character >= '0')
-#include "def_char_func.c"
+#include "wick_basic.h"
 
-#define _WORD_NAME_ num_word
-#define _COND_(character) \
-	('9' >= character && \
-	 character >= '0')
-#include "def_word_func.c"
-
-#define _WORD_NAME_ two_arg_word
-#define _ARG_LIST_ uint8_t arg_char1, uint8_t arg_char2
-#define _ARGS_ arg_char1, arg_char2
-#define _COND_(character)    \
-	(character == arg_char1 || \
-	 character == arg_char2)
-#include "def_word_func.c"
-
-#define _CHAR_NAME_ ident_start_char
-#define _COND_(character) \
-	('A' <= character && character <= 'Z') || \
-	('a' <= character && character <= 'z') || \
-	(character == '_') || \
-	(character > CHAR_MAX)
-#include "def_char_func.c"
-
-#define _CHAR_NAME_ ident_char
-#define _COND_(character)                     \
-	('A' <= character && character <= 'Z') || \
-	('a' <= character && character <= 'z') || \
-	('9' >= character && character >= '0') || \
-	(character == '_') || \
-	(character > CHAR_MAX)
-#include "def_char_func.c"
-
-#define _WORD_NAME_ ident_word
-#define _FUNC_ ident_char
-#include "def_word_func.c"
-
-#define _CHAR_NAME_ specific_char
-#define _ARG_LIST_ char the_char
-#define _COND_(character)	\
-	(character == (uint8_t)the_char)
-#include "def_char_func.c"
-
-#define _CHAR_NAME_ not_specific_char
-#define _ARG_LIST_ char the_char
-#define _COND_(character)	\
-	(character != (uint8_t)the_char)
-#include "def_char_func.c"
-
-#define _CHAR_NAME_ whitespace_char
-#define _COND_(character)  \
-	(character == ' ' ) || \
-	(character == '\t') || \
-	(character == '\n')
-#include "def_char_func.c"
-
-#define _WORD_NAME_ whitespace
-#define _FUNC_ whitespace_char
-#include "def_word_func.c"
-
-#define _CHAR_NAME_ opt_char
-#define _COND_(character)                       \
-	!(('A' <= character && character <= 'Z') || \
-	  ('a' <= character && character <= 'z') || \
-	  (character == '_') || \
-	  ('0' <= character && character <= '9') || \
-	  (character == ' ' ) || \
-	  (character == '\t') || \
-	  (character == '\n') || \
-	  (character > CHAR_MAX))
-#include "def_char_func.c"
-
-#define _CHAR_NAME_ escape_char
-#define _COND_(character)  \
-	(character == '\\') || \
-	(character == 'n' ) || \
-	(character == 't' )
-#include "def_char_func.c"
-
-wick_error identifier(const utf8_string * in_buffer, utf8_string * out_buffer) {
-	WICK_PARSE_CHECK_ARGS(1);
-	utf8_string temp_buffer;
-	WICK_THROW(ident_start_char(in_buffer, &temp_buffer));
-	utf8_step(&temp_buffer, in_buffer);
-	WICK_THROW(ident_word(&temp_buffer, &temp_buffer));
-	out_buffer->start = in_buffer->start;
-	out_buffer->past_end = temp_buffer.past_end;
-	return WICK_SUCCESS;
-}
-
-wick_error match_string(const utf8_string * in_buffer, 
-                        utf8_string * out_buffer, char * the_string) {
-	WICK_PARSE_CHECK_ARGS(the_string);
-	/* This should be utf8 safe on valid utf8 strings,
-	 * since byte by bytes comparison should still be valid.
-	 */
-	uint8_t * check_char = (uint8_t *)the_string;
-	uint8_t * buffer_char = in_buffer->start;
-	while(check_char && *check_char) {
-		/* While there are potential non-matching char's. */
-		if(buffer_char >= in_buffer->past_end ||
-		   /* Ran out of chars to match against. */
-		   *buffer_char != *check_char) {
-			/* Input didn't match. */
-			return WICK_FAILURE;
-		}
-		++buffer_char;
-		++check_char;
-	}
-	out_buffer->start = in_buffer->start;
-	out_buffer->past_end = buffer_char;
-	return WICK_SUCCESS;
-}
-
-struct AST_Def {
-	utf8_string name;
+struct str {
+	char * start;
+	char * past_end;
 };
 
-typedef struct AST_Def AST_Def;
+typedef struct str str;
 
-wick_error parse_def(const utf8_string * in_buffer, 
-                     utf8_string * out_buffer, AST_Def * node) {
-	WICK_PARSE_CHECK_ARGS(node);
-	utf8_string remaining;
-	WICK_THROW(match_string(in_buffer, &remaining, "def"));
-	utf8_step(&remaining, in_buffer);
-	whitespace(&remaining, &remaining);
-	utf8_step(&remaining, in_buffer);
-	WICK_THROW(identifier(&remaining, &remaining));
-	out_buffer->start = remaining.past_end;
-	out_buffer->past_end = in_buffer->past_end;
-	node->name = remaining;
-	return WICK_SUCCESS;
+size_t str_len( str s ) {
+	return s.past_end - s.start;
 }
 
-wick_error test_parse_number() {
-	utf8_string buffer = utf8_string_from_char_array("123");
-	utf8_string buffer2;
-	printf("%d\n", two_arg_word(&buffer, &buffer2, 
-	                            (uint8_t)'1', (uint8_t) '2') == WICK_SUCCESS);
-	utf8_string_println(buffer2);
-	return WICK_SUCCESS;
+typedef int parse_result_t;
+
+str new_str(char * p) {
+	str s;
+	s.start = p;
+	s.past_end = p + strlen(p);
+	return s;
 }
 
+struct {
+	int no;
+	int yes;
+	int error;
+	int abort;
+} parse_result = {0, 1, 2, 3};
+
+struct parse_str_and_res {
+	str out;
+	parse_result_t res;
+};
+
+typedef struct parse_str_and_res parse_str_and_res;
+
+typedef parse_result_t (* matcher_method )( const str in, str * out, void * self );
+
+struct matcher {
+	matcher_method run;
+	/* This struct has extra space allocated. */
+};
+
+typedef struct matcher matcher;
+
+parse_result_t run_matcher( const str in, str * out, matcher * m ) {
+	return m->run( in, out, (void *) m );
+}
+
+struct str_matcher {
+	matcher_method run;
+	str to_match;
+	uint64_t len;
+};
+
+typedef struct str_matcher str_matcher;
+
+parse_result_t str_matcher_method( const str in, str * out, void * vself ) {
+	str_matcher * self = (str_matcher *) vself;
+	if ( str_len( in ) < self->len ) {
+		return parse_result.no;
+	}
+	if ( ! memcmp( in.start, self->to_match.start, self->len ) ) {
+		/* Equal strings. */
+		out->start = in.start;
+		out->past_end = in.start + self->len;
+		return parse_result.yes;
+	}
+	return parse_result.no;
+}
+
+matcher * new_str_matcher ( str to_match ) {
+	str_matcher * m = malloc( sizeof( str_matcher ) );
+	if ( m ) {
+		m->run = str_matcher_method;
+		m->to_match = to_match;
+	}
+	return (matcher *) m;
+}
+
+struct or_matcher {
+	matcher_method run;
+	size_t num_choices;
+	matcher * choices;
+	/* An array of matcher *'s is allocated here.
+	 * choices itself is considered index 0.
+	 */
+};
+
+typedef struct or_matcher or_matcher;
+
+parse_result_t or_matcher_method( const str in, str * out, void * vself ) {
+	or_matcher * self = (or_matcher *) vself;
+	matcher ** m = &self->choices;
+	while ( *m < self->choices + self->num_choices ) {
+		parse_result_t res = run_matcher( in, out, *m );
+		if ( res == parse_result.yes ) {
+			return parse_result.yes;
+		}
+	}
+	return parse_result.no;
+}
+
+const matcher * end_matchers = (matcher *) ~ (intptr_t)0;
+/* Largest possible pointer value. Should be portable to all pointer sizes, even 128 bits.
+ * malloc can't put a matcher there, since there's not enough room (and it's not aligned).
+ * We can't just use NULL here because an allocation could fail, returning NULL.
+ * It might fail if the target has unsigned integer arithmetic where 'all bits set' is not the maximum value.
+ */
+
+matcher * matcher_va_alloc_array( size_t extra_bytes, size_t index, va_list lst, size_t * total ) {
+	matcher * m = va_arg(lst, matcher *);
+	uint8_t * allocated_block = NULL;
+	if ( ! m ) {
+		return NULL;
+	}
+	if ( m == end_matchers ) {
+		m = NULL;
+		*total = index;
+		allocated_block = (uint8_t *) malloc( extra_bytes + (sizeof( matcher * ) * index) );
+	} else {
+		allocated_block = (uint8_t *) matcher_va_alloc_array( extra_bytes, index + 1, lst, total );
+	}
+	if ( allocated_block ) {
+		*(matcher **)(allocated_block + extra_bytes + sizeof( matcher * ) * index) = m;
+		/* Sub-matchers also tend to be stored in the vararg functions that call this one. */
+	}
+	return (matcher *) allocated_block;
+}
+
+matcher * new_or_matcher ( matcher * first, ... ) {
+	va_list lst;
+	va_start( lst, first );
+	size_t total = 0;
+	or_matcher * m = (or_matcher *) matcher_va_alloc_array( sizeof( or_matcher ), 0, lst, & total );
+	va_end( lst );
+	if ( m ) {
+		m->choices = first;
+		m->run = or_matcher_method;
+		m->num_choices = total + 1;
+	}
+	return (matcher *) m;
+}
+
+struct and_matcher {
+	matcher_method run;
+	size_t num_submatchers;
+	matcher * submatchers;
+	/* An array of matcher *'s is allocated here. */
+	/* submatchers itself is considered index 0.  */
+};
+
+typedef struct and_matcher and_matcher;
+
+parse_result_t and_matcher_method( const str in, str * out, void * vself ) {
+	and_matcher * self = (and_matcher *) vself;
+	str sub_in = in;
+	str sub_out;
+	matcher ** m = &self->submatchers;
+	while ( *m < self->submatchers + self->num_submatchers ) {
+		parse_result_t res = run_matcher( sub_in, &sub_out, *m );
+		if ( res != parse_result.yes ) {
+			return res;
+		}
+		sub_in.start = sub_out.past_end;
+		++m;
+	}
+	out->start = in.start;
+	out->past_end = sub_out.past_end;
+	return parse_result.yes;
+}
+
+matcher * new_and_matcher( matcher * first, ... ) {
+	va_list lst;
+	va_start( lst, first );
+	size_t total = 0;
+	and_matcher * m = (and_matcher *) matcher_va_alloc_array( sizeof( and_matcher ), 0, lst, & total );
+	va_end( lst );
+	if ( m ) {
+		m->submatchers = first;
+		m->run = and_matcher_method;
+		m->num_submatchers = total + 1;
+	}
+	return (matcher *) m;
+}
+
+#define NAME whitespace
+#define COND( c ) \
+	(c == ' ' || c == '\t')
+#include "def_char_matcher.c"
+
+#define NAME newline
+#define COND( c ) \
+	(c == '\n' || c == '\r')
+#include "def_char_matcher.c"
+
+#define NAME alpha
+#define COND( c ) \
+	(isalpha( c ))
+#include "def_char_matcher.c"
+
+#define NAME alphanum
+#define COND( c ) \
+	(isalphanum( c ))
 
 int main(int argv, char * argc[]) {
-	if(argv != 2) {
-		fprintf(stderr,
-		        "Incorrect usage:\n"
-		        "program should be called\n\n"
-		        "\t%s file_name\n", argc[0]);
-		return 1;
-	}
-	utf8_string buffer = utf8_string_from_filename(argc[1]);
-	utf8_string_println(buffer);
-	printf("%c\n", *buffer.start);
+	matcher * hello_world = new_and_matcher(
+		new_or_matcher(
+			new_str_matcher( new_str( "Hello" ) ),
+			new_str_matcher( new_str( "Goodbye" ) ),
+			end_matchers
+			),
+		new_str_matcher( new_str( " " ) ),
+		new_str_matcher( new_str( "World!" ) ),
+		end_matchers
+		);
+	str result;
+	printf ("%d\n", run_matcher( new_str( "Hello World!" ), &result, hello_world ));
+	printf ("%d\n", run_matcher( new_str( "Goodbye World!" ), &result, hello_world ));
+	/* if(argv != 2) { */
+	/* 	fprintf(stderr, */
+	/* 	        "Incorrect usage:\n" */
+	/* 	        "program should be called\n\n" */
+	/* 	        "\t%s file_name\n", argc[0]); */
+	/* 	return 1; */
+	/* } */
 	return 0;
 }
