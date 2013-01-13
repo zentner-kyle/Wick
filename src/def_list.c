@@ -27,9 +27,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-/* TODO: slicing. */
+/* TODO: slicing, context, new intrusive design, remove underscores, make list
+ * actually container LIST_T not LIST_T*. 
+ */
 
-/* These arguments are relatively shared somewhat with array and other sequences. */
+/* These arguments are relatively shared somewhat with array and other collections. */
 
 #ifndef _LIST_PREFIX_
   #define _LIST_PREFIX_ _LIST_T_
@@ -181,7 +183,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 /*  Iterators are more general, high-level mechanisms.
- *  They should act 'the same' under all sequences.
+ *  They should act 'the same' under all collections.
  *  As such, there is no interface for customizing their internals.
  */
 
