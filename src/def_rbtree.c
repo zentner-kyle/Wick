@@ -127,43 +127,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define RBTREE_CELL_TO_ELEM( cell ) ((cell)->RBTREE_ELEM_NAME)
 #endif
 
-#ifdef RBTREE_USE_HANDLE
-  /*  Make the name of the handle RBTREE_LONG_PREFIX.
-   *  For example, int_rbtree.
-   *  This requires the cell type to have a different name.
-   *  For example, int_rbtree_cell.
-   */
-	#ifndef RBTREE_CELL_T
-		#define RBTREE_CELL_T C_TOKEN_JOIN( RBTREE_LONG_PREFIX, _cell )
-		#define RBTREE_DEFINE_CELL_T
-	#endif
-	#ifndef RBTREE_HANDLE_T
-		#define RBTREE_HANDLE_T RBTREE_LONG_PREFIX
-		#define RBTREE_DEFINE_HANDLE_T
-	#endif
-	#ifndef RBTREE_HANDLE_CELL_NAME
-		#define RBTREE_HANDLE_CELL_NAME first_cell
-	#endif
-		/* *RBTREE_HANDLE_T -> *RBTREE_CELL_T */
-	#define RBTREE_HANDLE_TO_CELL( handle_name ) ((handle_name)->RBTREE_HANDLE_CELL_NAME)
-#else
-  /*  No handle, make RBTREE_CELL_T have the name _LIST_LONG_PREFIX_.
-   *  With no handles, RBTREE_HANDLE_T == RBTREE_CELL_T.
-   *  This makes the function definitions sane.
-   */
-	#ifndef RBTREE_CELL_T
-		#define RBTREE_CELL_T RBTREE_LONG_PREFIX
-		#define RBTREE_DEFINE_CELL_T
-	#endif
-	#define RBTREE_HANDLE_T RBTREE_CELL_T
-	#define RBTREE_HANDLE_TO_CELL( handle_name ) (handle_name)
-#endif
-
-#ifndef RBTREE_INTRUSIVE
-	#ifdef RBTREE_DEFINE_CELL
+#ifndef RBTREE_CELL_T
+	#define RBTREE_CELL_T RBTREE_LONG_PREFIX
   	/*  The rbtree cell type needs to be defined if it hasn't been by the user,
-  	 *  which would be indicated by them defining RBTREE_CELL_T.
-  	 *  However, it doesn't need to be defined if the rbtree is instrusive.
+  	 *  which would be indicated by them defining RBTREE_CELL_T or
+		 *  by setting RBTREE_INTRUSIVE.
   	 */
 		struct RBTREE_CELL_T {
 			RBTREE_T ELEM;
@@ -176,15 +144,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		};
 
 		typedef struct RBTREE_CELL_T RBTREE_CELL_T;
-	#endif
-#endif
-
-#ifdef RBTREE_DEFINE_HANDLE_T
-	struct RBTREE_HANDLE_T {
-		RBTREE_CELL_T * first_cell;
-	};
-
-	typedef struct RBTREE_HANDLE_T RBTREE_HANDLE_T;
 #endif
 
 #ifndef RBTREE_KEY_FROM_VAL
@@ -215,34 +174,8 @@ void RBTREE_FUNC_P( alloc )( RBTREE_CELL_T **out_to_store RBTREE_CONTEXT_ARG ) {
 	RBTREE_RIGHT(new_cell) = 0;
 }
 
-void RBTREE_FUNC( new )( RBTREE_HANDLE_T ** to_store RBTREE_CONTEXT_ARG ) {
-	#ifdef RBTREE_USE_HANDLE
-		RBTREE_HANDLE_T * new_handle = RBTREE_ALLOC( sizeof(RBTREE_HANDLE_T) );
-		if ( new_handle ) {
-			*to_store = new_handle;
-		} else {
-			RBTREE_ALLOC_ERROR( RBTREE_CONTEXT_NAME );
-		}
-	#else
-		*to_store = 0;
-	#endif
-}
-
-RBTREE_HANDLE_T * RBTREE_FUNC_P( new_handle )( RBTREE_CELL_T * new_cell RBTREE_CONTEXT_ARG ) {
-	#ifdef RBTREE_USE_HANDLE
-		if ( ! new_cell ) {
-			return;
-		}
-		RBTREE_HANDLE_T * n_handle = RBTREE_ALLOC( sizeof(RBTREE_HANDLE_T) );
-		if ( n_handle ) {
-			n_handle->first_cell = new_cell;
-		} else {
-			RBTREE_ALLOC_ERROR( RBTREE_CONTEXT_NAME );
-		}
-		return n_handle;
-	#else
-		return new_cell;
-	#endif
+void RBTREE_FUNC( new )( RBTREE_CELL_T ** to_store RBTREE_CONTEXT_ARG ) {
+	*to_store = 0;
 }
 
 void RBTREE_FUNC( free_cell )( RBTREE_CELL_T * to_free ) {
@@ -258,7 +191,7 @@ void RBTREE_FUNC( free_cell )( RBTREE_CELL_T * to_free ) {
 	RBTREE_FREE( to_free );
 }
 
-RBTREE_CELL_T * RBTREE_FUNC_P( copy_cell )( RBTREE_CELL_T * source RBTREE_CONTEXT_ARG ) {
+RBTREE_CELL_T * RBTREE_FUNC_P( copy )( RBTREE_CELL_T * source RBTREE_CONTEXT_ARG ) {
 	RBTREE_CELL_T * new_cell = RBTREE_ALLOC( sizeof(RBTREE_CELL_T) );
 	if ( new_cell ) {
 		RBTREE_COLOR( new_cell ) = RBTREE_COLOR( source );
@@ -276,12 +209,4 @@ RBTREE_CELL_T * RBTREE_FUNC_P( copy_cell )( RBTREE_CELL_T * source RBTREE_CONTEX
 		RBTREE_ELEM_COPY( RBTREE_ELEM( new_cell ), RBTREE_ELEM( source ) );
 	}
 	return new_cell;
-}
-
-RBTREE_HANDLE_T * RBTREE_FUNC( copy )( RBTREE_HANDLE_T * source RBTREE_CONTEXT_ARG ) {
-	return BTREE_FUNC_P( new_handle )(
-			RBTREE_FUNC_P( copy_cell )(
-				RBTREE_HANDLE_TO_CELL( source )
-				RBTREE_CONTEXT_COMMA_NAME )
-			RBTREE_CONTEXT_COMMA_NAME );
 }
