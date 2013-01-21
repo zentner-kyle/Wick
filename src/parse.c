@@ -71,9 +71,9 @@ struct {
 } parse_result_types = {0, 1, 2, 3};
 
 struct matcher {
-	parse_result (* run)( struct matcher * mself, const str in );
-	parse_result (* resume)( struct matcher * mself, continuation * con );
-	bool (* insert_child)( struct matcher * mself, struct matcher * child ); /* Returns true on success. */
+	parse_result (* run)( struct matcher * vself, const str in );
+	parse_result (* resume)( struct matcher * vself, continuation * con );
+	bool (* insert_child)( struct matcher * vself, struct matcher * child ); /* Returns true on success. */
 	/* This struct has extra space allocated. */
 };
 
@@ -107,8 +107,8 @@ struct str_matcher {
 
 typedef struct str_matcher str_matcher;
 
-parse_result str_matcher_method( matcher * mself, const str in ) {
-	str_matcher * self = (str_matcher *) mself;
+parse_result str_matcher_method( matcher * vself, const str in ) {
+	str_matcher * self = (str_matcher *) vself;
 	if ( str_len( in ) < self->len ) {
 		return (parse_result){parse_result_types.no, in, 0};
 	}
@@ -142,26 +142,46 @@ struct or_matcher {
 typedef struct or_matcher or_matcher;
 
 struct or_continuation {
+	continuation base;
+	str input;
 	size_t current_index;
-	continuation * current_continutation;
+	continuation * current_continuation;
+	continuation ** child_continuations;
 };
 
 typedef struct or_continuation or_continuation;
 
-parse_result run_or_matcher( matcher * mself, const str in ) {
-	or_matcher * self = (or_matcher *) mself;
-	for ( int i = 0; i < self->child_count;  i++ ) {
-		/*printf("children: %p\n", self->children);*/
-		/*printf("child: %p\n", self->children[i]);*/
-		parse_result res = run_matcher( self->children[i], in );
-		/*printf("res: %d\n", res);*/
+parse_result resume_or_matcher( matcher * vself, continuation * vcon ) {
+	or_continuation * con = (or_continuation *) vcon;
+	or_matcher * self = (or_matcher *) vself;
+	continuation * cc = con->current_continuation;
+	parse_result res;
+	for ( int i = con->current_index; i < self->child_count; i++ ) {
+		if ( cc ) {
+			res = resume_match( self->children[i], cc );
+			cc = NULL;
+		} else {
+			res = run_matcher( self->children[i], con->input );
+		}
 		if ( res.type == parse_result_types.yes ) {
-			/*print_strln( *out );*/
-			/* TODO: Add or continuation. */
+			or_continuation * c = (or_continuation *) malloc( sizeof( or_continuation ) );
+			c->base.host = vself;
+			c->current_index = i;
+			c->current_continuation = res.continuation;
+			res.continuation = c;
 			return res;
 		}
 	}
-	return (parse_result){parse_result_types.no, in, 0};
+	return (parse_result){parse_result_types.no, con->input, 0};
+}
+
+parse_result run_or_matcher( matcher * vself, const str in ) {
+	or_continuation c;
+	c.base.host = vself;
+	c.input = in;
+	c.current_index = 0;
+	c.current_continuation = 0;
+	return resume_or_matcher( vself, (continuation *) &c );
 }
 
 const void * end_args = (void *) ~ (intptr_t)0;
@@ -207,8 +227,8 @@ matcher ** matcher_va_alloc_array( size_t index, va_list lst, size_t * total ) {
 	return allocated_block;
 }
 
-bool or_matcher_insert_child( matcher * mself, matcher * child ) {
-	or_matcher * self = (or_matcher *) mself;
+bool or_matcher_insert_child( matcher * vself, matcher * child ) {
+	or_matcher * self = (or_matcher *) vself;
 	if ( is_power_2( self->child_count ) ) {
 		/* Re-allocation needed. */
 		/*printf( "Reallocating!\n" );*/
@@ -236,6 +256,7 @@ matcher * new_or_matcher ( matcher * first, ... ) {
 	if ( m ) {
 		m->children = matcher_va_alloc_array( 1, lst, &m->child_count );
 		m->base.run = run_or_matcher;
+		m->base.resume = resume_or_matcher;
 		m->base.insert_child = or_matcher_insert_child;
 	}
 	if ( ! m->children ) {
@@ -255,8 +276,14 @@ struct seq_matcher {
 
 typedef struct seq_matcher seq_matcher;
 
-parse_result run_seq_matcher( matcher * mself, const str in ) {
-	seq_matcher * self = (seq_matcher *) mself;
+struct seq_continuation {
+	continuation base;
+	str input;
+	str current_input;
+};
+
+parse_result run_seq_matcher( matcher * vself, const str in ) {
+	seq_matcher * self = (seq_matcher *) vself;
 	str sub_in = in;
 	parse_result res;
 	/*str sub_out;*/

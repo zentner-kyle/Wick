@@ -5,7 +5,7 @@ struct C_TOKEN_JOIN( NAME, _matcher ) {
 
 typedef struct C_TOKEN_JOIN( NAME, _matcher ) C_TOKEN_JOIN( NAME, _matcher );
 
-parse_result C_TOKEN_JOIN( NAME, _matcher_method )( matcher * mself, const str in ) {
+parse_result C_TOKEN_JOIN( NAME, _matcher_method )( matcher * vself, const str in ) {
 	char * current = in.start;
 	while ( COND( *current ) ) {
 		++current;
