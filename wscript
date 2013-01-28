@@ -20,8 +20,10 @@ def common_configure(conf):
     if conf.find_program(conf.options.cc):
         conf.env['CC'] = conf.options.cc
     conf.load('compiler_c')
-    conf.check(feature='cc cprogram cstdlib', cflags=['-Wall', '-std=c99'])
-    conf.env.append_value('CFLAGS', ['-Wall', '-std=c99'])
+    version = '-std=c99'
+    version = '-std=gnu99'
+    conf.check(feature='cc cprogram cstdlib', cflags=['-Wall', version])
+    conf.env.append_value('CFLAGS', ['-Wall', version])
 
 def configure_debug(conf):
     conf.setenv('debug')
