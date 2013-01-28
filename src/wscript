@@ -18,10 +18,27 @@ def build(bld):
                 target = 'scratch',
                 )
 
+    #bld.program(
+                #source = 'parse.c',
+                #target = 'parse',
+                #)
+
+    bld.objects(
+            source = 'hash.c',
+            target = 'parser_objects',
+            )
+
     bld.program(
-                source = 'parse.c',
-                target = 'parse',
-                )
+            use = 'parser_objects',
+            source = 'hash_tests.c',
+            target = 'hash_tests',
+            )
+
+    bld.program(
+            use = 'parser_objects',
+            source = 'test.c',
+            target = 'test',
+            )
 
     bld.shlib(
         source = [
@@ -30,7 +47,9 @@ def build(bld):
             'wick_string.c', 'wick_error.c', 'wick_equal.c', 'wick_array.c', 'wick_assoc.c'
             ],
         target = 'wick',
+        libs = 'rt',
         )
+
     bld.program(
                 source = 'type_system_test.c',
                 target = 'type_system_test',
