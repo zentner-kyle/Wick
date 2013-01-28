@@ -3,17 +3,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include <stdio.h>
 #include <ctype.h>
 
 #include "wick_basic.h"
 
-#define CTXT_T int
-/* This may later be made a filemacro arg. */
+struct delegate {
+	void (* func)( void * data );
+	void * data;
+};
 
-#define CTXT_NAME context
-#define CTXT_ARG , CTXT_T CTXT_NAME
+typedef struct delegate delegate;
+
+void invoke ( delegate d ) {
+	assert( d.func );
+	d.func( d.data );
+}
+
+uint32_t w_hash ( char * str, size_t len ) {
+	const uint32_t fnv_prime = 16777619;
+	switch(len) {
+		case 0:
+			return len;
+		case 1:
+			return *str;
+		case 2:
+			return (((*str << 3) ^ *(str+1)) + len) * fnv_prime;
+		case 3:
+			return fnv_prime * (((*str << 8) ^ (*(str+1) << 3) ^ *(str+2)) + len);
+		default:
+			return ((*(str+1) << 3) ^ len ^ (*str >> 3)) ^ 
+				(fnv_prime * ((* (uint32_t *) (str + len - 4)) ^ ( * (uint16_t *) (str + (len / 2) )))) ;
+	}
+}
 
 struct str {
 	char * start;
@@ -39,157 +63,69 @@ size_t print_strln( str s ) {
 	return e;
 }
 
-struct matcher;
+bool str_equalp( str a, str b ) {
+	return str_len( a ) == str_len( b ) && ! memcmp( a.start, b.start, str_len( a ) );
+}
 
-struct continuation {
-	struct matcher * host;
-	/* This struct has extra space allocated. */
+struct token {
+	uint32_t id;
+	str text;
 };
 
-typedef struct continuation continuation;
+typedef struct token token;
 
-struct parse_result {
-	int type;
-	str part;
-	void * continuation;
+bool token_equal( token * a, token * b ) {
+	assert( a && b );
+	return str_equalp( a->text, b->text ) && a->id == b->id;
 };
 
-typedef struct parse_result parse_result;
+typedef uint32_t hash_t;
 
-str new_str( char * p ) {
-	str s;
-	s.start = p;
-	s.past_end = p + strlen(p);
-	return s;
+hash_t token_hash( token * a ) {
+	return w_hash( a->text, str_len( a->text ) ) ^ a->id;
 }
 
-struct {
-	int no;
-	int yes;
-	int error;
-	int abort;
-} parse_result_types = {0, 1, 2, 3};
-
-struct matcher {
-	parse_result (* run)( struct matcher * vself, const str in );
-	parse_result (* resume)( struct matcher * vself, continuation * con );
-	bool (* insert_child)( struct matcher * vself, struct matcher * child ); /* Returns true on success. */
-	/* This struct has extra space allocated. */
+struct token_table {
+	size_t size;
+	uint32_t mask
+	token ** data;
 };
 
-typedef struct matcher matcher;
+typedef struct token_table token_table;
 
-parse_result run_matcher( matcher * m, const str in ) {
-	return m->run( m, in );
-}
+const size_t token_table_starting_size = 1024;
 
-bool insert_child ( matcher * parent, matcher * child ) {
-	if ( parent && child && parent->insert_child ) {
-		return parent->insert_child( parent, child );
-	} else {
-		return false;
+uint32_t mask_of_pow2( uint32_t val ) {
+	uint32_t result = 1;
+	while ( val > 2 ) {
+		result = result << 1 | result;
+		val = val / 2;
 	}
+	return result;
 }
 
-parse_result resume_match( matcher * m, continuation * con ) {
-	if ( ! con || ! m || ! m->resume || con->host != m ) {
-		return (parse_result){ parse_result_types.error, { 0, 0 }, 0 };
-	} else {
-		return m->resume( m, con );
+void init_token_table( token_table * self, delegate error ) {
+	assert( self );
+	self->mask = mask_of_pow2( token_table_starting_size );
+	self->size = token_table_starting_size;
+	self->data = (token **) malloc( token_table_starting_size * sizeof( token * ) );
+	if ( ! self->data ) {
+		invoke(error);
 	}
-}
-
-struct str_matcher {
-	matcher base;
-	str to_match;
-	uint64_t len;
 };
 
-typedef struct str_matcher str_matcher;
-
-parse_result str_matcher_method( matcher * vself, const str in ) {
-	str_matcher * self = (str_matcher *) vself;
-	if ( str_len( in ) < self->len ) {
-		return (parse_result){parse_result_types.no, in, 0};
-	}
-	if ( ! memcmp( in.start, self->to_match.start, self->len ) ) {
-		/* Equal strings. */
-		return (parse_result){parse_result_types.yes, {in.start, in.start + self->len}, 0};
-	}
-	return (parse_result){parse_result_types.no, in, 0};
-}
-
-matcher * new_str_matcher( str to_match ) {
-	str_matcher * m = malloc( sizeof( str_matcher ) );
-	if ( m ) {
-		m->len = str_len( to_match );
-		m->base.run = str_matcher_method;
-		m->to_match = to_match;
-	}
-	return (matcher *) m;
-}
-
-matcher * new_cstr_matcher( char * string_literal ) {
-	return new_str_matcher( new_str( string_literal ) );
-}
-
-struct or_matcher {
-	matcher base;
-	size_t child_count;
-	matcher ** children;
-};
-
-typedef struct or_matcher or_matcher;
-
-struct or_continuation {
-	continuation base;
-	str input;
-	size_t current_index;
-	continuation * current_continuation;
-	continuation ** child_continuations;
-};
-
-typedef struct or_continuation or_continuation;
-
-parse_result resume_or_matcher( matcher * vself, continuation * vcon ) {
-	or_continuation * con = (or_continuation *) vcon;
-	or_matcher * self = (or_matcher *) vself;
-	continuation * cc = con->current_continuation;
-	parse_result res;
-	for ( int i = con->current_index; i < self->child_count; i++ ) {
-		if ( cc ) {
-			res = resume_match( self->children[i], cc );
-			cc = NULL;
-		} else {
-			res = run_matcher( self->children[i], con->input );
-		}
-		if ( res.type == parse_result_types.yes ) {
-			or_continuation * c = (or_continuation *) malloc( sizeof( or_continuation ) );
-			c->base.host = vself;
-			c->current_index = i;
-			c->current_continuation = res.continuation;
-			res.continuation = c;
-			return res;
-		}
-	}
-	return (parse_result){parse_result_types.no, con->input, 0};
-}
-
-parse_result run_or_matcher( matcher * vself, const str in ) {
-	or_continuation c;
-	c.base.host = vself;
-	c.input = in;
-	c.current_index = 0;
-	c.current_continuation = 0;
-	return resume_or_matcher( vself, (continuation *) &c );
+/* 
+ * Finds a token in the table. If the token is not found, then a (deep) copy
+ * of it is inserted. Returns the token (inserted or found).
+ */
+token * token_table_get( token t ) {
+	hash_t 
 }
 
 const void * end_args = (void *) ~ (intptr_t)0;
-/* Largest possible pointer value. Should be portable to all pointer sizes, even 128 bits.
- * malloc can't put a allocation there, since there's not enough room (and it's not aligned).
- * We can't just use NULL here because an allocation could fail, returning NULL.
- * It might fail if the target has unsigned integer arithmetic where 'all bits set' is not the maximum value.
- * It might be worth noting that this is probably also in kernel memory space.
+/* Unaligned pointer value at end of memory space (probably in kernel space).
+ * Used to indicate the last argument in a variable argument list of pointers
+ * where NULL would indicate allocation failure.
  */
 
 size_t round_up_power_2( size_t to_round ) {
@@ -204,216 +140,130 @@ bool is_power_2( size_t input ) {
 	return ! ( input & (input - 1));
 }
 
-matcher ** matcher_va_alloc_array( size_t index, va_list lst, size_t * total ) {
-	matcher * m = va_arg(lst, matcher *);
-	matcher ** allocated_block = NULL;
-	if ( ! m ) {
-		return NULL;
-	}
-	if ( m == end_args ) {
-		*total = index;
-		/*printf( "index: %zd\n", *total);*/
-		allocated_block = malloc( round_up_power_2( (sizeof( matcher * ) * index) ) );
-	} else {
-		allocated_block = matcher_va_alloc_array( index + 1, lst, total );
-		if ( allocated_block ) {
-			/*printf("writing: %p at %p", &allocated_block[index], m);*/
-			allocated_block[index] = m;
-		} 
-		/*else {*/
-			/*printf("wtf");*/
-		/*}*/
-	}
-	return allocated_block;
-}
 
-bool or_matcher_insert_child( matcher * vself, matcher * child ) {
-	or_matcher * self = (or_matcher *) vself;
-	if ( is_power_2( self->child_count ) ) {
-		/* Re-allocation needed. */
-		/*printf( "Reallocating!\n" );*/
-		matcher ** new_array = (matcher **) malloc( sizeof( matcher * ) * self->child_count * 2 );
-		/*printf( "new_array = %p\n", new_array );*/
-		if ( ! new_array ) {
-			return false;
-		} else {
-			memcpy( new_array, self->children, sizeof( matcher * ) * self->child_count );
-			free( self->children );
-			self->children = new_array;
-		}
-	}
-	/*printf( "Inserting!\n" );*/
-	self->children[self->child_count] = child;
-	++self->child_count;
-	/*printf("Done inserting!\n");*/
-	return true;
-}
+struct parser;
 
-matcher * new_or_matcher ( matcher * first, ... ) {
-	va_list lst;
-	va_start( lst, first );
-	or_matcher * m = (or_matcher *) malloc( sizeof( or_matcher ) );
-	if ( m ) {
-		m->children = matcher_va_alloc_array( 1, lst, &m->child_count );
-		m->base.run = run_or_matcher;
-		m->base.resume = resume_or_matcher;
-		m->base.insert_child = or_matcher_insert_child;
-	}
-	if ( ! m->children ) {
-		free( m );
-	} else {
-		m->children[0] = first;
-	}
-	va_end( lst );
-	return (matcher *) m;
-}
+typedef struct parser parser;
 
-struct seq_matcher {
-	matcher base;
-	size_t child_count;
-	matcher ** children;
+typedef void (parser_method) ( parser * self );
+
+struct array {
+	size_t space;
+	size_t count;
+	void * data;
 };
 
-typedef struct seq_matcher seq_matcher;
+typedef struct array array;
 
-struct seq_continuation {
-	continuation base;
-	str input;
-	str current_input;
+struct parser_component {
+	parser_method * func;
+	void * data;
 };
 
-parse_result run_seq_matcher( matcher * vself, const str in ) {
-	seq_matcher * self = (seq_matcher *) vself;
-	str sub_in = in;
-	parse_result res;
-	/*str sub_out;*/
-	for (int i = 0; i < self->child_count; i++) {
-		res = run_matcher( self->children[i], sub_in );
-		/*printf( "seq res: %d\n", res );*/
-		if ( res.type != parse_result_types.yes ) {
-			return res;
-		} else {
-			sub_in.start = res.part.past_end;
-			/*printf( "submatch: " );*/
-			/*print_strln( sub_out );*/
-			/*sub_in.start = sub_out.past_end;*/
+typedef struct parser_component parser_component;
+
+struct parser_components {
+	size_t space;
+	size_t count;
+	size_t index;
+	parser_component * array;
+};
+
+typedef struct parser_components parser_components;
+
+struct token_array {
+	size_t space;
+	size_t count;
+	size_t index;
+	token ** tokens;
+};
+
+typedef struct token_array token_array;
+
+struct parser {
+	str current;
+	char * progress;
+	parser_components reactors;
+	parser_components lexers;
+	token_array tokens;
+	int error;
+};
+
+const struct {
+	const int none;
+	const int alloc;
+} parser_errors = { 0, 1 };
+
+void array_insert( array * a, void * elem, size_t elem_size, delegate error ) {
+	assert( a && elem && error.func );
+	if ( a->count == a->space ) {
+		size_t new_size = a->count * 2;
+		void * new_data = malloc( elem_size * new_size );
+		if ( ! new_data ) {
+			invoke( error );
+			return;
 		}
+		memcpy( new_data, a->data, elem_size * a->count );
+		free( a->data );
+		a->data = new_data;
+		a->space = new_size;
 	}
-	/*out->start = in.start;*/
-	/*out->past_end = sub_out.past_end;*/
-	/*printf( "out: " );*/
-	/*fflush( stdout );*/
-	/*print_strln( *out );*/
-	return (parse_result){parse_result_types.yes, {in.start, res.part.past_end}, 0};
+	memcpy( (void *) (elem_size * a->count++ + (char *) a->data), elem, elem_size );
 }
 
-matcher * new_seq_matcher( matcher * first, ... ) {
-	va_list lst;
-	va_start( lst, first );
-	seq_matcher * m = (seq_matcher *) malloc( sizeof( seq_matcher ) );
-	if ( m ) {
-		m->children = matcher_va_alloc_array( 1, lst, &m->child_count );
-		m->base.run = run_seq_matcher;
+void array_init( array * self, size_t elem_size, size_t elem_count, delegate error ) {
+	assert( self );
+	self->count = 0;
+	self->space = 0;
+	self->data = malloc( elem_size * elem_count );
+	if ( ! self->data ) {
+		invoke( error );
 	}
-	if ( ! m->children ) {
-		free( m );
-	} else {
-		m->children[0] = first;
-	}
-	va_end( lst );
-	return (matcher *) m;
 }
 
-#define NAME whitespace
-#define COND( c ) \
-	(c == ' ' || c == '\t')
-#include "def_char_matcher.c"
-
-#define NAME newline
-#define COND( c ) \
-	(c == '\n' || c == '\r')
-#include "def_char_matcher.c"
-
-#define NAME alpha
-#define COND( c ) \
-	(isalpha( c ))
-#include "def_char_matcher.c"
-
-#define NAME alphanum
-#define COND( c ) \
-	(isalnum( c ))
-#include "def_char_matcher.c"
-
-#define NAME ident_start
-#define COND( c ) \
-	(isalpha( c ) || c == '_')
-#include "def_char_matcher.c"
-
-#define NAME ident_inner
-#define COND( c ) \
-	(isalnum( c ) || c == '_')
-#include "def_char_matcher.c"
-
-matcher * new_identifier_matcher() {
-	return new_seq_matcher(
-			new_ident_start_matcher(),
-			new_ident_inner_matcher(),
-			end_args
-			);
+void array_free( array * self ) {
+	free( self->data );
 }
 
-void print_result( parse_result res ) {
-	char * r = "unknown match";
-	switch ( res.type ) {
-		case 0:
-			r = "no";
-			break;
-		case 1:
-			r = "yes";
-			break;
-		case 2:
-			r = "error";
-			break;
-		case 3:
-			r = "abort";
-			break;
-	}
-	printf( "--------------------------------------------------------------------------------\n" );
-	printf( "%s match\n", r );
-	printf( "string = \"" );
-	print_str( res.part );
-	printf( "\"\n" );
-	printf( "continuation: %p\n", res.continuation );
-} 
+void alloc_error( void * vparser ) {
+	parser * p = (parser *) vparser;
+	p->error = parser_errors.alloc;
+}
 
-void test_matcher( matcher * m, char * s ) {
-	/*str out;*/
-	print_result( run_matcher( m, new_str( s ) ) );
+void insert_reactor( parser * self, parser_component * reactor ) {
+	assert( self && reactor );
+	if ( ! self->error ) {
+		array_insert( (array *) &self->reactors, (void *) reactor, sizeof(parser_component), (delegate) { alloc_error, (void *) self } );
+	}
+}
+
+void skip_whitespace ( parser * self ) {
+	assert( self->current.start <= self->progress && self->progress < self->current.past_end );
+	while ( self->progress < self->current.past_end && isspace( *self->progress ) ) {
+		++self->progress;
+	}
+}
+
+void init_parser( parser * self ) {
+	assert( self );
+	size_t num_elems = 8;
+	self->error = parser_errors.none;
+	delegate alloc_error_d = { .func = alloc_error, .data = (void *) self};
+	array_init( (array *) &self->reactors, sizeof(parser_component), num_elems, alloc_error_d );
+	array_init( (array *) &self->lexers, sizeof(parser_component), num_elems, alloc_error_d );
+	array_init( (array *) &self->tokens, sizeof(token), 64, alloc_error_d );
+	if ( self->error == parser_errors.alloc ) {
+		array_free( (array *) &self->reactors );
+		array_free( (array *) &self->lexers );
+		array_free( (array *) &self->tokens );
+	}
 }
 
 int main(int argv, char * argc[]) {
-	/*printf( "%zd\n", round_up_power_2( 25 ) );*/
-	matcher * greetings = new_or_matcher(
-		new_cstr_matcher( "Hello" ),
-		new_cstr_matcher( "Goodbye" ),
-		end_args
-		);
-	matcher * hello_world = new_seq_matcher(
-		greetings,
-		new_str_matcher( new_str( " " ) ),
-		new_str_matcher( new_str( "World!" ) ),
-		end_args
-		);
-	matcher * identifier = new_identifier_matcher();
-	test_matcher( new_cstr_matcher("Hello World!"), "Hello World!" );
-	test_matcher( greetings, "Hello Wordl!" );
-	test_matcher( hello_world, "Hello World!" );
-	test_matcher( hello_world, "Goodbye World!" );
-	test_matcher( identifier, "Goodbye World!" );
-	test_matcher( hello_world, "Goodbye Forever World!" );
-	test_matcher( hello_world, "Yo World!" );
-	insert_child( greetings, new_cstr_matcher( "Yo" ) );
-	test_matcher( hello_world, "Yo World!" );
+	printf( "%ld\n", sizeof( parser ) );
+	parser p;
+	init_parser( &p );
+	insert_reactor( &p, &(parser_component){ &skip_whitespace, 0 } );
 	/* if(argv != 2) { */
 	/* 	fprintf(stderr, */
 	/* 	        "Incorrect usage:\n" */
