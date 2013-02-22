@@ -13,10 +13,10 @@ int print_int_i(FILE *stream, int_i * i) {
 }
 
 
-#define _LIST_T_ int_i
-#define _LIST_INTRUSIVE_
-#define _LIST_BIDIRECTIONAL_
-#define _LIST_ITEM_PRINT_FUNC_ print_int_i
+#define list_t int_i
+#define list_intrusive
+#define list_bidirectional
+#define list_item_print_func print_int_i
 #include "def_list.c"
 
 int main() {

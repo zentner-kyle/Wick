@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "def_list.h"
-#define _LIST_T_ int
-#define _LIST_BIDIRECTIONAL_
+#define list_t int
+#define list_bidirectional
 #include "def_list.c"
 
 int main() {

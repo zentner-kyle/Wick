@@ -31,153 +31,153 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* These arguments are relatively shared somewhat with array and other sequences. */
 
-#ifndef _LIST_PREFIX_
-  #define _LIST_PREFIX_ _LIST_T_
+#ifndef list_prefix
+  #define list_prefix list_t
 #endif
 /* Example: int */
 
-#ifndef _LIST_POSTFIX_
-  #define _LIST_POSTFIX_ _list
+#ifndef list_postfix
+  #define list_postfix _list
 #endif
 
-#define _LIST_LONG_PREFIX_ C_TOKEN_JOIN(_LIST_PREFIX_, _LIST_POSTFIX_)
+#define list_long_prefix macro_join( list_prefix, list_postfix )
 /* Example: int_list */
 
-#ifndef _LIST_ALLOC_
-  #define _LIST_ALLOC_(_bytecount_) malloc(_bytecount_)
+#ifndef list_alloc
+  #define list_alloc( bytecount ) malloc( bytecount )
 #endif
 
-#ifndef _LIST_FREE_
-  #define _LIST_FREE_(_elem_) free(_elem_)
+#ifndef list_free
+  #define list_free( elem ) free( elem )
 #endif
 
-#ifndef _LIST_ELEM_MOVE_
+#ifndef list_elem_move
   /* Only used in insertion on a *copying* list and in build. */
-  #define _LIST_ELEM_MOVE_(_target_, _source_) *(_target_) = *(_source_)
+  #define list_elem_move( target, source ) *( target ) = *( source )
 #endif
 
 /* Used inside this file to define and access public list functions. */
-#define LIST_FUNC(_func_postfix_) C_TOKEN_JOIN(_LIST_LONG_PREFIX_, _func_postfix_)
+#define method( name ) macro_join( list_long_prefix, macro_join( _, name ) )
 
 /* Used inside this file to define and access private list functions. */
-#define P_LIST_FUNC(_func_postfix_) C_TOKEN_JOIN(_, C_TOKEN_JOIN(_LIST_LONG_PREFIX_, _func_postfix_))
+#define p_method( name ) macro_join( macro_join( macro_join( private, _ ), list_long_prefix ), macro_join( _, name ) )
 
-#ifndef _LIST_ERROR_FUNC_
-  void P_LIST_FUNC(_error_func)(char *msg) {
-    printf("Error in " C_MACRO2STRING(_LIST_LONG_PREFIX_) ": %s\n", msg);
+#ifndef list_error_func
+  void p_method( error_func )( char *msg ) {
+		printf("Error in " macro_to_string( list_long_prefix ) ": %s\n", msg );
   }
-  #define _LIST_ERROR_FUNC_ P_LIST_FUNC(_error_func)
+  #define list_error_func p_method( error_func )
 #endif
 
-#ifndef _LIST_ITERATOR_T_
-  #define _LIST_ITERATOR_T_ C_TOKEN_JOIN(_LIST_LONG_PREFIX_, _iterator)
+#ifndef list_iterator_t
+  #define list_iterator_t macro_join( list_long_prefix, macro_join( _, iterator ) )
 #endif
 
 
 /* List specific arguments. */
 
-#ifdef _LIST_BIDIRECTIONAL_
-  #ifndef _LIST_PREV_NAME_
-    #define _LIST_PREV_NAME_ prev
+#ifdef list_bidirectional
+  #ifndef list_prev_name
+    #define list_prev_name prev
   #endif
 #endif
 
-#ifndef _LIST_ALLOC_CELL_
-  #define _LIST_ALLOC_CELL_ _LIST_ALLOC_
+#ifndef list_alloc_cell
+  #define list_alloc_cell list_alloc
 #endif
 
-#ifndef _LIST_FREE_CELL_
-  #define _LIST_FREE_CELL_ _LIST_FREE_
+#ifndef list_free_cell
+  #define list_free_cell list_free
 #endif
 
-#ifndef _LIST_ALLOC_HANDLE_
-  #define _LIST_ALLOC_HANDLE_ _LIST_ALLOC_
+#ifndef list_alloc_handle
+  #define list_alloc_handle list_alloc
 #endif
 
-#ifndef _LIST_FREE_HANDLE_
-  #define _LIST_FREE_HANDLE_(_to_free_) _LIST_FREE_(_to_free_)
+#ifndef list_free_handle
+  #define list_free_handle( to_free ) list_free( to_free )
 #endif
 
-#ifndef _LIST_ELEM_NAME_
-#define _LIST_ELEM_NAME_ element
+#ifndef list_elem_name
+#define list_elem_name element
 #endif
 
-#ifndef _LIST_NEXT_NAME_
-#define _LIST_NEXT_NAME_ next
+#ifndef list_next_name
+#define list_next_name next
 #endif
 
-#ifdef _LIST_ERROR_CHECKS_
-  #define _LIST_MEM_CHECK_(_memory_check_expr_) WICK_MEM_CHECK(_memory_check_expr_)
+#ifdef list_error_checks
+  #define list_mem_check( memory_check_expr ) wick_mem_check( memory_check_expr )
 #else
-  #define _LIST_MEM_CHECK_(_memory_check_expr_) IGNORE_RETURN(_memory_check_expr_)
+  #define list_mem_check( memory_check_expr ) ignore_return( memory_check_expr )
 #endif
 
 
 /* List / cons cell type. */
 
-#ifdef _LIST_INTRUSIVE_
-  #define _LIST_CELL_T_ _LIST_T_
-  #define _LIST_CELL_TO_ELEM_(_cell_) (_cell_)
+#ifdef list_intrusive
+  #define list_cell_t list_t
+  #define list_cell_to_elem( cell ) ( cell )
 #else
-  #define _LIST_CELL_TO_ELEM_(_cell_) ((_cell_)->_LIST_ELEM_NAME_)
+  #define list_cell_to_elem( cell ) ( ( cell )->list_elem_name )
 #endif
 
-#ifdef _LIST_USE_HANDLE_
-  /*  Make the name of the handle _LIST_LONG_PREFIX_.
+#ifdef list_use_handle
+  /*  Make the name of the handle list_long_prefix.
    *  For example, int_list.
    *  This requires the cell type to have a different name.
    *  For example, int_list_cell.
    */
-  #ifndef _LIST_CELL_T_
-    #define _LIST_CELL_T_ C_TOKEN_JOIN(_LIST_LONG_PREFIX_, _cell)
-    #define _LIST_DEFINE_CELL_T_
+  #ifndef list_cell_t
+    #define list_cell_t macro_join( list_long_prefix, _cell )
+    #define list_define_cell_t
   #endif
-  #ifndef _LIST_HANDLE_T_
-    #define _LIST_HANDLE_T_ _LIST_LONG_PREFIX_
-    #define _LIST_DEFINE_HANDLE_T_
+  #ifndef list_handle_t
+    #define list_handle_t list_long_prefix
+    #define list_define_handle_t
   #endif
-  #ifndef _LIST_HANDLE_CELL_NAME_
-    #define _LIST_HANDLE_CELL_NAME_ first_cell
+  #ifndef list_handle_cell_name
+    #define list_handle_cell_name first_cell
   #endif
-      /* *_LIST_HANDLE_T_ --> *_LIST_CELL_T_ */
-  #define _LIST_HANDLE_TO_CELL_(_handle_name_) ((_handle_name_)->_LIST_HANDLE_CELL_NAME_)
+      /* *list_handle_t --> *list_cell_t */
+  #define list_handle_to_cell( handle_name ) ( ( handle_name )->list_handle_cell_name )
 #else
-  /*  No handle, make _LIST_CELL_T_ have the name _LIST_LONG_PREFIX_.
-   *  With no handles, _LIST_HANDLE_T_ == _LIST_CELL_T_.
+  /*  No handle, make list_cell_t have the name list_long_prefix.
+   *  With no handles, list_handle_t == list_cell_t.
    *  This makes the function definitions sane.
    */
-  #ifndef _LIST_CELL_T_
-    #define _LIST_CELL_T_ _LIST_LONG_PREFIX_
-    #define _LIST_DEFINE_CELL_T_
+  #ifndef list_cell_t
+    #define list_cell_t list_long_prefix
+    #define list_define_cell_t
   #endif
-  #define _LIST_HANDLE_T_ _LIST_CELL_T_
-  #define _LIST_HANDLE_TO_CELL_(_handle_name_) (_handle_name_)
+  #define list_handle_t list_cell_t
+  #define list_handle_to_cell( handle_name ) ( handle_name )
 #endif
 
-#ifndef _LIST_INTRUSIVE_
-  #ifdef _LIST_DEFINE_CELL_T_
+#ifndef list_intrusive
+  #ifdef list_define_cell_t
   /*  The list cell type needs to be defined if it hasn't been by the user,
-   *  which would be indicated by them defining _LIST_CELL_T_.
+   *  which would be indicated by them defining list_cell_t.
    *  However, it doesn't need to be defined if the list is instrusive.
    */
-    struct _LIST_CELL_T_ {
-      _LIST_T_ *_LIST_ELEM_NAME_;
-      struct _LIST_CELL_T_ *_LIST_NEXT_NAME_;
-      #ifdef _LIST_BIDIRECTIONAL_
-        struct _LIST_CELL_T_ *_LIST_PREV_NAME_;
+    struct list_cell_t {
+      list_t *list_elem_name;
+      struct list_cell_t *list_next_name;
+      #ifdef list_bidirectional
+        struct list_cell_t *list_prev_name;
       #endif
     };
 
-    typedef struct _LIST_CELL_T_ _LIST_CELL_T_;
+    typedef struct list_cell_t list_cell_t;
   #endif
 #endif
 
-#ifdef _LIST_DEFINE_HANDLE_T_
-  struct _LIST_HANDLE_T_ {
-    _LIST_CELL_T_ * _LIST_HANDLE_CELL_NAME_;
+#ifdef list_define_handle_t
+  struct list_handle_t {
+    list_cell_t * list_handle_cell_name;
   };
 
-  typedef struct _LIST_HANDLE_T_ _LIST_HANDLE_T_;
+  typedef struct list_handle_t list_handle_t;
 #endif
 
 /*  Iterators are more general, high-level mechanisms.
@@ -185,27 +185,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  As such, there is no interface for customizing their internals.
  */
 
-struct _LIST_ITERATOR_T_ {
-  _LIST_CELL_T_ * cell;
+struct list_iterator_t {
+  list_cell_t * cell;
 };
 
-typedef struct _LIST_ITERATOR_T_ _LIST_ITERATOR_T_;
+typedef struct list_iterator_t list_iterator_t;
 
 
 /* Low level list functions. */
 
-wick_error P_LIST_FUNC(_alloc)(_LIST_CELL_T_ **out_to_store) {
+error_number p_method( alloc )( list_cell_t **out_to_store ) {
   /* Allocates and nulls the pointers in just one cell. */
-  _LIST_CELL_T_ *new_cell = _LIST_ALLOC_CELL_(sizeof(_LIST_CELL_T_));
-  if(!new_cell) {
+  list_cell_t *new_cell = list_alloc_cell( sizeof( list_cell_t ) );
+  if( !new_cell ) {
     return WICK_ALLOC_ERROR;
   }
-  new_cell->_LIST_NEXT_NAME_ = NULL;
-  #ifndef _LIST_INTRUSIVE_
-    new_cell->_LIST_ELEM_NAME_ = NULL;
+  new_cell->list_next_name = NULL;
+  #ifndef list_intrusive
+    new_cell->list_elem_name = NULL;
   #endif
-  #ifdef _LIST_BIDIRECTIONAL_
-    new_cell->_LIST_PREV_NAME_ = NULL;
+  #ifdef list_bidirectional
+    new_cell->list_prev_name = NULL;
   #endif
   *out_to_store = new_cell;
   return WICK_SUCCESS;
@@ -213,43 +213,43 @@ wick_error P_LIST_FUNC(_alloc)(_LIST_CELL_T_ **out_to_store) {
 
 /* Connects two cells together.
    Also handles connecting to null for the beginning and end. */
-void P_LIST_FUNC(_connect)(_LIST_CELL_T_ *a, _LIST_CELL_T_ *b) {
-  if (a && b) {
-    a->_LIST_NEXT_NAME_ = b;
-    #ifdef _LIST_BIDIRECTIONAL_
-      b->_LIST_PREV_NAME_ = a;
+void p_method( connect )( list_cell_t *a, list_cell_t *b ) {
+  if ( a && b ) {
+    a->list_next_name = b;
+    #ifdef list_bidirectional
+      b->list_prev_name = a;
     #endif
-  } else if (a) {
-    a->_LIST_NEXT_NAME_ = NULL;
+  } else if ( a ) {
+    a->list_next_name = NULL;
   }
-  #ifdef _LIST_BIDIRECTIONAL_
-    else if (b) {
-      b->_LIST_PREV_NAME_ = NULL;
+  #ifdef list_bidirectional
+    else if ( b ) {
+      b->list_prev_name = NULL;
     }
   #endif
 }
 
-void P_LIST_FUNC(_free_from_cell)(_LIST_CELL_T_ *to_free);
+void p_method( free_from_cell )( list_cell_t *to_free );
 
 /* Allocates either both a cell and room for an elem, or neither. */
-wick_error P_LIST_FUNC(_parallel_alloc)
-                (_LIST_T_ ** elem_to_alloc, _LIST_CELL_T_ ** cell_to_alloc) {
-  _LIST_T_ * alloced_elem = _LIST_ALLOC_(sizeof(_LIST_T_));
-  _LIST_CELL_T_ * alloced_cell;
-  wick_error err = P_LIST_FUNC(_alloc)(&alloced_cell);
-  if (err != WICK_SUCCESS || !alloced_elem) {
+error_number p_method( parallel_alloc )
+                ( list_t ** elem_to_alloc, list_cell_t ** cell_to_alloc ) {
+  list_t * alloced_elem = list_alloc( sizeof( list_t ) );
+  list_cell_t * alloced_cell;
+  error_number err = p_method( alloc )( &alloced_cell );
+  if ( err != WICK_SUCCESS || !alloced_elem ) {
     /* One allocation failed, but which one? */
-    if (err != WICK_SUCCESS && !alloced_elem) {
+    if ( err != WICK_SUCCESS && !alloced_elem ) {
       /* Both failed, undo neither. */
       return WICK_ALLOC_ERROR;
     }
-    if (err != WICK_SUCCESS) {
+    if ( err != WICK_SUCCESS ) {
       /* The cell allocation failed, undo the elem allocation. */
-      _LIST_FREE_(alloced_elem);
+      list_free( alloced_elem );
       return WICK_ALLOC_ERROR;
     }
-    if (!alloced_elem) {
-      P_LIST_FUNC(_free_from_cell)(alloced_cell);
+    if ( !alloced_elem ) {
+      p_method( free_from_cell )( alloced_cell );
       return WICK_ALLOC_ERROR;
     }
   }
@@ -261,39 +261,39 @@ wick_error P_LIST_FUNC(_parallel_alloc)
 /*  Manages allocating all the memory needed for inserting a new elem,
  *  which is none in the case of intrusive lists.
  *  Also copies the element over into a freshly allocated elem space,
- *  unless the list is non-copying (_LIST_NO_COPY_ELEMS_ is defined).
+ *  unless the list is non-copying ( list_no_copy_elems is defined ).
  */
-wick_error P_LIST_FUNC(_new_cell)(_LIST_T_ * element,
-                                _LIST_CELL_T_ ** cell) {
-  #ifdef _LIST_INTRUSIVE_
+error_number p_method( new_cell )( list_t * element,
+                                list_cell_t ** cell ) {
+  #ifdef list_intrusive
     /* No allocation necessary, since the element is the cell.
      * Note that this is not a move, intrusive lists never copy.
      * Instead, the pointer is used.
      */
     *cell = element;
   #else
-    #ifdef _LIST_NO_COPY_ELEMS_
-      WICK_THROW(P_LIST_FUNC(_alloc)(cell));
-      (*cell)->_LIST_ELEM_NAME_ = element;
+    #ifdef list_no_copy_elems
+      WICK_THROW( p_method( alloc )( cell ) );
+      ( *cell )->list_elem_name = element;
     #else
-      _LIST_T_ * new_element;
-      WICK_THROW(P_LIST_FUNC(_parallel_alloc)(&new_element, cell));
-      _LIST_ELEM_MOVE_(new_element, element);
-      (*cell)->_LIST_ELEM_NAME_ = new_element;
+      list_t * new_element;
+      WICK_THROW( p_method( parallel_alloc )( &new_element, cell ) );
+      list_elem_move( new_element, element );
+      ( *cell )->list_elem_name = new_element;
     #endif
   #endif
   return WICK_SUCCESS;
 }
 
 /*  Sets an iterator to the last position in the list.
- *  Note: O(n) performance, clearly.
+ *  Note: O( n ) performance, clearly.
  */
-void LIST_FUNC(_end)(_LIST_HANDLE_T_ * list, _LIST_ITERATOR_T_ *iter) {
-  _LIST_MEM_CHECK_(iter);
-  _LIST_CELL_T_ * cell = _LIST_HANDLE_TO_CELL_(list);
-  if (cell) {
-    while (cell->_LIST_NEXT_NAME_) {
-      cell = cell->_LIST_NEXT_NAME_;
+void method( end )( list_handle_t * list, list_iterator_t *iter ) {
+  list_mem_check( iter );
+  list_cell_t * cell = list_handle_to_cell( list );
+  if ( cell ) {
+    while ( cell->list_next_name ) {
+      cell = cell->list_next_name;
     }
   }
   iter->cell = cell;
@@ -302,75 +302,75 @@ void LIST_FUNC(_end)(_LIST_HANDLE_T_ * list, _LIST_ITERATOR_T_ *iter) {
 /* High level sequence functions. */
 
 /* Pushes a new elem onto the *front* of the list. */
-wick_error LIST_FUNC(_push)(_LIST_HANDLE_T_ **lst, _LIST_T_ *elem) {
-  _LIST_MEM_CHECK_(elem && lst && *lst);
-  _LIST_CELL_T_ * old_cell = _LIST_HANDLE_TO_CELL_(*lst);
-  WICK_THROW(P_LIST_FUNC(_new_cell)(elem, &(_LIST_HANDLE_TO_CELL_(*lst))));
-  P_LIST_FUNC(_connect)(_LIST_HANDLE_TO_CELL_(*lst), old_cell);
+error_number method( push )( list_handle_t **lst, list_t *elem ) {
+  list_mem_check( elem && lst && *lst );
+  list_cell_t * old_cell = list_handle_to_cell( *lst );
+  WICK_THROW( p_method( new_cell )( elem, &( list_handle_to_cell( *lst ) )) );
+  p_method( connect )( list_handle_to_cell( *lst ), old_cell );
   return WICK_SUCCESS;
 }
 
 /* Pops an elem off the *front* of the list. */
-void LIST_FUNC(_pop)(_LIST_HANDLE_T_ **lst, _LIST_T_ **elem) {
-  _LIST_MEM_CHECK_(elem && lst && *lst);
-  /* *elem = _LIST_HANDLE_TO_CELL_(*lst)->_LIST_ELEM_NAME_; */
-  *elem = _LIST_CELL_TO_ELEM_(_LIST_HANDLE_TO_CELL_(*lst));
-  _LIST_CELL_T_ *next = _LIST_HANDLE_TO_CELL_(*lst)->_LIST_NEXT_NAME_;
-  _LIST_FREE_CELL_(_LIST_HANDLE_TO_CELL_(*lst));
-  #ifdef _LIST_BIDIRECTIONAL_
-    next->_LIST_PREV_NAME_ = NULL;
+void method( pop )( list_handle_t **lst, list_t **elem ) {
+  list_mem_check( elem && lst && *lst );
+  /* *elem = list_handle_to_cell( *lst )->list_elem_name; */
+  *elem = list_cell_to_elem( list_handle_to_cell( *lst ) );
+  list_cell_t *next = list_handle_to_cell( *lst )->list_next_name;
+  list_free_cell( list_handle_to_cell( *lst ) );
+  #ifdef list_bidirectional
+    next->list_prev_name = NULL;
   #endif
-  _LIST_HANDLE_TO_CELL_(*lst) = next;
+  list_handle_to_cell( *lst ) = next;
 }
 
 /* Pushes a new elem onto the *end* of the list.
- * Note: O(n) performance, clearly.
+ * Note: O( n ) performance, clearly.
  */
-wick_error LIST_FUNC(_append)(_LIST_HANDLE_T_ **lst, _LIST_T_ *elem) {
-  _LIST_MEM_CHECK_(elem && lst && *lst);
-  _LIST_CELL_T_ * new_cell = NULL;
-  WICK_THROW(P_LIST_FUNC(_new_cell)(elem, &new_cell));
-  _LIST_ITERATOR_T_ end;
-  LIST_FUNC(_end)(*lst, &end);
-  P_LIST_FUNC(_connect)(end.cell, new_cell);
+error_number method( append )( list_handle_t **lst, list_t *elem ) {
+  list_mem_check( elem && lst && *lst );
+  list_cell_t * new_cell = NULL;
+  WICK_THROW( p_method( new_cell )( elem, &new_cell ) );
+  list_iterator_t end;
+  method( end )( *lst, &end );
+  p_method( connect )( end.cell, new_cell );
   return WICK_SUCCESS;
 }
 
 /* Inserts a new element after a location given by an iterator.
  * Respects non-copying behavior.
  */
-wick_error LIST_FUNC(_insert_after)(_LIST_HANDLE_T_ **seq, _LIST_ITERATOR_T_ *iterator, _LIST_T_ *element) {
-  _LIST_MEM_CHECK_(iterator && element);
-  _LIST_CELL_T_ * new_cell;
-  WICK_THROW(P_LIST_FUNC(_new_cell)(element, &new_cell));
-  if (iterator->cell) {
-    _LIST_CELL_T_ *start_cell = iterator->cell;
-    P_LIST_FUNC(_connect)(new_cell, start_cell->_LIST_NEXT_NAME_);
-    P_LIST_FUNC(_connect)(start_cell, new_cell);
+error_number method( insert_after )( list_handle_t **seq, list_iterator_t *iterator, list_t *element ) {
+  list_mem_check( iterator && element );
+  list_cell_t * new_cell;
+  WICK_THROW( p_method( new_cell )( element, &new_cell ) );
+  if ( iterator->cell ) {
+    list_cell_t *start_cell = iterator->cell;
+    p_method( connect )( new_cell, start_cell->list_next_name );
+    p_method( connect )( start_cell, new_cell );
   } else {
-    _LIST_MEM_CHECK_(seq);
-    _LIST_HANDLE_TO_CELL_(*seq) = new_cell;
+    list_mem_check( seq );
+    list_handle_to_cell( *seq ) = new_cell;
     iterator->cell = new_cell;
   }
   return WICK_SUCCESS;
 }
 
-#ifdef _LIST_BIDIRECTIONAL_
+#ifdef list_bidirectional
 /* Inserts a new element before a location given by an iterator.
  * Respects non-copying behavior.
  */
-wick_error LIST_FUNC(_insert_before)(_LIST_HANDLE_T_ **seq, _LIST_ITERATOR_T_ *iterator, _LIST_T_ *element) {
-  _LIST_MEM_CHECK_(iterator && element);
-  _LIST_CELL_T_ * new_cell;
-  WICK_THROW(P_LIST_FUNC(_new_cell)(element, &new_cell));
-  if (iterator->cell) {
-    _LIST_CELL_T_ *start_cell = iterator->cell;
-    _LIST_CELL_T_ *previous_cell = iterator->cell->_LIST_PREV_NAME_;
-    P_LIST_FUNC(_connect)(new_cell, start_cell);
-    P_LIST_FUNC(_connect)(previous_cell, new_cell);
+error_number method( insert_before )( list_handle_t **seq, list_iterator_t *iterator, list_t *element ) {
+  list_mem_check( iterator && element );
+  list_cell_t * new_cell;
+  WICK_THROW( p_method( new_cell )( element, &new_cell ) );
+  if ( iterator->cell ) {
+    list_cell_t *start_cell = iterator->cell;
+    list_cell_t *previous_cell = iterator->cell->list_prev_name;
+    p_method( connect )( new_cell, start_cell );
+    p_method( connect )( previous_cell, new_cell );
   } else {
-    _LIST_MEM_CHECK_(seq);
-    _LIST_HANDLE_TO_CELL_(*seq) = new_cell;
+    list_mem_check( seq );
+    list_handle_to_cell( *seq ) = new_cell;
     iterator->cell = new_cell;
   }
   return WICK_SUCCESS;
@@ -381,47 +381,47 @@ wick_error LIST_FUNC(_insert_before)(_LIST_HANDLE_T_ **seq, _LIST_ITERATOR_T_ *i
  * Note: the argument is an actual cell, not a handle.
  * This function is used by all the remove functions to prevent bugs relating to non-copying.
  */
-void P_LIST_FUNC(_delete_cell)(_LIST_CELL_T_ * cell) {
-  #ifndef _LIST_NO_COPY_ELEMS_
-    #ifndef _LIST_INTRUSIVE_
-      _LIST_FREE_(cell->_LIST_ELEM_NAME_);
+void p_method( delete_cell )( list_cell_t * cell ) {
+  #ifndef list_no_copy_elems
+    #ifndef list_intrusive
+      list_free( cell->list_elem_name );
     #endif
   #endif
-  _LIST_FREE_CELL_(cell);
+  list_free_cell( cell );
 }
 
 /* Removes the element after a location given by an iterator.
  * Respects non-copying behavior.
  */
-void LIST_FUNC(_remove_next)(_LIST_HANDLE_T_ **seq, _LIST_ITERATOR_T_ *iterator) {
-  _LIST_MEM_CHECK_(seq && iterator && iterator->cell && iterator->cell->_LIST_NEXT_NAME_);
-  _LIST_CELL_T_ * next_cell = iterator->cell->_LIST_NEXT_NAME_;
-  P_LIST_FUNC(_connect)(iterator->cell, next_cell->_LIST_NEXT_NAME_);
-  P_LIST_FUNC(_delete_cell)(next_cell);
+void method( remove_next )( list_handle_t **seq, list_iterator_t *iterator ) {
+  list_mem_check( seq && iterator && iterator->cell && iterator->cell->list_next_name );
+  list_cell_t * next_cell = iterator->cell->list_next_name;
+  p_method( connect )( iterator->cell, next_cell->list_next_name );
+  p_method( delete_cell )( next_cell );
 }
 
-#ifdef _LIST_BIDIRECTIONAL_
+#ifdef list_bidirectional
 /* Removes the element before a location given by an iterator.
  * Respects non-copying behavior.
  */
-void LIST_FUNC(_remove_prev)(_LIST_HANDLE_T_ **seq, _LIST_ITERATOR_T_ *iterator) {
-  _LIST_MEM_CHECK_(seq && iterator && iterator->cell && iterator->cell->_LIST_PREV_NAME_);
-  _LIST_CELL_T_ * prev_cell = iterator->cell->_LIST_PREV_NAME_;
-  P_LIST_FUNC(_connect)(prev_cell->_LIST_PREV_NAME_, iterator->cell);
-  P_LIST_FUNC(_delete_cell)(prev_cell);
+void method( remove_prev )( list_handle_t **seq, list_iterator_t *iterator ) {
+  list_mem_check( seq && iterator && iterator->cell && iterator->cell->list_prev_name );
+  list_cell_t * prev_cell = iterator->cell->list_prev_name;
+  p_method( connect )( prev_cell->list_prev_name, iterator->cell );
+  p_method( delete_cell )( prev_cell );
 }
 
 /* Removes the element *at* a location given by an iterator.
  * Respects non-copying behavior.
  */
-void LIST_FUNC(_remove)(_LIST_HANDLE_T_ **seq, _LIST_ITERATOR_T_ *iterator) {
-  _LIST_MEM_CHECK_(seq && iterator && iterator->cell);
-  _LIST_CELL_T_ * next_cell = iterator->cell->_LIST_NEXT_NAME_;
-  _LIST_CELL_T_ * prev_cell = iterator->cell->_LIST_PREV_NAME_;
-  P_LIST_FUNC(_connect)(prev_cell, next_cell);
-  P_LIST_FUNC(_delete_cell)(iterator->cell);
-  if (iterator->cell == _LIST_HANDLE_TO_CELL_(*seq)) {
-    _LIST_HANDLE_TO_CELL_(*seq) = next_cell;
+void method( remove )( list_handle_t **seq, list_iterator_t *iterator ) {
+  list_mem_check( seq && iterator && iterator->cell );
+  list_cell_t * next_cell = iterator->cell->list_next_name;
+  list_cell_t * prev_cell = iterator->cell->list_prev_name;
+  p_method( connect )( prev_cell, next_cell );
+  p_method( delete_cell )( iterator->cell );
+  if ( iterator->cell == list_handle_to_cell( *seq ) ) {
+    list_handle_to_cell( *seq ) = next_cell;
   }
   iterator->cell = next_cell;
 }
@@ -430,11 +430,11 @@ void LIST_FUNC(_remove)(_LIST_HANDLE_T_ **seq, _LIST_ITERATOR_T_ *iterator) {
 /* Frees an entire list, given a cell as an argument.
  * Respects non-copying behavior.
  */
-void P_LIST_FUNC(_free_from_cell)(_LIST_CELL_T_ *to_free) {
-  _LIST_CELL_T_ * next;
-  while (to_free) {
-    next = to_free->_LIST_NEXT_NAME_;
-    P_LIST_FUNC(_delete_cell)(to_free);
+void p_method( free_from_cell )( list_cell_t *to_free ) {
+  list_cell_t * next;
+  while ( to_free ) {
+    next = to_free->list_next_name;
+    p_method( delete_cell )( to_free );
     to_free = next;
   }
 }
@@ -442,75 +442,75 @@ void P_LIST_FUNC(_free_from_cell)(_LIST_CELL_T_ *to_free) {
 /* Frees an entire list given a handle.
  * Respects non-copying behavior.
  */
-void LIST_FUNC(_free)(_LIST_HANDLE_T_ *to_free) {
-  _LIST_CELL_T_ * current = _LIST_HANDLE_TO_CELL_(to_free);
-  P_LIST_FUNC(_free_from_cell)(current);
-  _LIST_FREE_HANDLE_(to_free);
+void method( free )( list_handle_t *to_free ) {
+  list_cell_t * current = list_handle_to_cell( to_free );
+  p_method( free_from_cell )( current );
+  list_free_handle( to_free );
 }
 
 /* Destructive, in-place map. */
-void LIST_FUNC(_map)(_LIST_HANDLE_T_ *list, _LIST_T_ *(*func)(_LIST_T_ *)) {
-  _LIST_CELL_T_ *cell = _LIST_HANDLE_TO_CELL_(list);
-  if (func) {
-    while (cell) {
-      _LIST_CELL_TO_ELEM_(cell) = func(_LIST_CELL_TO_ELEM_(cell));
-      cell = cell->_LIST_NEXT_NAME_;
+void method( map )( list_handle_t *list, list_t *( *func )( list_t * ) ) {
+  list_cell_t *cell = list_handle_to_cell( list );
+  if ( func ) {
+    while ( cell ) {
+      list_cell_to_elem( cell ) = func( list_cell_to_elem( cell ) );
+      cell = cell->list_next_name;
     }
   }
 }
 
 /* Prints a list in pseudo-json notation.
- * Uses _LIST_ELEM_PRINT_FUNC_ if defined.
+ * Uses list_elem_print_func if defined.
  * Otherwise, it prints a message of the form <int @ 0x7f7b62e9a290>.
  */
-wick_error LIST_FUNC(_print)(FILE *stream, _LIST_HANDLE_T_ *list) {
-  _LIST_MEM_CHECK_(stream);
-  _LIST_CELL_T_ *cell = _LIST_HANDLE_TO_CELL_(list);
-  fprintf(stream, "[");
-  while (cell) {
-    #ifdef _LIST_ELEM_PRINT_FUNC_
-      _LIST_ELEM_PRINT_FUNC_(stream, _LIST_CELL_TO_ELEM_(cell));
+error_number method( print )( FILE *stream, list_handle_t *list ) {
+  list_mem_check( stream );
+  list_cell_t *cell = list_handle_to_cell( list );
+  fprintf( stream, "[" );
+  while ( cell ) {
+    #ifdef list_elem_print_func
+      list_elem_print_func( stream, list_cell_to_elem( cell ) );
     #else
-      fprintf(stream, "<" C_MACRO2STRING(_LIST_T_) " @ %p>", _LIST_CELL_TO_ELEM_(cell));
+      fprintf( stream, "<" macro_to_string( list_t ) " @ %p>", list_cell_to_elem( cell ) );
     #endif
-    cell = cell->_LIST_NEXT_NAME_;
-    if (cell) {
-      fprintf(stream, ", ");
+    cell = cell->list_next_name;
+    if ( cell ) {
+      fprintf( stream, ", " );
     }
   }
-  fprintf(stream, "]");
+  fprintf( stream, "]" );
   return WICK_SUCCESS;
 }
 
 /* Sets an iterator to the first position in the list. */
-void LIST_FUNC(_start)(_LIST_HANDLE_T_ * list, _LIST_ITERATOR_T_ *iter) {
-  _LIST_MEM_CHECK_(iter);
-  iter->cell = _LIST_HANDLE_TO_CELL_(list);
+void method( start )( list_handle_t * list, list_iterator_t *iter ) {
+  list_mem_check( iter );
+  iter->cell = list_handle_to_cell( list );
 }
 
-/* Acts similarly to repeated calls to _next and _prev, with some exceptions.
+/* Acts similarly to repeated calls to next and prev, with some exceptions.
  * Returns true if the iterator arrived at the indicated position, false otherwise.
  * If the movement fails, the iterator won't be modified.
  */
-bool LIST_FUNC(_move)(_LIST_ITERATOR_T_ *iterator, int64_t steps) {
-  _LIST_CELL_T_ * target = iterator->cell;
-  while (steps > 0 && target) {
+bool method( move )( list_iterator_t *iterator, int64_t steps ) {
+  list_cell_t * target = iterator->cell;
+  while ( steps > 0 && target ) {
     --steps;
-    target = target->_LIST_NEXT_NAME_;
+    target = target->list_next_name;
   }
-  #ifdef _LIST_BIDIRECTIONAL_
-    while (steps < 0 && target) {
+  #ifdef list_bidirectional
+    while ( steps < 0 && target ) {
       ++steps;
-      target = target->_LIST_PREV_NAME_;
+      target = target->list_prev_name;
     }
   #else
-    #ifdef _LIST_ERROR_CHECKS_
-      if (steps < 0) {
+    #ifdef list_error_checks
+      if ( steps < 0 ) {
         return WICK_API_ERROR;
       }
     #endif
   #endif
-  if (target) {
+  if ( target ) {
     iterator->cell = target;
     return true;
   } else {
@@ -522,10 +522,10 @@ bool LIST_FUNC(_move)(_LIST_ITERATOR_T_ *iterator, int64_t steps) {
  * Returns true if movement succeeded, false otherwise.
  * If the movement fails, the iterator won't be modified.
  */
-bool LIST_FUNC(_next)(_LIST_ITERATOR_T_ *iterator) {
+bool method( next )( list_iterator_t *iterator ) {
   /* NOTE: unchecked pointer dereferencing. */
-  _LIST_CELL_T_ * target = iterator->cell->_LIST_NEXT_NAME_;
-  if (target) {
+  list_cell_t * target = iterator->cell->list_next_name;
+  if ( target ) {
     iterator->cell = target;
     return true;
   } else {
@@ -533,15 +533,15 @@ bool LIST_FUNC(_next)(_LIST_ITERATOR_T_ *iterator) {
   }
 }
 
-#ifdef _LIST_BIDIRECTIONAL_
+#ifdef list_bidirectional
 /* Moves the iterator backward.
  * Returns true if movement succeeded, false otherwise.
  * If the movement fails, the iterator won't be modified.
  */
-bool LIST_FUNC(_prev)(_LIST_ITERATOR_T_ *iterator) {
+bool method( prev )( list_iterator_t *iterator ) {
   /* NOTE: unchecked pointer dereferencing. */
-  _LIST_CELL_T_ * target = iterator->cell->_LIST_PREV_NAME_;
-  if (target) {
+  list_cell_t * target = iterator->cell->list_prev_name;
+  if ( target ) {
     iterator->cell = target;
     return true;
   } else {
@@ -551,40 +551,40 @@ bool LIST_FUNC(_prev)(_LIST_ITERATOR_T_ *iterator) {
 #endif
 
 /* Returns true if the iterator is valid, false otherwise. */
-bool LIST_FUNC(_valid_iter)(_LIST_HANDLE_T_ * list, _LIST_ITERATOR_T_ *iterator) {
-  if (!iterator || !iterator->cell) {
+bool method( valid_iter )( list_handle_t * list, list_iterator_t *iterator ) {
+  if ( !iterator || !iterator->cell ) {
     return false;
   } else {
     return true;
   }
 }
 
-/* Returns the _LIST_T_ * from an iterator.
+/* Returns the list_t * from an iterator.
  * For example: int_list_iterator * --> int *
  * Note that this function assumes the iterator is valid.
  */
-_LIST_T_ * LIST_FUNC(_deref)(_LIST_ITERATOR_T_ *iterator) {
-  return _LIST_CELL_TO_ELEM_(iterator->cell);
+list_t * method( deref )( list_iterator_t *iterator ) {
+  return list_cell_to_elem( iterator->cell );
 }
 
-/* Returns the _LIST_T_ * from an iterator.
+/* Returns the list_t * from an iterator.
  * For example: int_list_iterator * --> int *
  * If the iterator isn't valid, this function returns NULL.
  */
-_LIST_T_ * LIST_FUNC(_safe_deref)(_LIST_HANDLE_T_ * list, _LIST_ITERATOR_T_ *iterator) {
-  if (!LIST_FUNC(_valid_iter)(list, iterator)) {
+list_t * method( safe_deref )( list_handle_t * list, list_iterator_t *iterator ) {
+  if (!method( valid_iter )( list, iterator ) ) {
     return NULL;
   }
-  return LIST_FUNC(_deref)(iterator);
+  return method( deref )( iterator );
 }
 
 /* Creates a new list.
  * Without handles, this function just sets the list pointer to NULL.
  */
-wick_error LIST_FUNC(_new)(_LIST_HANDLE_T_ ** to_store) {
-  #ifdef _LIST_USE_HANDLE_
-    _LIST_HANDLE_T_ *alloced_handle = _LIST_ALLOC_HANDLE_(sizeof(_LIST_HANDLE_T_));
-    if (alloced_handle) {
+error_number method( new )( list_handle_t ** to_store ) {
+  #ifdef list_use_handle
+    list_handle_t *alloced_handle = list_alloc_handle( sizeof( list_handle_t ) );
+    if ( alloced_handle ) {
       *to_store = alloced_handle;
       return WICK_SUCCESS;
     } else {
@@ -598,24 +598,24 @@ wick_error LIST_FUNC(_new)(_LIST_HANDLE_T_ ** to_store) {
 
 /* Makes a copy of a list.
  * If the list is non-copying, this will be a 'shallow' copy.
- * Otherwise, new elements will be allocated, and _LIST_ELEM_MOVE_ will be called.
+ * Otherwise, new elements will be allocated, and list_elem_move will be called.
  * Warning: allocating the new list may fail, in which case all memory will be cleared,
- * but some elements will already have had _LIST_ELEM_MOVE_ called on them.
+ * but some elements will already have had list_elem_move called on them.
  */
-wick_error LIST_FUNC(_copy)(_LIST_HANDLE_T_ * source, _LIST_HANDLE_T_ ** destination) {
-  _LIST_ITERATOR_T_ source_iter;
-  _LIST_ITERATOR_T_ destination_iter;
-  _LIST_HANDLE_T_ * temp_dest;
-  wick_error e = WICK_SUCCESS;
-  WICK_THROW(LIST_FUNC(_new)(&temp_dest));
-  LIST_FUNC(_start)(source, &source_iter);
-  LIST_FUNC(_start)(temp_dest, &destination_iter);
+error_number method( copy )( list_handle_t * source, list_handle_t ** destination ) {
+  list_iterator_t source_iter;
+  list_iterator_t destination_iter;
+  list_handle_t * temp_dest;
+  error_number e = WICK_SUCCESS;
+  WICK_THROW( method( new )( &temp_dest ) );
+  method( start )( source, &source_iter );
+  method( start )( temp_dest, &destination_iter );
   do {
-    e = LIST_FUNC(_insert_after)(&temp_dest, &destination_iter, LIST_FUNC(_deref)(&source_iter));
-    LIST_FUNC(_next)(&destination_iter);
-  } while (e == WICK_SUCCESS && LIST_FUNC(_next)(&source_iter));
-  if (e != WICK_SUCCESS) {
-    LIST_FUNC(_free)(temp_dest);
+    e = method( insert_after )(&temp_dest, &destination_iter, method( deref )( &source_iter ) );
+    method( next )( &destination_iter );
+  } while ( e == WICK_SUCCESS && method( next )( &source_iter ) );
+  if ( e != WICK_SUCCESS ) {
+    method( free )( temp_dest );
   } else {
     *destination = temp_dest;
   }
@@ -627,139 +627,139 @@ wick_error LIST_FUNC(_copy)(_LIST_HANDLE_T_ * source, _LIST_HANDLE_T_ ** destina
  * In other words, the following example is correct.
  *
  *   int_list *list = NULL;
- *   WICK_THROW(int_list_build(5, &list, 1, 2, 3, 4, 5));
+ *   WICK_THROW( int_list_build( 5, &list, 1, 2, 3, 4, 5 ) );
  *
  * Warning: allocating the new list may fail, in which case all memory will be cleared,
- * but some elements will already have had _LIST_ELEM_MOVE_ called on them.
+ * but some elements will already have had list_elem_move called on them.
  * Note that non-copying is respected, which may have surprising results occasionally.
  */
-wick_error LIST_FUNC(_build)(size_t arg_count, _LIST_HANDLE_T_ **to_store, ...) {
+error_number method( build )( size_t arg_count, list_handle_t **to_store, ... ) {
   va_list argptr;
-  va_start(argptr, to_store);
-  WICK_THROW(LIST_FUNC(_new)(to_store));
-  _LIST_CELL_T_ *start = NULL;
-  _LIST_CELL_T_ *current = NULL;
-  _LIST_CELL_T_ *next = NULL;
-  wick_error err;
-  for (size_t i = arg_count; i > 0; --i) {
-    _LIST_T_ arg = va_arg(argptr, _LIST_T_);
-    err = P_LIST_FUNC(_new_cell)(&arg, &next);
-    if (err != WICK_SUCCESS) {
+  va_start( argptr, to_store );
+  WICK_THROW( method( new )( to_store ) );
+  list_cell_t *start = NULL;
+  list_cell_t *current = NULL;
+  list_cell_t *next = NULL;
+  error_number err;
+  for ( size_t i = arg_count; i > 0; --i ) {
+    list_t arg = va_arg( argptr, list_t );
+    err = p_method( new_cell )( &arg, &next );
+    if ( err != WICK_SUCCESS ) {
       /* If the list is partially allocated, free it. */
       /* Note that free handles NULL pointers fine. */
       /* The end of the list is also safe because list cells are alloced clear. */
-      P_LIST_FUNC(_free_from_cell)(start);
-      #ifdef _LIST_USE_HANDLE_
-        _LIST_FREE_HANDLE_(to_store);
+      p_method( free_from_cell )( start );
+      #ifdef list_use_handle
+        list_free_handle( to_store );
       #endif
       return err;
     }
-    if (!start) {
+    if ( !start ) {
       start = next;
     }
-    if (current) {
-      P_LIST_FUNC(_connect)(current, next);
+    if ( current ) {
+      p_method( connect )( current, next );
     }
     current = next;
   }
-  _LIST_HANDLE_TO_CELL_(*to_store) = start;
-  va_end(argptr);
+  list_handle_to_cell( *to_store ) = start;
+  va_end( argptr );
   return WICK_SUCCESS;
 }
 
-#ifdef _LIST_COMPARE_FUNC_
+#ifdef list_compare_func
 /* Performs the work in the inner loop of merge. */
-wick_error P_LIST_FUNC(_sort_get_earlier_cell)(_LIST_CELL_T_ **a,
-                                                    _LIST_CELL_T_ **b,
-                                                    _LIST_CELL_T_ **r) {
-  if (!*a) {
+error_number p_method( sort_get_earlier_cell )( list_cell_t **a,
+                                                    list_cell_t **b,
+                                                    list_cell_t **r ) {
+  if ( !*a ) {
     *r = *b;
-    *b = (*b)->_LIST_NEXT_NAME_;
-  } else if (!*b) {
+    *b = ( *b )->list_next_name;
+  } else if ( !*b ) {
     *r = *a;
-    *a = (*a)->_LIST_NEXT_NAME_;
+    *a = ( *a )->list_next_name;
   } else {
     int32_t compare_val = 0;
-    WICK_THROW(_LIST_COMPARE_FUNC_(_LIST_CELL_TO_ELEM_(*a), _LIST_CELL_TO_ELEM_(*b), &compare_val));
-    if (compare_val <= 0) {
+    WICK_THROW( list_compare_func( list_cell_to_elem( *a ), list_cell_to_elem( *b ), &compare_val ) );
+    if ( compare_val <= 0 ) {
       *r = *a;
-      *a = (*a)->_LIST_NEXT_NAME_;
+      *a = ( *a )->list_next_name;
     } else {
       *r = *b;
-      *b = (*b)->_LIST_NEXT_NAME_;
+      *b = ( *b )->list_next_name;
     }
   }
   return WICK_SUCCESS;
 }
 
 /* Used for sort to perform a merge sort. */
-wick_error P_LIST_FUNC(_merge)(_LIST_HANDLE_T_ * a, _LIST_HANDLE_T_ * b, _LIST_HANDLE_T_ ** result) {
-  _LIST_CELL_T_ * cell_a = _LIST_HANDLE_TO_CELL_(a);
-  _LIST_CELL_T_ * cell_b = _LIST_HANDLE_TO_CELL_(b);
-  _LIST_CELL_T_ * cell_prev = NULL;
-  _LIST_CELL_T_ * cell_current = NULL;
-  _LIST_CELL_T_ * result_start;
-  WICK_THROW(P_LIST_FUNC(_sort_get_earlier_cell)(&cell_a, &cell_b, &result_start));
+error_number p_method( merge )( list_handle_t * a, list_handle_t * b, list_handle_t ** result ) {
+  list_cell_t * cell_a = list_handle_to_cell( a );
+  list_cell_t * cell_b = list_handle_to_cell( b );
+  list_cell_t * cell_prev = NULL;
+  list_cell_t * cell_current = NULL;
+  list_cell_t * result_start;
+  WICK_THROW( p_method( sort_get_earlier_cell )( &cell_a, &cell_b, &result_start ) );
   cell_prev = result_start;
-  while (cell_a || cell_b) {
-    WICK_THROW(P_LIST_FUNC(_sort_get_earlier_cell)(&cell_a, &cell_b, &cell_current));
-    P_LIST_FUNC(_connect)(cell_prev, cell_current);
-    cell_prev = cell_prev->_LIST_NEXT_NAME_;
+  while ( cell_a || cell_b ) {
+    WICK_THROW( p_method( sort_get_earlier_cell )( &cell_a, &cell_b, &cell_current ) );
+    p_method( connect )( cell_prev, cell_current );
+    cell_prev = cell_prev->list_next_name;
   }
-  _LIST_HANDLE_TO_CELL_(*result) = result_start;
+  list_handle_to_cell( *result ) = result_start;
   return WICK_SUCCESS;
 }
 
 /* Performs a merge sort.
  * TODO: avoid traversing the front parts of the list repeatedly.
  */
-wick_error LIST_FUNC(_sort)(_LIST_HANDLE_T_ **list) {
-  _LIST_MEM_CHECK_(list);
-  if (!*list || !(*list)->_LIST_NEXT_NAME_) {
+error_number method( sort )( list_handle_t **list ) {
+  list_mem_check( list );
+  if (!*list || !( *list )->list_next_name ) {
     return WICK_SUCCESS;
   }
-  _LIST_CELL_T_ * counter = _LIST_HANDLE_TO_CELL_(*list)->_LIST_NEXT_NAME_;
-  _LIST_CELL_T_ * halfway = _LIST_HANDLE_TO_CELL_(*list);
-  _LIST_CELL_T_ * first_half = _LIST_HANDLE_TO_CELL_(*list);
-  _LIST_CELL_T_ * second_half = NULL;
-  while (counter) {
-    counter = counter->_LIST_NEXT_NAME_;
-    if (counter) {
-      counter = counter->_LIST_NEXT_NAME_;
-      halfway = halfway->_LIST_NEXT_NAME_;
+  list_cell_t * counter = list_handle_to_cell( *list )->list_next_name;
+  list_cell_t * halfway = list_handle_to_cell( *list );
+  list_cell_t * first_half = list_handle_to_cell( *list );
+  list_cell_t * second_half = NULL;
+  while ( counter ) {
+    counter = counter->list_next_name;
+    if ( counter ) {
+      counter = counter->list_next_name;
+      halfway = halfway->list_next_name;
     }
   }
-  second_half = halfway->_LIST_NEXT_NAME_;
-  fflush(stdout);
-  P_LIST_FUNC(_connect(NULL, second_half));
-  P_LIST_FUNC(_connect(halfway, NULL));
-  WICK_THROW(LIST_FUNC(_sort)(&second_half));
-  WICK_THROW(LIST_FUNC(_sort)(&first_half));
-  WICK_THROW(P_LIST_FUNC(_merge)(first_half, second_half, list));
+  second_half = halfway->list_next_name;
+  fflush( stdout );
+  p_method( connect( NULL, second_half ) );
+  p_method( connect( halfway, NULL ) );
+  WICK_THROW( method( sort )( &second_half ) );
+  WICK_THROW( method( sort )( &first_half ) );
+  WICK_THROW( p_method( merge )( first_half, second_half, list ) );
   return WICK_SUCCESS;
 }
 
-/* Compares two lists with the same type using the _LIST_COMPARE_FUNC_
+/* Compares two lists with the same type using the list_compare_func
  * to determine if they're equal.
  */
-wick_error LIST_FUNC(_equal)(_LIST_HANDLE_T_ *a, _LIST_HANDLE_T_ *b, bool * result) {
-  _LIST_ITERATOR_T_ a_iter;
-  _LIST_ITERATOR_T_ b_iter;
-  LIST_FUNC(_start)(a, &a_iter);
-  LIST_FUNC(_start)(b, &b_iter);
+error_number method( equal )( list_handle_t *a, list_handle_t *b, bool * result ) {
+  list_iterator_t a_iter;
+  list_iterator_t b_iter;
+  method( start )( a, &a_iter );
+  method( start )( b, &b_iter );
   bool a_next = false;
   bool b_next = false;
   int32_t temp_result = 0;
   do {
-    WICK_THROW(_LIST_COMPARE_FUNC_(LIST_FUNC(_deref)(&a_iter), LIST_FUNC(_deref)(&b_iter), &temp_result));
-    if (temp_result != 0) {
+    WICK_THROW( list_compare_func( method( deref )( &a_iter ), method( deref )( &b_iter ), &temp_result ) );
+    if ( temp_result != 0 ) {
       result = false;
       return WICK_SUCCESS;
     }
-    a_next = LIST_FUNC(_next)(&a_iter);
-    b_next = LIST_FUNC(_next)(&b_iter);
-  } while (a_next && b_next);
-  if (a_next != b_next) {
+    a_next = method( next )( &a_iter );
+    b_next = method( next )( &b_iter );
+  } while ( a_next && b_next );
+  if ( a_next != b_next ) {
     *result = false;
   } else {
     *result = true;
@@ -768,37 +768,36 @@ wick_error LIST_FUNC(_equal)(_LIST_HANDLE_T_ *a, _LIST_HANDLE_T_ *b, bool * resu
 }
 #endif
 
-#undef _LIST_T_
-#undef _LIST_PREFIX_
-#undef _LIST_POSTFIX_
-#undef _LIST_LONG_PREFIX_
-#undef _LIST_ALLOC_
-#undef _LIST_FREE_
-#undef _LIST_ERROR_FUNC_
-#undef _LIST_BIDIRECTIONAL_
-#undef _LIST_ITERATOR_T_
-#undef _LIST_DOUBLE_LINKED_
-#undef _LIST_ALLOC_CELL_
-#undef _LIST_FREE_CELL_
-#undef _LIST_CELL_T_
-#undef _LIST_ELEM_NAME_
-#undef _LIST_NEXT_NAME_
-#undef _LIST_PREV_NAME_
-#undef _LIST_MEM_CHECK_
-#undef _LIST_ELEM_MOVE_
-#undef _LIST_NO_COPY_ELEMS_
-#undef _LIST_DEFINE_CELL_T_
-#undef _LIST_DEFINE_HANDLE_T_
-#undef _LIST_HANDLE_T_
-#undef _LIST_HANDLE_TO_CELL_
-#undef _LIST_HANDLE_CELL_NAME_
-#undef _LIST_FREE_HANDLE_
-#undef _LIST_ALLOC_HANDLE_
-#undef _LIST_COMPARE_FUNC_
-#undef _LIST_INTRUSIVE_
-#undef _LIST_CELL_TO_ELEM_
-#undef _LIST_ELEM_PRINT_FUNC_
-#undef _LIST_USE_HANDLE_
-#undef _LIST_ERROR_CHECKS_
-#undef LIST_FUNC
-#undef P_LIST_FUNC
+#undef list_t
+#undef list_prefix
+#undef list_postfix
+#undef list_long_prefix
+#undef list_alloc
+#undef list_free
+#undef list_error_func
+#undef list_bidirectional
+#undef list_iterator_t
+#undef list_alloc_cell
+#undef list_free_cell
+#undef list_cell_t
+#undef list_elem_name
+#undef list_next_name
+#undef list_prev_name
+#undef list_mem_check
+#undef list_elem_move
+#undef list_no_copy_elems
+#undef list_define_cell_t
+#undef list_define_handle_t
+#undef list_handle_t
+#undef list_handle_to_cell
+#undef list_handle_cell_name
+#undef list_free_handle
+#undef list_alloc_handle
+#undef list_compare_func
+#undef list_intrusive
+#undef list_cell_to_elem
+#undef list_elem_print_func
+#undef list_use_handle
+#undef list_error_checks
+#undef method
+#undef p_method

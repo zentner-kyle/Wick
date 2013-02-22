@@ -1,5 +1,5 @@
 #include "assert.h"
-#define _LIST_T_ int
+#define list_t int
 #include "def_list.h"
 #include "def_list.c"
 

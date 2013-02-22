@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <stdio.h>
 
-typedef int32_t wick_error;
+typedef int32_t error_number;
 
 #define WICK_SUCCESS 1
 
@@ -53,17 +53,17 @@ typedef int32_t wick_error;
 
 #define WICK_BAD_DATA 8
 
-#define C_TOKEN_JOIN_INNER(_token_a_, _token_b_) _token_a_ ## _token_b_
-#define C_TOKEN_JOIN(_token_a_, _token_b_) C_TOKEN_JOIN_INNER(_token_a_, _token_b_)
+#define macro_join_inner(_token_a_, _token_b_) _token_a_ ## _token_b_
+#define macro_join(_token_a_, _token_b_) macro_join_inner(_token_a_, _token_b_)
 
-#define C_TOKEN2STRING(_token_) #_token_
-#define C_MACRO2STRING(_token_) C_TOKEN2STRING(_token_)
+#define token_to_string(token) #token
+#define macro_to_string(token) token_to_string(token)
 
-#define IGNORE_RETURN(_expr_) ((void)(_expr_))
+#define ignore_return(_expr_) ((void)(_expr_))
 
 #define WICK_THROW(_error_) \
 	do { \
-		wick_error _ERROR_ = _error_; \
+		error_number _ERROR_ = _error_; \
 		if (_ERROR_ != WICK_SUCCESS) { \
 			return _ERROR_; \
 		} \

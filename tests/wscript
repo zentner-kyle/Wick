@@ -31,7 +31,10 @@ def build(bld):
                 bld.program(source=join(rel_path, filename),
                             target=target_filename,
                             includes=join(bld.top_dir, 'src'),
-                            use='wick')
+                            use='wick',
+                            linkflags='-Wl,-R ' + join(rel_path, 'wbuild',
+                                bld.variant_dir, 'src'),
+                            )
                 target_abspath = join(bld.variant_dir, 'tests', target_filename)
                 all_tests.append(target_abspath)
 
@@ -61,9 +64,12 @@ def test(ctxt):
         print()
         for failure in failed_tests:
             print('FAILED:', failure)
-            print(' BEGIN TEST OUTPUT '.center(80, '*'))
-            print(str(stdout_logs[failure][0], encoding='utf_8'), end='')
-            print(' END TEST OUTPUT '.center(80, '*'))
+            print(' BEGIN TEST STDOUT '.center(80, '*'))
+            print(stdout_logs[failure][0].decode(), end='')
+            print(' END TEST STDOUT '.center(80, '*'))
+            print(' BEGIN TEST STDERR '.center(80, '*'))
+            print(stdout_logs[failure][1].decode(), end='')
+            print(' END TEST STDERR '.center(80, '*'))
             print()
         print('TEST FAILED ({0}/{1} tests failed)'.format(len(failed_tests), total_tests))
 

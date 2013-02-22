@@ -1,7 +1,10 @@
-#include <stdint.h>
-#include <stdlib.h>
-//#include "siphash.h"
-//= sip_keyof(sip_secret);
+#ifndef HASH_H
+#define HASH_H
+
+#include <stdint.h> /* uint64_t, uint8_t */
+#include <stdlib.h> /* size_t */
+
+typedef uint64_t hash_t;
 
 struct siphash_key {
 	uint64_t k[2];
@@ -9,8 +12,6 @@ struct siphash_key {
 
 typedef struct siphash_key siphash_key;
 
-siphash_key main_key;
+hash_t siphash_24( const siphash_key key, const uint8_t * msg, const size_t len );
 
-uint64_t siphash_24( siphash_key key, uint8_t * msg, size_t len );
-
-uint32_t w_hash ( char * str, size_t len );
+#endif /* included HASH_H */

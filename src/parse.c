@@ -9,137 +9,137 @@
 #include <ctype.h>
 
 #include "wick_basic.h"
-
-struct delegate {
-	void (* func)( void * data );
-	void * data;
-};
-
-typedef struct delegate delegate;
-
-void invoke ( delegate d ) {
-	assert( d.func );
-	d.func( d.data );
-}
-
-uint32_t w_hash ( char * str, size_t len ) {
-	const uint32_t fnv_prime = 16777619;
-	switch(len) {
-		case 0:
-			return len;
-		case 1:
-			return *str;
-		case 2:
-			return (((*str << 3) ^ *(str+1)) + len) * fnv_prime;
-		case 3:
-			return fnv_prime * (((*str << 8) ^ (*(str+1) << 3) ^ *(str+2)) + len);
-		default:
-			return ((*(str+1) << 3) ^ len ^ (*str >> 3)) ^ 
-				(fnv_prime * ((* (uint32_t *) (str + len - 4)) ^ ( * (uint16_t *) (str + (len / 2) )))) ;
-	}
-}
-
-struct str {
-	char * start;
-	char * past_end;
-};
-
-typedef struct str str;
-
-size_t str_len( str s ) {
-	return s.past_end - s.start;
-}
-
-size_t print_str( str s ) {
-	return fwrite( s.start, sizeof(char), str_len( s ), stdout );
-}
-
-size_t print_strln( str s ) {
-	size_t e = fwrite( s.start, sizeof(char), str_len( s ), stdout );
-	if ( e == str_len( s ) ) {
-		putchar( '\n' );
-		return e + 1;
-	}
-	return e;
-}
-
-bool str_equalp( str a, str b ) {
-	return str_len( a ) == str_len( b ) && ! memcmp( a.start, b.start, str_len( a ) );
-}
+#include "hash.h"
+#include "delegate.h"
+#include "str.h"
+#include "alloc.h"
 
 struct token {
-	uint32_t id;
 	str text;
+	uint32_t id;
 };
 
 typedef struct token token;
 
 bool token_equal( token * a, token * b ) {
 	assert( a && b );
-	return str_equalp( a->text, b->text ) && a->id == b->id;
+	return a->id == b->id && str_equal( a->text, b->text );
 };
 
-typedef uint32_t hash_t;
-
-hash_t token_hash( token * a ) {
-	return w_hash( a->text, str_len( a->text ) ) ^ a->id;
+hash_t token_hash( siphash_key key, token * a ) {
+	return siphash_24( key, (uint8_t*) a->text.start, a->text.len );
 }
+
+token * copy_token( token t ) {
+	token * new_t = (token *) malloc( sizeof( token ) );
+	char * new_text = (char * ) malloc( t.text.len + 1);
+	if ( ! new_t || ! new_text ) {
+		free( new_t );
+		free( new_text );
+		return NULL;
+	}
+
+	memcpy( (void *) new_text, (void *) t.text.start, t.text.len );
+	new_text[t.text.len] = '\0';
+	new_t->text.start = new_text;
+	new_t->text.len = t.text.len;
+	new_t->id = t.id;
+	return new_t;
+}
+
+struct token_table_bucket {
+	hash_t hash;
+	token * elem;
+};
+
+typedef struct token_table_bucket token_table_bucket;
 
 struct token_table {
 	size_t size;
-	uint32_t mask
-	token ** data;
+	size_t fill;
+	uint64_t mask;
+	siphash_key hashkey;
+	token_table_bucket * data;
 };
 
 typedef struct token_table token_table;
 
 const size_t token_table_starting_size = 1024;
 
-uint32_t mask_of_pow2( uint32_t val ) {
-	uint32_t result = 1;
-	while ( val > 2 ) {
-		result = result << 1 | result;
-		val = val / 2;
-	}
-	return result;
-}
-
-void init_token_table( token_table * self, delegate error ) {
+void token_table_init( token_table * self, delegate error ) {
 	assert( self );
 	self->mask = mask_of_pow2( token_table_starting_size );
 	self->size = token_table_starting_size;
-	self->data = (token **) malloc( token_table_starting_size * sizeof( token * ) );
+	self->fill = 0;
+	self->data = (token_table_bucket *) malloc( token_table_starting_size * sizeof( token_table_bucket * ) );
+	self->hashkey = (siphash_key){{0xf1255325d0fd78e2, 0x9644fae0e4d88426}};
 	if ( ! self->data ) {
 		invoke(error);
 	}
-};
+}
+
+/* Returns true on success, false otherwise. */
+bool resize_token_table( token_table * self, delegate error ) {
+	size_t old_size = self->size;
+	size_t new_size = self->size * 2;
+	hash_t new_mask = mask_of_pow2( new_size );
+	token_table_bucket * old_data = self->data;
+
+	token_table_bucket * new_data = (token_table_bucket *) malloc( new_size );
+	if ( ! new_data ) {
+		invoke( error );
+		return false;
+	}
+	memset( new_data, 0, new_size );
+
+	for ( int i = 0; i < old_size; i++ ) {
+		int j = old_data[i].hash & new_mask;
+		while ( new_data[j].hash ) {
+			j = (j + 1) & new_mask;
+		}
+		new_data[j].hash = old_data[i].hash;
+		new_data[j].elem = old_data[i].elem;
+	}
+
+	self->data = new_data;
+	self->size = new_size;
+	self->mask = new_mask;
+	free( old_data );
+	return true;
+}
 
 /* 
  * Finds a token in the table. If the token is not found, then a (deep) copy
  * of it is inserted. Returns the token (inserted or found).
  */
-token * token_table_get( token t ) {
-	hash_t 
-}
-
-const void * end_args = (void *) ~ (intptr_t)0;
-/* Unaligned pointer value at end of memory space (probably in kernel space).
- * Used to indicate the last argument in a variable argument list of pointers
- * where NULL would indicate allocation failure.
- */
-
-size_t round_up_power_2( size_t to_round ) {
-	size_t next = 0;
-	while ( ( next = (to_round & (to_round - 1)) ) ) {
-		to_round = next;
+token * token_table_unique( token_table * self, token t, delegate error ) {
+	hash_t to_find = token_hash( self->hashkey, &t );
+	int i = to_find & self->mask;
+	for ( ; self->data[i].hash; i = (i + 1) & self->mask ) {
+		if ( self->data[i].hash == to_find ) {
+			if ( token_equal( self->data[i].elem, &t ) ) {
+				/* Token found. */
+				return self->data[i].elem;
+			}
+		}
 	}
-	return to_round * 2;
+	self->fill += 1;
+	if ( self->fill * 10 > self->size * 8) {
+		if ( ! resize_token_table( self, error ) ) {
+			return NULL;
+		}
+		for ( i = to_find & self->mask; self->data[i].hash; i = (i + 1) & self->mask ) {
+			/* Find the next free spot. */
+		}
+	}
+	token * new_t = copy_token( t );
+	if ( ! new_t ) {
+		return NULL;
+	}
+	self->data[i].hash = to_find;
+	self->data[i].elem = new_t;
+	return new_t;
 }
-
-bool is_power_2( size_t input ) {
-	return ! ( input & (input - 1));
-}
-
 
 struct parser;
 
@@ -182,7 +182,7 @@ typedef struct token_array token_array;
 
 struct parser {
 	str current;
-	char * progress;
+	size_t progress;
 	parser_components reactors;
 	parser_components lexers;
 	token_array tokens;
@@ -237,26 +237,19 @@ void insert_reactor( parser * self, parser_component * reactor ) {
 	}
 }
 
+char * get_point( parser * self ) {
+	return self->current.start + self->progress;
+}
+
 void skip_whitespace ( parser * self ) {
-	assert( self->current.start <= self->progress && self->progress < self->current.past_end );
-	while ( self->progress < self->current.past_end && isspace( *self->progress ) ) {
+	assert( 0 <= self->progress && self->progress < self->current.len );
+	while ( self->progress < self->current.len && isspace( *get_point( self ) ) ) {
 		++self->progress;
 	}
 }
 
 void init_parser( parser * self ) {
 	assert( self );
-	size_t num_elems = 8;
-	self->error = parser_errors.none;
-	delegate alloc_error_d = { .func = alloc_error, .data = (void *) self};
-	array_init( (array *) &self->reactors, sizeof(parser_component), num_elems, alloc_error_d );
-	array_init( (array *) &self->lexers, sizeof(parser_component), num_elems, alloc_error_d );
-	array_init( (array *) &self->tokens, sizeof(token), 64, alloc_error_d );
-	if ( self->error == parser_errors.alloc ) {
-		array_free( (array *) &self->reactors );
-		array_free( (array *) &self->lexers );
-		array_free( (array *) &self->tokens );
-	}
 }
 
 int main(int argv, char * argc[]) {
@@ -264,12 +257,17 @@ int main(int argv, char * argc[]) {
 	parser p;
 	init_parser( &p );
 	insert_reactor( &p, &(parser_component){ &skip_whitespace, 0 } );
-	/* if(argv != 2) { */
-	/* 	fprintf(stderr, */
-	/* 	        "Incorrect usage:\n" */
-	/* 	        "program should be called\n\n" */
-	/* 	        "\t%s file_name\n", argc[0]); */
-	/* 	return 1; */
-	/* } */
+	token_table table;
+	delegate d = {0, 0};
+	token tok1 = {str_from_c("test_token"), 0};
+	token tok2 = {str_from_c("test_token"), 0};
+	token_table_init(&table, d);
+	token * t1 = token_table_unique( &table, tok1, d);
+	token * t2 = token_table_unique( &table, tok2, d);
+	printf("%d\n", t1 == t2);
+	printf("%p\n", t1);
+	printf("%p\n", t2);
+	str_println( t2->text );
+	/*printf("%s\n", t2->text.start);*/
 	return 0;
 }

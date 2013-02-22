@@ -16,6 +16,8 @@ def options(opt):
     opt.recurse('src')
     opt.recurse('tests')
 
+profiling = False
+
 def common_configure(conf):
     if conf.find_program(conf.options.cc):
         conf.env['CC'] = conf.options.cc
@@ -24,6 +26,11 @@ def common_configure(conf):
     version = '-std=gnu99'
     conf.check(feature='cc cprogram cstdlib', cflags=['-Wall', version])
     conf.env.append_value('CFLAGS', ['-Wall', version])
+    if profiling:
+        conf.check(feature='cc cprogram cstdlib', cflags=['-pg'],
+            linkflags=['-pg'])
+        conf.env.append_value('LINKFLAGS', ['-pg'])
+        conf.env.append_value('CFLAGS', ['-pg'])
 
 def configure_debug(conf):
     conf.setenv('debug')

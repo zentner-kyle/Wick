@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "siphash.h"
 #include "hash.h"
+#include "hash.c"
 
 uint32_t tcl( char * str ) {
 	register char * string = str;
@@ -94,12 +95,13 @@ typedef struct str str;
 int main(int argc, char ** argv) {
 	struct timespec start;
 	struct timespec end;
-	int rounds = 10000000;
+	int rounds = 100000000;
 	str end_strs = STR("");
 	int collisions = 0;
 	int true_collisions = 0;
 
 	str s[] = {
+		STR(""),
 		STR("!!"),
 		STR("$"),
 		STR("("),
@@ -202,20 +204,16 @@ int main(int argc, char ** argv) {
 
 	TEST( "warmup", __asm__ volatile(""); )
 	TEST( "empty", __asm__ volatile(""); )
-	/*TEST( "tcl", tcl( s[i].start ); )*/
-	/*COLLISIONS( "tcl", tcl( s[i].start ) )*/
-	/*TEST( "fnv", fnv( s[i].start ); )*/
-	/*COLLISIONS( "fnv", fnv( s[i].start ) )*/
-	/*TEST( "last_32", last_32( s[i].start, s[i].len ); )*/
-	/*COLLISIONS( "last_32", last_32( s[i].start, s[i].len ) )*/
-	/*TEST( "w_hash", w_hash( s[i].start, s[i].len ); )*/
-	/*COLLISIONS( "w_hash", w_hash( s[i].start, s[i].len ) )*/
-	/*uint8_t sip_secret[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};*/
-	/*struct sipkey *sip_key = sip_keyof(sip_secret);*/
+	TEST( "tcl", tcl( s[i].start ); )
+	COLLISIONS( "tcl", tcl( s[i].start ) )
+	TEST( "fnv", fnv( s[i].start ); )
+	COLLISIONS( "fnv", fnv( s[i].start ) )
+	TEST( "last_32", last_32( s[i].start, s[i].len ); )
+	COLLISIONS( "last_32", last_32( s[i].start, s[i].len ) )
 	TEST( "sip24", sip24( *sip_key, s[i].start, s[i].len ); )
 	COLLISIONS( "sip24", sip24( *sip_key, s[i].start, s[i].len ) )
-	/*siphash_key key = {0xf1255325d0fd78e2, 0x9644fae0e4d88426};*/
-	siphash_key key = {{0x00020304050607, 0x08090a0b0c0d0e0f}};
+	siphash_key key = {{0xf1255325d0fd78e2, 0x9644fae0e4d88426}};
+	/*siphash_key key = {{0x00020304050607, 0x08090a0b0c0d0e0f}};*/
 	TEST( "siphash_24", siphash_24( key, (uint8_t *)s[i].start, s[i].len ); )
 	COLLISIONS( "siphash_24", (uint32_t)siphash_24( key, (uint8_t *)s[i].start, s[i].len ) )
 	return 0;
