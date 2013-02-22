@@ -25,12 +25,10 @@ wick_error _CHAR_NAME_(const utf8_string * in_buffer,
 #ifdef _ARG_CHECK_
   WICK_PARSE_CHECK_ARGS(_ARG_CHECK_);
   #undef _ARG_CHECK_
-#else
-  WICK_PARSE_CHECK_ARGS(1);
 #endif
 
   int32_t character = 0xFFFFFFFF;
-  /* Way out of Unicode range. */
+  /* Way out of Unicode range to make errors more obvious. */
   ssize_t bytes_read = utf8proc_iterate(in_buffer->start,
       utf8_string_size(*in_buffer), &character);
   if(_COND_(character)) {

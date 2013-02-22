@@ -18,6 +18,11 @@ def build(bld):
                 target = 'scratch',
                 )
 
+    bld.program(
+                source = 'parse.c',
+                target = 'parse',
+                )
+
     bld.shlib(
         source = [
             'wick_core.c', 'wick_alloc.c', 'wick_place.c',
