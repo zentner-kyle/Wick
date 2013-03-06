@@ -67,5 +67,5 @@ src/scratch.c
 __pycache__
 
 # Vim backups
-.swp
-.swo
+*.swp
+*.swo
