@@ -51,7 +51,7 @@ def build(bld):
             'wick_channel.c', 'wick_globals.c', 'wick_dyn.c',
             'wick_string.c', 'wick_error.c', 'wick_equal.c', 'wick_array.c',
             'wick_assoc.c', 'array.c', 'delegate.c',
-            'alloc.c', 'segment.c', 'object.c', 'context.c',
+            'alloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
             ] 
 
     bld.objects(
