@@ -1,4 +1,4 @@
-#include "alloc.h"
+#include "wbits.h"
 
 const void * end_args = (void *) ~ (intptr_t)0;
 /* Unaligned pointer value at end of memory space (probably in kernel space).

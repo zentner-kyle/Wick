@@ -1,0 +1,7 @@
+Insert a new red node (x).
+
+If the insertion has a red parent (y), it must have a black parent (z).
+Determine which of (x) or (y) is closer to (z) -> (w).
+Then, build a new node, with (w) as the parent.
+
+

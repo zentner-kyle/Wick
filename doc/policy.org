@@ -1,0 +1,4 @@
+
+All global variables should be constants.
+
+All of the external api (in wick.h) should begin with the wick_ prefix.

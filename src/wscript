@@ -25,7 +25,7 @@ def build(bld):
                 )
 
     bld.objects(
-            source = 'hash.c delegate.c str.c alloc.c',
+            source = 'hash.c wcall.c str.c wbits.c',
             target = 'parser_objects',
             )
 
@@ -50,8 +50,9 @@ def build(bld):
             'wick_core.c', 'wick_alloc.c', 'wick_place.c',
             'wick_channel.c', 'wick_globals.c', 'wick_dyn.c',
             'wick_string.c', 'wick_error.c', 'wick_equal.c', 'wick_array.c',
-            'wick_assoc.c', 'array.c', 'delegate.c',
-            'alloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
+            'wick_assoc.c', 'warray.c', 'wcall.c', 'wstr.c', 'wsym.c',
+            'wbits.c', 'wtype.c', 'wbuiltins.c',
+            'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
             ] 
 
     bld.objects(

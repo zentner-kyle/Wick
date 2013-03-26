@@ -1,0 +1,42 @@
+wcall
+	requires nothing
+	status: done
+	basic delegate, struct containing one pointer to a func taking one void pointer and one void pointer
+	winvoke
+
+wtype
+	requires warray, whtable
+	status: done
+	full type description as in toplevel
+
+walloc
+	requires wtype (allocate objects of arbitrary type), wcall (report errors)
+	status: done
+	configurable base allocation function (defaults to malloc)
+
+warray
+	requires walloc (allocate internal storage), wtype (know enough to allocate, declare own type)
+
+wstr
+	requires walloc (allocate from file), wtype (declare own type), warray (convert to array<byte>)
+
+wsym
+	requires wstr, whash, wid, wtype
+
+whtable
+	requires whash (perform hashing), walloc (allocate internal storage), wtype (know enough to allocate, custom hash functions, declare own type)
+
+whash
+	requires nothing
+
+wid
+	requires nothing
+
+wbytecode
+	requires wtype
+
+wvm
+	requires wbytecode
+
+wasm
+	requires wstr

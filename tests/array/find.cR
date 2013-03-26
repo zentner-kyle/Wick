@@ -12,13 +12,16 @@ void report_error( void * ignored ) {
 
 int main() {
 	wbuiltins_init();
-	warray a;
 	wcall error_wcall = { .func = report_error, .data = NULL };
-	warray_init( &a, wtype_upcast(&wtype_int), error_wcall );
-	int i = 100;
-	warray_push_front( &a, &i, error_wcall );
-	int i2 = 0;
-	i2 = warray_get( &a, 0, int );
-	assert( i2 == 100 );
+	array * a = array_new( wtype_int, error_wcall );
+	int i = 1;
+	array_push_front( a, &i, error_wcall );
+	++i;
+	array_push_front( a, &i, error_wcall );
+	++i;
+	array_push_front( a, &i, error_wcall );
+	i = 2;
+	assert( *(int *)array_find( a, &i ) == 2 );
+	printf( "%p\n", a->data );
 	return error;
 }

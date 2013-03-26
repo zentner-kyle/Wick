@@ -1,0 +1,100 @@
+
+Object System is prototype and sealed namespace based.
+
+Goals:
+	Lightweight small objects (vectors, units)
+	Simple object composition
+	No weird artifacts (C++ diamond of death)
+	Fast lookup (not hash tables)
+
+Compositions:
+	& (intersection)
+	| (union)	
+	! (mutate)
+	^ (exclusion)
+	\ (removal?)
+	phi (join)
+
+Terms:
+	id - 128 bit random (guid?) or allocated (at load time?)
+	segment - an array of statically know / compilable values or an emulation of such usign a different data structure (late binding / dynamic lookup)
+
+
+Normal segment layout:
+
+--------------------------------------------
+| Header | Extension Pointer | Fields .... |
+--------------------------------------------
+
+The header is a combination pointer to the segment's segment_info node, and a few bits for garbage collection (the grey bit?).
+The segment_info node is used for dynamic code, but also so the garbage collector doesn't need magic to find pointers.
+
+Segment info:
+
+-------------------------------------------------------------
+| id | fields[0] info | fields[1] info | fields[2] info ... |
+-------------------------------------------------------------
+
+info = string * name, type
+
+type = a byte for builtin type + size in object (56 bit?)
+
+Mask out top byte for field size.
+
+builtin type = 0x01 for int, 0x02 for float, 0x03 for inlined segment, 0x04 for not inlined segment. etc.
+
+
+known field types and offsets
+
+Should all non-null pointers be to the beginning of an object? (Complicates STM).
+
+All references into an array could become double pointers, one of which points to the beginning of the array segment.
+
+event(data) =>
+	phases {
+		phases { # Sub-phases are grouped into a single atomic phase unless they're passed a transaction, which they break up.
+		         # They will always still be executed in order.
+			{
+				a = {1}
+				b = a
+				b !<- {2}
+			}
+			{
+				b = {3}
+			}
+			{
+				# Some long running operation ...
+			}
+		}
+	}
+
+Does the "a" value need to be retained for the STM?
+Or can it be garbage collected?
+
+It is in the transaction's local frame, so the GC will only touch it if there is an inner transaction garbage allocation.
+
+Idea:
+	Each transaction has a related list of frames, which it retains for the length of the transaction.
+	This makes dynamically avoiding overhead on mutable values easy by checking if the value is in a local frame.
+	At (after?) commit time, the values in the frame are moved to the global state pages.
+	
+	While mutating, no attention need be paid to marking grey objects (since they aren't actually being mutated).
+
+	Also at commit time, all mutations resulting in new global to global links are moved to the grey stack.
+
+	This is easy to do since the obvious commit and relocate involves first finding new locations for every object, then rewriting all moved objects to the new locations.
+
+	All modified objects either need to have their references updated, or they need to be pushed onto the grey stack.
+	So the relocation code goes through every mutated global value, checking to see if it references a moved object, updating it if it is, and otherwise adding it to the grey stack.
+
+	Otherwise, no code in commits need push values onto the grey stack.
+
+	For non-transactional code (which is hopefully rare), objects still need to be pushed onto the grey stack when modified.
+
+
+modified objects (global or local) to the global memor
+
+	those objects to there new locations.
+	The rewrite involves checking if the object refers to 
+
+move objects to the grey list

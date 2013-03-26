@@ -1,7 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
-#include "array.h"
-#include "delegate.h"
+#include "warray.h"
+#include "wcall.h"
+#include "wbuiltins.h"
 
 bool error = false;
 
@@ -10,16 +11,17 @@ void report_error( void * ignored ) {
 }
 
 int main() {
-	delegate error_delegate = { .func = report_error, .data = NULL };
-	array * a = array_new( sizeof(int), error_delegate );
+	wbuiltins_init();
+	wcall error_wcall = { .func = report_error, .data = NULL };
+	warray * a = warray_new( wtype_upcast(&wtype_int), error_wcall );
 	int i = 1;
-	array_push_front( a, &i, error_delegate );
+	warray_push_front( a, &i, error_wcall );
 	++i;
-	array_push_front( a, &i, error_delegate );
+	warray_push_front( a, &i, error_wcall );
 	++i;
-	array_push_front( a, &i, error_delegate );
+	warray_push_front( a, &i, error_wcall );
 	i = 2;
-	assert( *(int *)array_find( a, &i ) == 2 );
+	assert( *(int *)warray_find( a, &i ) == 2 );
 	printf( "%p\n", a->data );
 	return error;
 }

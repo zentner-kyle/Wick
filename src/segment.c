@@ -8,7 +8,6 @@ const uint16_t normal_field = 0x0000;
 const uint16_t repeated_field = 0x0001;
 
 void rchar_init( vm * self ) {
-	char * rchar_str = "rchar";
 }
 
 void segment_init( vm * self ) {

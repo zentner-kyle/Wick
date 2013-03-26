@@ -1,0 +1,42 @@
+The following is the design of a process calculus which unifies processes, functions, and values.
+
+The common continuation passing style (CPS) transformation makes it fairly clear that functions can be realized as processes which, once done calculating, forward their values to another process.
+
+The difficulty lies in values.
+
+Assigning a value to a term need not be conceptually different to from sending a message to a process from the point of view of the assignee.
+
+However, reading the value from a terms doesn't follow the expectations of a process.
+
+Firstly, conceptually, terms always have value, and thus have value before the process which reads them runs. However, the terms do not trigger the process to run, as sending a message to a process normally does.
+Secondly, terms may be read multiple times, and each time return a value.
+
+One way of making values act like processes is that whenever a process wants to read a variable it sends a generic 'get' message to a process representing that value, which responds with the value.
+
+This has the advantage of providing a model of values as processes without changing the denotation processes.
+
+However, it has the strange difficulty that a value is returned when a value is asked for its value. Conceptually, that value in turn will need to be asked for its value.
+This infinite descent can probably be solved without difficulty, but doing so will probably require modifying the denotation of processes. 
+
+This solution also doesn't attempt to unify values and processes so much as provide a wrapper around values which makes them look like processes.
+
+
+Consider the idea of a site, which may be connected to other sites through channels. Sites will fulfill the both roles of values and processes.
+
+Sites may push or pull across channels (both are activations).
+
+In interpreting a system of sites, the following rules apply.
+
+An activation may either be singular or infinite.
+
+When two singular activations are connected, both are consumed.
+
+When a singular activation is connected to an infinite activation, the singular activation is consumed.
+
+In this model, variables are simply 'the things which pull once and push an infinite number of times.'
+
+Function applications are 'the things which pull once and push once.'
+
+
+
+This formalism is unnecessary and distracts from the other complexity of how message sends work. Sites can just be either read / write / read-write, and there can be a different send type for 'set' and 'activate.'

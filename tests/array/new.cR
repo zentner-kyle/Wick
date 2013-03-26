@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 #include "warray.h"
 #include "wcall.h"
 #include "wbuiltins.h"
@@ -11,8 +12,8 @@ void report_error( void * ignored ) {
 
 int main() {
 	wbuiltins_init();
-	warray a;
 	wcall error_wcall = { .func = report_error, .data = NULL };
-	warray_init( &a, wtype_upcast(&wtype_int), error_wcall );
+	array * a = array_new( wtype_int, error_wcall );
+	printf( "%p\n", a->data );
 	return error;
 }

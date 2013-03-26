@@ -11,8 +11,8 @@ void report_error( void * ignored ) {
 
 int main() {
 	wbuiltins_init();
-	warray a;
+	array a;
 	wcall error_wcall = { .func = report_error, .data = NULL };
-	warray_init( &a, wtype_upcast(&wtype_int), error_wcall );
+	array_init( &a, wtype_int, error_wcall );
 	return error;
 }
