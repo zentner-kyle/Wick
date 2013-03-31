@@ -9,3 +9,7 @@
 		break;
 	#endif
 #endif
+
+#undef OP_NAME
+#undef OP_NUM_ARGS
+#undef OP_N

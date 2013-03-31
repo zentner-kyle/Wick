@@ -3,15 +3,18 @@
 #endif
 
 #define OP_N 0
-#include "wop_printacc.c"
+#include "wop_dummy.c"
 
 #define OP_N 1
-#include "wop_printenv.c"
+#include "wop_printacc.c"
 
 #define OP_N 2
-#include "wop_printstack.c"
+#include "wop_printenv.c"
 
 #define OP_N 3
+#include "wop_printstack.c"
+
+#define OP_N 4
 #include "wop_exit.c"
 
 /* Must be before last opcode. */
