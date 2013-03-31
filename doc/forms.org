@@ -1,0 +1,26 @@
+Forms (types and type combinators):
+
+base (b): a builtin or added foreign type, opaque to the type
+system. Note that actual opacity is provided by signatures, not
+sealing.
+
+option / or (o): represents additive combination. Conceptually,
+represents an object which could be one of several types.
+
+struct (s): represents multiplicative combination. Refers to
+heterogeneously typed values by name or index. There is a special
+exception that any other form may be silently wrapped in an (s)
+form. All arguments to functions and form manipulations are
+conceptually (s) forms.
+
+tag (t): resents a constructor tag. Can contain one other form, which
+conceptually is always an (s) form.
+
+abstract (a): represents a free form, that must be bound. All forms
+are either concrete or abstract. Concrete forms are forms which
+contain no sub-forms which are abstract. The previous statements imply
+that no deep-sub-form of any concrete form may be abstract.
+
+extra (x): additional type information which can be attached to a
+form. Like the (s) form, any form can be implicitly wrapped in an (x)
+form.

@@ -9,65 +9,80 @@ def configure(conf):
 
 def build(bld):
     bld.program(
-                source = 'size_test.c',
-                target = 'size_test',
-                )
-
+        source = 'size_test.c',
+        target = 'size_test',
+    )
+    
     bld.program(
-                source = 'scratch.c',
-                target = 'scratch',
-                )
-
+        source = 'scratch.c',
+        target = 'scratch',
+    )
+    
     bld.program(
-                use = 'parser_objects',
-                source = 'parse.c',
-                target = 'parse',
-                )
-
+        use = 'parser_objects',
+        source = 'parse.c',
+        target = 'parse',
+    )
+    
     bld.objects(
-            source = 'hash.c wcall.c str.c wbits.c',
-            target = 'parser_objects',
-            )
-
+        source = 'hash.c wcall.c str.c wbits.c',
+        target = 'parser_objects',
+    )
+    
     bld.program(
-            source = 'siphash24.c',
-            target = 'siphash24',
-            )
-
+        source = 'siphash24.c',
+        target = 'siphash24',
+    )
+    
     bld.program(
-            #use = 'parser_objects',
-            source = 'hash_tests.c',
-            target = 'hash_tests',
-            )
-
+        #use = 'parser_objects',
+        source = 'hash_tests.c',
+        target = 'hash_tests',
+    )
+    
     bld.program(
-            use = 'parser_objects',
-            source = 'test.c',
-            target = 'test',
-            )
-
+        use = 'parser_objects',
+        source = 'test.c',
+        target = 'test',
+    )
+    
     wick_sources = [
-            'wick_core.c', 'wick_alloc.c', 'wick_place.c',
-            'wick_channel.c', 'wick_globals.c', 'wick_dyn.c',
-            'wick_string.c', 'wick_error.c', 'wick_equal.c', 'wick_array.c',
-            'wick_assoc.c', 'warray.c', 'wcall.c', 'wstr.c', 'wsym.c',
-            'wbits.c', 'wtype.c', 'wbuiltins.c',
-            'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
-            ] 
-
+        'wick_core.c', 'wick_alloc.c', 'wick_place.c',
+        'wick_channel.c', 'wick_globals.c', 'wick_dyn.c',
+        'wick_string.c', 'wick_error.c', 'wick_equal.c', 'wick_array.c',
+        'wick_assoc.c', 'warray.c', 'wcall.c', 'wstr.c', 'wsym.c',
+        'wbits.c', 'wtype.c', 'wbuiltins.c',
+        'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
+    ] 
+    
     bld.objects(
         source = wick_sources,
         target = 'wick_objects',
-        )
-
+    )
+    
     bld.shlib(
         source = wick_sources,
         target = 'wick',
-        #libs = 'rt',
-        )
+        # libs = 'rt',
+    )
+    
+    bld.program(
+        source = 'type_system_test.c',
+        target = 'type_system_test',
+        use = 'wick',
+        rpath = '$ORIGIN',
+    )
+    
+    bld.program(
+        source = 'wvm.c',
+        target = 'wvm',
+        use = 'wick',
+        rpath = '$ORIGIN',
+    )
 
     bld.program(
-                source = 'type_system_test.c',
-                target = 'type_system_test',
-                use = 'wick',
-                )
+        source = 'wasm.c',
+        target = 'wasm',
+        use = 'wick',
+        rpath = '$ORIGIN',
+    )

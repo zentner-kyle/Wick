@@ -10,7 +10,16 @@ from waf_extensions import declare_variants
 declare_variants('debug', 'release')
 
 def options(opt):
-    opt.add_option('--cc', action='store', default='clang', help='The C Compiler to use.')
+    opt.add_option('--cc',
+                   action='store',
+                   default='clang',
+                   help='The C Compiler to use.')
+    opt.add_option('--computed-gotos',
+                   '--use-computed-gotos',
+                   action='store',
+                   default='try',
+                   choices=['yes', 'no', 'try'],
+                   help='Whether to use computed gotos or not.')
     opt.load('compiler_c')
     opt.recurse('deps')
     opt.recurse('src')
@@ -24,8 +33,26 @@ def common_configure(conf):
     conf.load('compiler_c')
     version = '-std=c99'
     version = '-std=gnu99'
-    conf.check(feature='cc cprogram cstdlib', cflags=['-Wall', version])
-    conf.env.append_value('CFLAGS', ['-Wall', version])
+    warning_flags = ['-Wall',
+                     # '-Wextra'
+    ]
+    conf.check(feature='cc cprogram cstdlib', cflags=warning_flags + [version])
+    conf.env.append_value('CFLAGS', warning_flags + [version])
+    conf.env.append_value('CFLAGS', warning_flags + [version])
+    if conf.options.computed_gotos in ['yes', 'try']:
+        need_computed_gotos = conf.options.computed_gotos == 'yes'
+        have_computed_gotos = conf.check_cc(
+            msg = 'Checking for computed gotos',
+            fragment = 'int main() {'
+            'void * target_val;'
+            'target: target_val = &&target;'
+            'goto *target_val;'
+            'return 0;}',
+            define_name = 'HAVE_COMPUTED_GOTOS',
+            mandatory = need_computed_gotos
+        )
+        if have_computed_gotos:
+            conf.define('USE_COMPUTED_GOTOS', '')
     if profiling:
         conf.check(feature='cc cprogram cstdlib', cflags=['-pg'],
             linkflags=['-pg'])
@@ -36,12 +63,12 @@ def configure_debug(conf):
     conf.setenv('debug')
     common_configure(conf)
     conf.check(cflags=['-g'])
+    conf.env.append_value('CFLAGS', ['-DWICK_DEBUG'])
     conf.env.append_value('CFLAGS', ['-g'])
 
 def configure_release(conf):
     conf.setenv('release')
     common_configure(conf)
-    conf.check(cflags=['-DNDEBUG'])
     conf.env.append_value('CFLAGS', ['-DNDEBUG'])
     conf.env.append_value('CFLAGS', ['-DWICK_RELEASE'])
     try:

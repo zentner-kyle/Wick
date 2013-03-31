@@ -1,4 +1,44 @@
 Execution Plan
 
-First, we're going to execute ATG directly
+First implement a simple vm, with hints towards supporting Wick where appropriate.
 
+Notes:
+
+Need fixed instruction size (32 bits?)
+
+Need to be able to embed data, either in a constant table (per-function Lua style?) or inline.
+
+Since it seems likely that Wick won't have a strict enough notion of a function, it's probably better to inline immediate data.
+
+Could use the idea of rewriting bytecode to threaded code while executing (switchable) which would require pointer sized opcodes.
+
+Stack vs. register
+	Lua uses "registers" which are actually indices into the current function frame (which is allocated on a virtual stack, on the c "heap").
+	Caml's Zinc machine uses an environment, stack, and accumulator. Because the accumulator is almost always in a hardware register, this results in better performance.
+	Lua's register style seems massively easier to compile to, but limits functions to 256-ish arguments.
+	Instead use a smaller number of registers (16?), and do actual register allocation?
+
+
+Design
+	Opcodes are loaded 4 bytes (32 bits) at a time.
+	Some opcodes may use up all of those bytes, others might only use up some, then shift the 32 bits to the left to put the next opcode into place.
+	The code generator is responsible for insuring that only compatible opcodes are in the same 32 bit chunk.
+	In other words, 4 8-bit (0 argument) opcodes can coexist, or 2 8-bit and 1 16-bit (1 argument), or 1 8-bit and 1 24-bit (2 argument) opcode, or only 1 32-bit (3 argument) opcode.
+	Arguments are always an unsigned byte. If the top bit is set (>= 128) then the argument refers to an index from the stack end.
+
+All opcodes are listed in order in opcodes.c
+
+Each op_*.c file contains several different sections, which are requested by defining another macro. 
+
+op_*.c fields:
+	name :: string literal
+	raw_name :: c token name
+	jump_target :: &raw_name
+	body :: c code to be pasted into main switch body
+
+meta registers
+	acc
+	pc
+	env
+	stack_start
+	stack_end
