@@ -11,9 +11,16 @@ enum wstr_alloc_type {
 };
 
 def_struct( wstr ) {
+    wtype * type;
 	char * text;
 	enum wstr_alloc_type alloc_type;
 };
+
+extern wtype wstr_type;
+
+#define WSTR_LIT( literal )                  \
+    (wstr) { &wstr_type, literal, wstr_static }
+
 
 wstr wstr_from_literal( char * literal );
 

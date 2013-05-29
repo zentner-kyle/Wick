@@ -24,7 +24,7 @@ typedef struct token token;
 bool token_equal( token * a, token * b ) {
 	assert( a && b );
 	return a->id == b->id && str_equal( a->text, b->text );
-};
+}
 
 hash_t token_hash( siphash_key key, token * a ) {
 	return siphash_24( key, (uint8_t*) a->text.start, a->text.len );

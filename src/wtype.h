@@ -10,56 +10,70 @@
 #define wtype_upcast( ptr_to_subtype ) ( ( wtype * )( ptr_to_subtype ) )
 
 struct wtype {
-	#include "wobj_header.h"
+	wtype * type;
 	wsym id;
 	size_t size;
-	wtype * meta_type;
 };
 
 struct wtype_alien {
-	#include "wobj_header.h"
+	wtype * type;
 	wsym id;
 	size_t size;
-	wtype * meta_type;
 };
 
 struct wtype_base {
-	#include "wobj_header.h"
+	wtype * type;
 	wsym id;
 	size_t size;
-	wtype * meta_type;
 };
 
 struct wtype_composite {
-	#include "wobj_header.h"
+	wtype * type;
 	wsym id;
 	size_t size;
-	wtype * meta_type;
 	warray fields;
 	wtable names;
 };
 
 struct wtype_dynamic {
-	#include "wobj_header.h"
+	wtype * type;
 	wsym id;
 	size_t size;
-	wtype * meta_type;
 };
 
 struct wtype_ptr {
-	#include "wobj_header.h"
+	wtype * type;
 	wsym id;
 	size_t size;
-	wtype * meta_type;
 	wtype * subtype;
 };
 
 struct wtype_variant {
-	#include "wobj_header.h"
+	wtype * type;
 	wsym id;
 	size_t size;
-	wtype * meta_type;
 	warray variants;
+};
+
+struct wtype_variable {
+	wtype * type;
+	wsym id;
+	size_t size;
+	wsym variable_name;
+};
+
+struct wtype_parametric {
+	wtype * type;
+	wsym id;
+	size_t size;
+	wtable variables;
+};
+
+struct wtype_abstract {
+	wtype * type;
+	wsym id;
+	size_t size;
+	wtype * subtype;
 };
 
 void wtype_init_header(wtype * t);

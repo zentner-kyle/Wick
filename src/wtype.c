@@ -8,4 +8,3 @@ void wtype_init_base(wtype_base * t, wstr name, size_t size) {
 	t->size = size;
 	t->id = wsym_of_wstr(name);
 }
-

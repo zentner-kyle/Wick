@@ -4,7 +4,7 @@ void * walloc_bytes( context * ctxt, size_t num_bytes ) {
 	return malloc(num_bytes);
 }
 
-object * walloc( context * ctxt, segment_info * info ) {
+object * walloc_obj( context * ctxt, segment_info * info ) {
 	size_t to_alloc = segment_info_size( info );
 	object * obj = (object *) walloc_bytes( ctxt, to_alloc );
 	if ( ! obj ) {

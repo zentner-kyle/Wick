@@ -5,16 +5,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "wcall.h"
-#include "walloc.h"
 #include "wtype_h.h"
+#include "wcall.h"
+/* #include "walloc.h" */
+/* #include "wmacros.h" */
 
 /*
  * A looping, growing array.
  * All internal indices are in bytes.
  */
 
-struct warray {
+def_struct( warray ) {
+    wtype * type;
 	wtype * elem_type;
 	size_t space;
 	size_t past_end;
@@ -22,15 +24,11 @@ struct warray {
 	void * data;
 };
 
-typedef struct warray warray;
-
-struct warrayi {
+def_struct( warrayi ) {
+    wtype * type;
 	warray * parent;
 	int index;
 };
-
-typedef struct warrayi warrayi;
-
 
 bool warray_init_to_size( warray * self, wtype * elem_type, size_t num_elements, wcall error );
 bool warray_init( warray * self, wtype * elem_type, wcall error );

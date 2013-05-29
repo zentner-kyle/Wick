@@ -53,6 +53,7 @@ def build(bld):
         'wick_assoc.c', 'warray.c', 'wcall.c', 'wstr.c', 'wsym.c',
         'wbits.c', 'wtype.c', 'wbuiltins.c',
         'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
+        'wplace.c', 'wchannel.c'
     ] 
     
     bld.objects(

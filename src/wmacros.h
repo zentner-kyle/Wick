@@ -4,8 +4,8 @@
 
 /* Structs and typedefs. */
 #define declare_struct( name ) \
-    struct name; \
-    typedef struct name name;
+	struct name; \
+	typedef struct name name;
 
 #define def_struct( name ) \
 	struct name; \

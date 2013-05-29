@@ -7,7 +7,7 @@
 
 void * walloc_bytes( context * ctxt, size_t num_bytes );
 
-object * walloc( context * ctxt, segment_info * info );
+object * walloc_obj( context * ctxt, segment_info * info );
 
 struct object {
 	segment_info * info;

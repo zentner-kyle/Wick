@@ -117,6 +117,7 @@ segment_info
 			pass
 		composite:
 			Implies that the segment is _always_ _composed_ of certain sub-segments in an order
+			Note that the sub-segments are not implicitly pointers, even if they themselves are composites.
 			List of pointers to sub-segments (in index order)
 			symbol -> index Map
 		dynamic:
@@ -126,6 +127,16 @@ segment_info
 		variant:
 			Implies that the segment begins with a pointer to a segment_info node, followed by a corresponding segment
 			List of possible sub-segments, no particular order
+		variable:
+			Implies that the segment has not actually been bound yet.
+			symbol, the name of the variable
+		parametric:
+			Implies that the segment's form is dependent
+			symbol -> segment Map, if none of the segments in this map are (variables or non-bound / free), then the segment is bound (non-free)
+		abstract:
+			Implies that the segment should not be considered to have a value, but is instead only a carrier of a type
+			sub-segment type :: *segment_info
+
 
 The segment_info node for segment_info looks like:
 
@@ -148,7 +159,7 @@ segment_info_variant =  {
 		symbol = &{0x_, 0x_, "anonymous"}
 		segment_size = _
 		segment_type = &variant
-		[&alien, &pointer, &base, &composite, &dynamic, &variant]
+		[&alien, &pointer, &base, &composite, &dynamic, &variant, &variable, &abstract]
 	}
 
 alien = {
@@ -211,7 +222,29 @@ variant = {
 		symbol = &{0x_, 0x_, "variant"}
 		segment_size = sizeof(segment_info*) + max(sizeof(option) for option in sub_segments)
 		segment_type = &composite
-		sub_segments = List<&segment_info>
+		sub_segments = [List<&segment_info>]
+	}
+
+variable = {
+		headers {
+			gc_headers
+			segment = &segment_info
+		}
+		symbol = &{0x_, 0x_, "variable"}
+		segment_size = sizeof(symbol)
+		segment_type = &composite
+		sub_segments = [::*symbol]
+	}
+
+variable = {
+		headers {
+			gc_headers
+			segment = &segment_info
+		}
+		symbol = &{0x_, 0x_, "abstract"}
+		segment_size = sizeof(Map<symbol, segment_info>)
+		segment_type = &composite
+		sub_segments = [&Map<symbol, segment_info>]
 	}
 
 ::symbol = {

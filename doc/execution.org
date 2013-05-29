@@ -21,7 +21,7 @@ Stack vs. register
 
 Design
 	Opcodes are loaded 4 bytes (32 bits) at a time.
-	Some opcodes may use up all of those bytes, others might only use up some, then shift the 32 bits to the left to put the next opcode into place.
+	Some opcodes may use up all of those bytes, others might only use up some, then shift the 32 bits to the right to put the next opcode into place.
 	The code generator is responsible for insuring that only compatible opcodes are in the same 32 bit chunk.
 	In other words, 4 8-bit (0 argument) opcodes can coexist, or 2 8-bit and 1 16-bit (1 argument), or 1 8-bit and 1 24-bit (2 argument) opcode, or only 1 32-bit (3 argument) opcode.
 	Arguments are always an unsigned byte. If the top bit is set (>= 128) then the argument refers to an index from the stack end.
