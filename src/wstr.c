@@ -43,7 +43,7 @@ wstr wstr_from_file( FILE * file ) {
 		out.length = 0;
 	} else {
 		long int to_read = wick_get_file_size( file );
-		uint8_t * buffer = malloc( out.length + 1);
+		uint8_t * buffer = malloc( to_read + 1);
 		if ( buffer ) {
 			long int bytes_read = fread((void *)buffer, sizeof(char), to_read, file);
 			assert(bytes_read == to_read);

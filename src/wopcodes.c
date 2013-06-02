@@ -17,6 +17,18 @@
 #define OP_N 4
 #include "wop_exit.c"
 
+#define OP_N 5
+#include "wop_addacc.c"
+
+#define OP_N 6
+#include "wop_add.c"
+
+#define OP_N 7
+#include "wop_accmul.c"
+
+#define OP_N 8
+#include "wop_accset.c"
+
 /* Must be before last opcode. */
 #undef OPCODE_LIST
 

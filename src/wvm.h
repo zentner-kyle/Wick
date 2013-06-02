@@ -11,7 +11,7 @@ typedef uint32_t bytecode_t;
 
 typedef size_t field_t;
 
-typedef uint8_t wasm_arg;
+typedef int8_t wasm_arg;
 
 typedef uint8_t wasm_op;
 

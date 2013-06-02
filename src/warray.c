@@ -77,6 +77,7 @@ bool warray_grow( warray * self, wcall error ) {
 		winvoke( error );
 		return false;
 	}
+	/* memset( new_data, 0, new_size ); */
 	if ( warray_looped( self ) ) {
 		size_t end_size = self->space - self->start;
 		memcpy( new_data, idx(self->data, self->start), end_size );
@@ -88,6 +89,7 @@ bool warray_grow( warray * self, wcall error ) {
 	self->start = 0;
 	free( self->data );
 	self->data = new_data;
+	self->space = new_size;
 	return true;
 }
 
@@ -159,7 +161,6 @@ void warray_pop_back( warray * self, void * to_store, wcall error ) {
 void warray_pop_front( warray * self, void * to_store, wcall error ) {
 	if ( warray_empty( self ) ) {
 		winvoke( error );
-		printf( "here\n" );
 	}
 
 	set( to_store, idx( self->data, self->start ), self );
@@ -306,6 +307,12 @@ void warray_debug_print( warray * self ) {
 	printf( ".past_end = %zd\n", self->past_end );
 	printf( ".start = %zd\n", self->start );
 	printf( ".data = %p\n", self->data );
+	printf( "data contents:\n" );
+	uint32_t * data = self->data;
+	for (int i = 0; i * self->elem_type->size < self->space; i++) {
+		printf( "%.8x ", data[ i ] );
+	}
+	printf("\n");
 }
 
 bool warray_check_type( warray * self, size_t type_size ) {
