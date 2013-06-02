@@ -4,9 +4,13 @@
 #include "werror.h"
 #include "wplace.h"
 
-#ifndef wick_base_alloc
-	#define wick_base_alloc( num_bytes ) malloc( num_bytes )
-#endif
+#define wick_base_alloc( num_bytes ) malloc( num_bytes )
+#define wick_base_free( ptr ) free( ptr )
+#define wick_base_memalign( num_bytes, alignment ) wick_memalign( num_bytes, alignment )
+
+void * wick_memalign( size_t num_bytes, size_t alignment );
+
+#define WICK_ARENA_ALIGNMENT ((size_t)(1 << 12))
 
 #define walloc_simple( type, count ) ((type *) wick_base_alloc( sizeof( type ) * count ))
 

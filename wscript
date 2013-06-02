@@ -26,6 +26,7 @@ def options(opt):
     opt.recurse('tests')
 
 profiling = False
+build_tests = False
 
 def common_configure(conf):
     if conf.find_program(conf.options.cc):
@@ -95,7 +96,9 @@ def build(bld):
     else:
         bld.recurse('deps')
         bld.recurse('src')
-        bld.recurse('tests')
+        if build_tests:
+            bld.recurse('tests')
 
 def test(context):
+    build_tests = True
     context.recurse('tests')

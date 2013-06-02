@@ -10,4 +10,7 @@ def_struct( wsym ) {
 
 wsym wsym_of_wstr( wstr s );
 
+#define WSYM_LIT( literal ) \
+	((wsym) { WSTR_LIT( literal ) })
+
 #endif /* end of include guard: WSYM_H */

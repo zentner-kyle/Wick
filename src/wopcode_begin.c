@@ -4,6 +4,10 @@
 	#define OP_NUM_ARGS 0
 #endif
 
+#ifdef OPCODE_ARGS
+	OP_NUM_ARGS
+#endif
+
 #ifdef OPCODE_TOKEN
 	OP_NAME
 #endif
@@ -30,7 +34,7 @@
 #endif
 
 #if OP_NUM_ARGS < 0 || OP_NUM_ARGS > OP_MAX_ARGS
-	};
+	/* }; */
 	#pragma message "Opcode " OP_NAME " has illegal number of arguments " string_of_macro( OP_NUM_ARGS ) "."
 	#pragma message "Should be 0 <= " string_of_macro( OP_NUM_ARGS ) " <= " string_of_macro( OP_MAX_ARGS ) "."
 	#error Illegal number of arguments to opcode.

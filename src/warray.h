@@ -16,7 +16,7 @@
  */
 
 def_struct( warray ) {
-    wtype * type;
+	wtype * type;
 	wtype * elem_type;
 	size_t space;
 	size_t past_end;
@@ -25,7 +25,7 @@ def_struct( warray ) {
 };
 
 def_struct( warrayi ) {
-    wtype * type;
+	wtype * type;
 	warray * parent;
 	int index;
 };

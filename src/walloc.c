@@ -3,6 +3,7 @@
 #include "walloc.h"
 #include "stdlib.h"
 #include "string.h"
+#include <assert.h>
 
 	/* For use in low level code. */
 
@@ -26,5 +27,15 @@ wobj * walloc( wplace * place, wtype * type ) {
 		return NULL;
 	} else {
 		return (wobj *) to_store;
+	}
+}
+
+void * wick_memalign( size_t num_bytes, size_t alignment ) {
+	void * to_write;
+	assert(!(alignment & (alignment - 1)));
+	if( posix_memalign( &to_write, alignment, num_bytes ) ) {
+		return NULL;
+	} else {
+		return to_write;
 	}
 }

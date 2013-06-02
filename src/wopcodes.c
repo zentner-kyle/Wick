@@ -32,3 +32,4 @@
 #undef OPCODE_LABEL
 #undef OPCODE_BODY
 #undef OPCODE_NAME
+#undef OPCODE_ARGS
