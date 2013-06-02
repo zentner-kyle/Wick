@@ -12,6 +12,11 @@
 	typedef struct name name; \
 	struct name
 
+#define def_union( name ) \
+	union name; \
+	typedef union name name; \
+	union name
+
 
 /* Token manipulation. */
 #define join_token(a, b) join_token_inner( a, b )

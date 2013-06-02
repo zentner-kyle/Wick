@@ -6,7 +6,7 @@
 
 wtype wstr_type;
 
-wstr wstr_from_literal( char * literal ) {
+wstr wstr_from_literal( const char * literal ) {
 	wstr out;
 	out.type = &wstr_type;
 	out.text = literal;
@@ -15,7 +15,7 @@ wstr wstr_from_literal( char * literal ) {
 	return out;
 }
 
-wstr wstr_from_dynamic( char * dynamic ) {
+wstr wstr_from_dynamic( const char * dynamic ) {
 	wstr out;
 	out.type = &wstr_type;
 	out.text = dynamic;
@@ -24,7 +24,7 @@ wstr wstr_from_dynamic( char * dynamic ) {
 	return out;
 }
 
-long int wick_get_file_size(FILE * file) {
+long int wick_get_file_size( FILE * file ) {
 	fpos_t start_position;
 	long int file_size;
 	fgetpos(file, &start_position);
@@ -42,13 +42,14 @@ wstr wstr_from_file( FILE * file ) {
 		out.text = NULL;
 		out.length = 0;
 	} else {
-		out.length = wick_get_file_size( file );
+		long int to_read = wick_get_file_size( file );
 		uint8_t * buffer = malloc( out.length + 1);
 		if ( buffer ) {
-			long int bytes_read = fread((void *)buffer, sizeof(char), out.length, file);
+			long int bytes_read = fread((void *)buffer, sizeof(char), to_read, file);
+			assert(bytes_read == to_read);
+			out.length = bytes_read;
 			buffer[out.length] = '\0';
 			out.text = (const char *)buffer;
-			assert( bytes_read == out.length );
 		} else {
 			out.text = NULL;
 			out.length = 0;
@@ -93,17 +94,10 @@ size_t wstr_code_length(const wstr str) {
 }
 
 int wstr_compare( wstr a, wstr b) {
-	/* printf("Comparing %s and %s\n", a.text, b.text); */
-	/* printf("Sizes %ld and %ld\n", a.length, b.length); */
 	if (a.length == b.length) {
-		/* printf("Same size\n"); */
-		int result = memcmp( (const void *)a.text, (const void *)b.text, a.length);
-	/* 	printf("result = %d\n", result); */
-	/* printf("Sizes %ld and %ld\n", a.length, b.length); */
-		return result;
+		return memcmp( (const void *)a.text, (const void *)b.text, a.length);
 	} else if (a.length > b.length) {
 		int result = memcmp( a.text, b.text, b.length );
-		/* printf("result = %d\n", result); */
 		if (result == 0) {
 			return 1;
 		} else {
@@ -111,11 +105,26 @@ int wstr_compare( wstr a, wstr b) {
 		}
 	} else /* if ( b.length > a.length ) */ {
 		int result = memcmp( a.text, b.text, a.length );
-		/* printf("result = %d\n", result); */
 		if (result == 0) {
 			return -1;
 		} else {
 			return result;
 		}
 	}
+}
+
+void wstr_init_dynamic( wstr * to_init ) {
+	to_init->type = (wtype *) &wstr_type;
+	to_init->alloc_type = wstr_dynamic;
+}
+
+void wstr_print(wstr str) {
+	for ( int i = 0; i < str.length; i++ ) {
+		putc( str.text[i], stdout );
+	}
+}
+
+void wstr_println(wstr str) {
+	wstr_print( str );
+	printf( "\n" );
 }

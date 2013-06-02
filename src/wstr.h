@@ -23,10 +23,9 @@ extern wtype wstr_type;
 #define WSTR_LIT( literal ) \
 	(wstr) { &wstr_type, literal, sizeof( literal ), wstr_static }
 
+wstr wstr_from_literal( const char * literal );
 
-wstr wstr_from_literal( char * literal );
-
-wstr wstr_from_dynamic( char * dynamic );
+wstr wstr_from_dynamic( const char * dynamic );
 
 wstr wstr_from_filename( wstr filename );
 
@@ -34,5 +33,10 @@ wstr wstr_from_file( FILE * file );
 
 int wstr_compare( wstr a, wstr b);
 
+void wstr_init_dynamic( wstr * to_init );
+
+void wstr_print(wstr str);
+
+void wstr_println( wstr to_print );
 
 #endif /* end of include guard: WSTR_H */
