@@ -4,7 +4,5 @@ printacc
 accmul r2
 accset r7f
 printacc
-printacc
-printacc
 printacc # Finally, print out the accumulator
 exit

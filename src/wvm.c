@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 #include "wvm.h"
 #include "walloc.h"
 #include "werror.h"
@@ -56,7 +57,7 @@ void wexec_code( bytecode_t * c ) {
 		};
 	#endif
 
-	while (op_bunch) {
+	while (true) {
 /* printf("."); */
 		DISPATCH {
 			#define OPCODE_LABEL
@@ -230,7 +231,7 @@ bytecode_t * wbytecode_from_filename( wstr filename ) {
 		/* printf("opcode in = %.8x\n", opcode); */
 		warray_push_back( uncollapsed_code, (void *) &opcode, null_wcall );
 	}
-	warray_debug_print(uncollapsed_code);
+	/* warray_debug_print(uncollapsed_code); */
 	++total_size;
 	/* printf("total size = %zd\n", total_size); */
 	bytecode_t * code = malloc(sizeof(bytecode_t) * total_size);
@@ -239,7 +240,7 @@ bytecode_t * wbytecode_from_filename( wstr filename ) {
 	uint8_t used_in_opcode = 0;
 	while ( ! warray_empty( uncollapsed_code ) ) {
 		warray_pop_front( uncollapsed_code, (void *) &opcode, null_wcall );
-		printf("opcode = %.8x\n", opcode);
+		/* printf("opcode = %.8x\n", opcode); */
 		uint8_t size = wopcode_args[opcode & 0xff] + 1;
 		if (used_in_opcode + size > sizeof(bytecode_t)) {
 			/* printf("next opcode\n"); */

@@ -42,7 +42,7 @@
 
 #ifdef OPCODE_BODY
 	op_bunch >>= 8;
-	printf("bunch post first shift: %.8x\n", op_bunch);
+	/* printf("bunch post first shift: %.8x\n", op_bunch); */
 	*((uint32_t *)args) = op_bunch;
 	#ifdef WICK_DEBUG
 		for (int clearing_args = OP_NUM_ARGS; clearing_args < OP_MAX_ARGS; ++clearing_args) {
@@ -50,5 +50,5 @@
 		}
 	#endif
 	op_bunch >>= 8 * OP_NUM_ARGS;
-	printf("bunch post second shift: %.8x\n", op_bunch);
+	/* printf("bunch post second shift: %.8x\n", op_bunch); */
 #endif
