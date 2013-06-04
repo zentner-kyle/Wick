@@ -1,10 +1,13 @@
 #ifdef OPCODE_LABEL
 	*(uint32_t *) args = 0;
 	#ifdef USE_COMPUTED_GOTOS
-		if ( ! thisop ) {
-			thisop = *++c;
+		if ( ! op_bunch ) {
+			printf("Loading next bunch.\n");
+			op_bunch = *++c;
 		}
-		goto *jump_targets[thisop & 0xff];
+		printf("op_bunch & 0xff = %d\n", op_bunch & 0xff);
+		printf("jump target = %p\n", jump_targets[op_bunch & 0xff]);
+		goto *jump_targets[op_bunch & 0xff];
 	#else
 		break;
 	#endif

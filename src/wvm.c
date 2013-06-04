@@ -8,14 +8,16 @@
 #define WICK_STACK_SIZE 256
 #define WICK_ENV_SIZE 256
 
+/* #undef USE_COMPUTED_GOTOS */
+
 #if !defined(HAVE_COMPUTED_GOTOS) && defined(USE_COMPUTED_GOTOS)
 	#error "Cannot use computed goto with this compiler."
 #endif
 
 #ifdef USE_COMPUTED_GOTOS
-	#define DISPATCH goto *jump_targets[thisop & 0xff];
+	#define DISPATCH goto *jump_targets[op_bunch & 0xff];
 #else
-	#define DISPATCH switch (thisop & 0xff)
+	#define DISPATCH switch (op_bunch & 0xff)
 #endif
 
 static const char * wopcode_names[] = {
@@ -32,17 +34,20 @@ static const char wopcode_args[] = {
 
 
 void wexec_code( bytecode_t * c ) {
-	bytecode_t thisop = *c;
+	bytecode_t op_bunch = *c;
 	wasm_arg args[4];
 	field_t * stack_start = walloc_simple( field_t, WICK_STACK_SIZE );
 	field_t * stack_end = stack_start;
 	field_t * env = walloc_simple( field_t, WICK_ENV_SIZE );
 	field_t acc = 0;
-	#define get_arg( a )																			\
-		(( a & ( 1 << 7 ) ) ? (stack_end + a) : (stack_start + a))
+#define get_arg( a ) \
+(stack_start + a)
+	/* #define get_arg( a )																			\ */
+	/* 	(( a & ( 1 << 7 ) ) ? (stack_end + a) : (stack_start + a)) */
 	#define arg_0 (*get_arg(args[0]))
 	#define arg_1 (*get_arg(args[1]))
 	#define arg_2 (*get_arg(args[2]))
+/* printf("Here\n"); */
 
 	#ifdef USE_COMPUTED_GOTOS
 		static const void * jump_targets[] = {
@@ -51,7 +56,8 @@ void wexec_code( bytecode_t * c ) {
 		};
 	#endif
 
-	while (true) {
+	while (op_bunch) {
+/* printf("."); */
 		DISPATCH {
 			#define OPCODE_LABEL
 			#define OPCODE_BODY
@@ -233,7 +239,7 @@ bytecode_t * wbytecode_from_filename( wstr filename ) {
 	uint8_t used_in_opcode = 0;
 	while ( ! warray_empty( uncollapsed_code ) ) {
 		warray_pop_front( uncollapsed_code, (void *) &opcode, null_wcall );
-		/* printf("opcode = %.8x\n", opcode); */
+		printf("opcode = %.8x\n", opcode);
 		uint8_t size = wopcode_args[opcode & 0xff] + 1;
 		if (used_in_opcode + size > sizeof(bytecode_t)) {
 			/* printf("next opcode\n"); */
@@ -269,6 +275,7 @@ int main( int argc, char *argv[] ) {
 	/* print_opcodes(); */
 	/* printf( "sizeof(massively_long_test_string) %ld\n", sizeof("massively_long_test_string")); */
 	/* printf( "src/test.wasm:\n%s\n", wstr_from_filename( WSTR_LIT( "src/test.wasm" ) ).text ); */
-	wbytecode_from_filename( WSTR_LIT( "src/test.wasm" ) );
+	bytecode_t * code = wbytecode_from_filename( WSTR_LIT( "src/test.wasm" ) );
+	wexec_code( code );
 	return 0;
 }

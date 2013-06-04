@@ -1,5 +1,5 @@
 addacc r0, r1
-add s2, r0, r1
+add r2, r0, r1
 printacc
 accmul r2
 accset r7f
