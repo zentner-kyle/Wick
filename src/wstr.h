@@ -13,15 +13,15 @@ enum wstr_alloc_type {
 
 def_struct( wstr ) {
 	wtype * type;
-	const char * text;
-	size_t length;
+	const char * start;
+	const char * past_end;
 	enum wstr_alloc_type alloc_type;
 };
 
 extern wtype wstr_type;
 
 #define WSTR_LIT( literal ) \
-	(wstr) { &wstr_type, literal, sizeof( literal ), wstr_static }
+	(wstr) { &wstr_type, literal, literal + sizeof( literal ) - 1, wstr_static }
 
 wstr wstr_from_literal( const char * literal );
 
@@ -38,5 +38,7 @@ void wstr_init_dynamic( wstr * to_init );
 void wstr_print(wstr str);
 
 void wstr_println( wstr to_print );
+
+size_t wstr_size( const wstr str );
 
 #endif /* end of include guard: WSTR_H */

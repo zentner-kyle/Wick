@@ -6,11 +6,15 @@
 
 wtype wstr_type;
 
+size_t wstr_size( const wstr str ) {
+	return str.past_end - str.start;
+}
+
 wstr wstr_from_literal( const char * literal ) {
 	wstr out;
 	out.type = &wstr_type;
-	out.text = literal;
-	out.length = strlen( literal );
+	out.start = literal;
+	out.past_end = literal + strlen( literal );
 	out.alloc_type = wstr_static;
 	return out;
 }
@@ -18,8 +22,8 @@ wstr wstr_from_literal( const char * literal ) {
 wstr wstr_from_dynamic( const char * dynamic ) {
 	wstr out;
 	out.type = &wstr_type;
-	out.text = dynamic;
-	out.length = strlen( dynamic );
+	out.start = dynamic;
+	out.past_end = dynamic + strlen( dynamic );
 	out.alloc_type = wstr_dynamic;
 	return out;
 }
@@ -39,27 +43,27 @@ wstr wstr_from_file( FILE * file ) {
 	out.type = &wstr_type;
 	out.alloc_type = wstr_dynamic;
 	if ( file == NULL ) {
-		out.text = NULL;
-		out.length = 0;
+		out.start = NULL;
+		out.past_end = NULL;
 	} else {
 		long int to_read = wick_get_file_size( file );
 		uint8_t * buffer = malloc( to_read + 1);
 		if ( buffer ) {
 			long int bytes_read = fread((void *)buffer, sizeof(char), to_read, file);
 			assert(bytes_read == to_read);
-			out.length = bytes_read;
-			buffer[out.length] = '\0';
-			out.text = (const char *)buffer;
+			out.past_end = (const char *) buffer + bytes_read;
+			buffer[bytes_read] = '\0';
+			out.start = (const char *) buffer;
 		} else {
-			out.text = NULL;
-			out.length = 0;
+			out.start = NULL;
+			out.past_end = NULL;
 		}
 	}
 	return out;
 }
 
 wstr wstr_from_filename( wstr filename ) {
-	FILE * file = fopen( filename.text, "r" );
+	FILE * file = fopen( filename.start, "r" );
 	wstr out = wstr_from_file( file );
 	if ( file ) {
 		fclose( file );
@@ -69,23 +73,22 @@ wstr wstr_from_filename( wstr filename ) {
 
 size_t wstr_code_length(const wstr str) {
 	size_t count = 0;
-	size_t index = 0;
-	size_t ascii_start = 0;
+	const char * cur = str.start;
+	const char * ascii_start = cur;
 
-	while ( index < str.length && str.text[index] <= 0x7f ) {
-		ascii: ++index;
-	}
+	while (cur < str.past_end && *cur <= 127)
+	ascii: ++cur;
 
-	count += index - ascii_start;
-	while ( index < str.length ) {
-		if ( str.text[index] <= 0x7f ) {
-			ascii_start = index;
+	count += cur - ascii_start;
+	while (cur < str.past_end) {
+		if (*cur <= 127) {
+			ascii_start = cur;
 			goto ascii;
 		} else {
-			switch ( 0xF0 & str.text[index] ) {
-				case 0xe0: index += 3; break;
-				case 0xf0: index += 4; break;
-				default: index += 2; break;
+			switch (0xF0 & *cur) {
+				case 0xE0: cur += 3; break;
+				case 0xF0: cur += 4; break;
+				default:   cur += 2; break;
 			}
 		}
 		++count;
@@ -94,17 +97,19 @@ size_t wstr_code_length(const wstr str) {
 }
 
 int wstr_compare( wstr a, wstr b) {
-	if (a.length == b.length) {
-		return memcmp( (const void *)a.text, (const void *)b.text, a.length);
-	} else if (a.length > b.length) {
-		int result = memcmp( a.text, b.text, b.length );
+	size_t a_size = wstr_size( a );
+	size_t b_size = wstr_size( b );
+	if (a_size == b_size) {
+		return memcmp( (const void *)a.start, (const void *)b.start, a_size);
+	} else if (a_size > b_size) {
+		int result = memcmp( a.start, b.start, b_size );
 		if (result == 0) {
 			return 1;
 		} else {
 			return result;
 		}
-	} else /* if ( b.length > a.length ) */ {
-		int result = memcmp( a.text, b.text, a.length );
+	} else /* if ( b_size > a_size ) */ {
+		int result = memcmp( a.start, b.start, a_size );
 		if (result == 0) {
 			return -1;
 		} else {
@@ -119,8 +124,8 @@ void wstr_init_dynamic( wstr * to_init ) {
 }
 
 void wstr_print(wstr str) {
-	for ( int i = 0; i < str.length; i++ ) {
-		putc( str.text[i], stdout );
+	for ( const char * c = str.start; c != str.past_end; c++ ) {
+		putc( *c, stdout );
 	}
 }
 
