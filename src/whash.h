@@ -1,7 +1,8 @@
 #ifndef WHASH_H
 #define WHASH_H
+#include <stdint.h>
 #include "wmacros.h"
-#include "wtype.h"
+#include "wtype_h.h"
 #include "wobj.h"
 
 typedef uint64_t whash_t;

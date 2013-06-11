@@ -1,6 +1,8 @@
 #ifndef WTABLE_H
 #define WTABLE_H
 #include <stdbool.h>
+#include <stdlib.h>
+#include "wcall.h"
 #include "wmacros.h"
 #include "wtype_h.h"
 #include "whash.h"
@@ -11,16 +13,19 @@ def_struct( wtable_elem_interface ) {
 };
 
 def_struct( wtable_bucket ) {
-	whash_t hash;
 	void * key;
 	void * value;
+	wtable_bucket * next;
+	whash_t hash;
 };
 
 def_struct( wtable ) {
 	wtype * type;
-    wtable_elem_interface * interface;
+	wtable_elem_interface * interface;
+	wtype * elem_type;
 	size_t mask;
 	size_t num_elems;
+	size_t space;
 	wtable_bucket * data;
 };
 
@@ -28,13 +33,9 @@ def_struct( wtable ) {
  * Porbably should build most of it on top of wcalls or similar.
  */
 
-bool wtable_init_to_size( wtable * self, wtype * elem_type, size_t predicted_elems, wcall error );
+bool wtable_init_to_size( wtable * self, wtype * elem_type, size_t predicted_elems, wtable_elem_interface * hash_interface, wcall error );
 
 bool wtable_init( wtable * self, wtype * elem_type, wtable_elem_interface * hash_interface, wcall error );
-
-inline wtable_bucket * wtable_find_bucket( wtable * self, void * key, whash_t hashed, wtable_bucket * buckets );
-
-inline wtable_bucket * wtable_lookup_bucket( wtable * self, void * key, whash_t hashed );
 
 void * wtable_lookup( wtable * self, void * key );
 
