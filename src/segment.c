@@ -11,19 +11,19 @@ void rchar_init( vm * self ) {
 }
 
 void segment_init( vm * self ) {
-	rchar_init( self );
+  rchar_init( self );
 }
 
 bool last_field( field_info finfo ) {
-	return finfo.size == 0;
+  return finfo.size == 0;
 }
 
 
 size_t segment_info_size( segment_info * info ) {
-	field_info * finfo = &info->fields;
-	size_t total = 0;
-	for ( int i = 0; ! last_field( finfo[i] ); i++ ) {
-		total += finfo[i].size;
-	}
-	return total;
+  field_info * finfo = &info->fields;
+  size_t total = 0;
+  for ( int i = 0; ! last_field( finfo[i] ); i++ ) {
+    total += finfo[i].size;
+  }
+  return total;
 }

@@ -9,10 +9,10 @@ struct wick_channel;
 struct wick_error;
 
 struct wick_place {
-	struct wick_channel * error_channel;
-	struct wick_place * parent;
-	struct wick_assoc * env;
-	struct wick_array * channels;
+  struct wick_channel * error_channel;
+  struct wick_place * parent;
+  struct wick_assoc * env;
+  struct wick_array * channels;
 };
 
 typedef struct wick_place wick_place;

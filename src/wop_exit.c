@@ -3,7 +3,7 @@
 #include "wopcode_begin.c"
 
 #ifdef OPCODE_BODY
-	goto exit;
+  goto exit;
 #endif
 
 #include "wopcode_end.c"

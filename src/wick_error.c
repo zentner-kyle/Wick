@@ -3,5 +3,5 @@
 #include "wick_globals.h"
 
 void wick_signal_alloc_error(wick_place * place) {
-	wick_place_signal_error(place, &wick_global.error.alloc);
+  wick_place_signal_error(place, &wick_global.error.alloc);
 }

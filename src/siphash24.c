@@ -50,10 +50,10 @@ typedef uint8_t u8;
   } while(0)
 
 int crypto_auth( unsigned char * out, const unsigned char * in, unsigned long long inlen, const unsigned char * k ) {
-	siphash_key key = {{U8TO64_LE(k), U8TO64_LE(k + 8)}};
-	uint64_t res = siphash_24( key, in, inlen );
-	U64TO8_LE( out, res );
-	return 0;
+  siphash_key key = {{U8TO64_LE(k), U8TO64_LE(k + 8)}};
+  uint64_t res = siphash_24( key, in, inlen );
+  U64TO8_LE( out, res );
+  return 0;
 }
 /*[> SipHash-2-4 <]*/
 /*int crypto_auth( unsigned char *out, const unsigned char *in, unsigned long long inlen, const unsigned char *k )*/

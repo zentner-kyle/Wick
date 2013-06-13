@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef list_error_func
   void p_method( error_func )( char *msg ) {
-		printf("Error in " macro_to_string( list_long_prefix ) ": %s\n", msg );
+    printf("Error in " macro_to_string( list_long_prefix ) ": %s\n", msg );
   }
   #define list_error_func p_method( error_func )
 #endif

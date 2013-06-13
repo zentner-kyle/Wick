@@ -7,7 +7,7 @@ struct wick_target;
 struct wick_place;
 
 struct wick_core {
-	struct wick_place * global_place;
+  struct wick_place * global_place;
 };
 
 typedef struct wick_core wick_core;

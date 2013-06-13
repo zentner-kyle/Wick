@@ -3,7 +3,7 @@
 #include "wmacros.h"
 
 def_struct( wobj ) {
-	wtype * type;
+  wtype * type;
 };
 
 #endif /* WOBJ_H */

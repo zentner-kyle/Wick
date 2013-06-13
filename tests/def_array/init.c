@@ -3,7 +3,7 @@
 #include "def_array.c"
 
 int main() {
-	int_array a;
-	int_array_init(&a);
-	return 0;
+  int_array a;
+  int_array_init(&a);
+  return 0;
 }

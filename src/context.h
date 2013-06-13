@@ -3,7 +3,7 @@
 #include "vm_h.h"
 
 struct context {
-	vm * interpreter;
+  vm * interpreter;
 };
 
 typedef struct context context;

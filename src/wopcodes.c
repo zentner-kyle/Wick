@@ -1,5 +1,5 @@
 #ifdef OPCODE_TARGET
-	#define OPCODE_LIST
+  #define OPCODE_LIST
 #endif
 
 #define OP_N 0
@@ -36,8 +36,8 @@
 #include "wop_last.c"
 
 #if defined( OPCODE_LABEL ) && !defined( USE_COMPUTED_GOTOS )
-	default:
-	assert( 0 );
+  default:
+  assert( 0 );
 #endif
 
 #undef OPCODE_TARGET

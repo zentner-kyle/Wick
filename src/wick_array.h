@@ -10,16 +10,16 @@
 typedef uint64_t index_t;
 
 struct wick_array {
-	wick_dyn * start;
-	uint64_t byte_length;
-	uint64_t bytes_filled;
+  wick_dyn * start;
+  uint64_t byte_length;
+  uint64_t bytes_filled;
 };
 
 typedef struct wick_array wick_array;
 
 struct wick_array_iter {
-	wick_array * array;
-	uint64_t byte_index;
+  wick_array * array;
+  uint64_t byte_index;
 };
 
 typedef struct wick_array_iter wick_array_iter;

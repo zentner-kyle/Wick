@@ -10,70 +10,70 @@
 #define wtype_upcast( ptr_to_subtype ) ( ( wtype * )( ptr_to_subtype ) )
 
 struct wtype {
-	wtype * type;
-	wsym id;
-	size_t size;
+  wtype * type;
+  wsym id;
+  size_t size;
 };
 
 struct wtype_alien {
-	wtype * type;
-	wsym id;
-	size_t size;
+  wtype * type;
+  wsym id;
+  size_t size;
 };
 
 struct wtype_base {
-	wtype * type;
-	wsym id;
-	size_t size;
+  wtype * type;
+  wsym id;
+  size_t size;
 };
 
 struct wtype_composite {
-	wtype * type;
-	wsym id;
-	size_t size;
-	warray fields;
-	wtable names;
+  wtype * type;
+  wsym id;
+  size_t size;
+  warray fields;
+  wtable names;
 };
 
 struct wtype_dynamic {
-	wtype * type;
-	wsym id;
-	size_t size;
+  wtype * type;
+  wsym id;
+  size_t size;
 };
 
 struct wtype_ptr {
-	wtype * type;
-	wsym id;
-	size_t size;
-	wtype * subtype;
+  wtype * type;
+  wsym id;
+  size_t size;
+  wtype * subtype;
 };
 
 struct wtype_variant {
-	wtype * type;
-	wsym id;
-	size_t size;
-	warray variants;
+  wtype * type;
+  wsym id;
+  size_t size;
+  warray variants;
 };
 
 struct wtype_variable {
-	wtype * type;
-	wsym id;
-	size_t size;
-	wsym variable_name;
+  wtype * type;
+  wsym id;
+  size_t size;
+  wsym variable_name;
 };
 
 struct wtype_parametric {
-	wtype * type;
-	wsym id;
-	size_t size;
-	wtable variables;
+  wtype * type;
+  wsym id;
+  size_t size;
+  wtable variables;
 };
 
 struct wtype_abstract {
-	wtype * type;
-	wsym id;
-	size_t size;
-	wtype * subtype;
+  wtype * type;
+  wsym id;
+  size_t size;
+  wtype * subtype;
 };
 
 void wtype_init_header(wtype * t);

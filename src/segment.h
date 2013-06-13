@@ -37,21 +37,21 @@ bool last_field( field_info finfo );
 /* Struct definitions. */
 
 struct identifier {
-	unsigned long long index;
+  unsigned long long index;
 };
 
 
 struct field_info {
-	object * name;
-	size_t size;
-	uint16_t kind;
+  object * name;
+  size_t size;
+  uint16_t kind;
 };
 
 
 struct segment_info {
-	segment_id id;
-	field_info fields;
-	/* All fields are the same space and type, so &fields + index calculates their location. */
+  segment_id id;
+  field_info fields;
+  /* All fields are the same space and type, so &fields + index calculates their location. */
 };
 
 #endif /* SEGMENT_H */

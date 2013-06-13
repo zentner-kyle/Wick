@@ -6,9 +6,9 @@
 struct wick_place;
 
 struct wick_string {
-	char * start;
-	char * past_end;
-	bool owns_string;
+  char * start;
+  char * past_end;
+  bool owns_string;
 };
 
 typedef struct wick_string wick_string;

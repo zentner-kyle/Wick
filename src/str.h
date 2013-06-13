@@ -5,8 +5,8 @@
 #include <string.h>
 
 struct str {
-	char * start;
-	size_t len; /* Doesn't count null character, may not be null terminated. */
+  char * start;
+  size_t len; /* Doesn't count null character, may not be null terminated. */
 };
 
 typedef struct str str;

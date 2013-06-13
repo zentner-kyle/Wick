@@ -25,7 +25,7 @@ struct wick_place;
 #define WICK_INDEX_ERROR {10}
 
 struct wick_error {
-	uint32_t error_num;
+  uint32_t error_num;
 };
 
 typedef struct wick_error wick_error;

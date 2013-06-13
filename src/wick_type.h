@@ -5,7 +5,7 @@
 struct wick_dyn;
 
 struct wick_type {
-	size_t size;
+  size_t size;
 };
 
 typedef struct wick_type wick_type;

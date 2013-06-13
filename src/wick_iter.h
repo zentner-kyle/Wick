@@ -3,9 +3,9 @@
 #include "dyn.h"
 
 struct wick_iter {
-	core_id id;
-	dyn sequence;
-	uint64_t index;
+  core_id id;
+  dyn sequence;
+  uint64_t index;
 };
 
 typedef struct wick_iter wick_iter;

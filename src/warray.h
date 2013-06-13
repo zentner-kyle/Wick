@@ -16,18 +16,18 @@
  */
 
 def_struct( warray ) {
-	wtype * type;
-	wtype * elem_type;
-	size_t space;
-	size_t past_end;
-	size_t start;
-	void * data;
+  wtype * type;
+  wtype * elem_type;
+  size_t space;
+  size_t past_end;
+  size_t start;
+  void * data;
 };
 
 def_struct( warrayi ) {
-	wtype * type;
-	warray * parent;
-	int index;
+  wtype * type;
+  warray * parent;
+  int index;
 };
 
 bool warray_init_to_size( warray * self, wtype * elem_type, size_t num_elements, wcall error );
@@ -51,7 +51,7 @@ bool warray_valid_index( warray * self, size_t index );
 bool warray_check_type( warray * self, size_t type_size );
 
 #define warrayi_deref( self, type ) \
-	(*(type *)(warray_deref_ptr_check( self, sizeof( type ) )))
+  (*(type *)(warray_deref_ptr_check( self, sizeof( type ) )))
 
 void * warrayi_deref_ptr( warrayi * self );
 
@@ -66,7 +66,7 @@ void * warray_get_default( warray * self, size_t index, void * _default );
 void warray_write( warray * self, size_t index, void * to_store );
 
 #define warray_get( self, index, type ) \
-	(*(type *)(warray_check_type( self, sizeof( type ) ) ? warray_get_ptr( self, index ) : NULL ));
+  (*(type *)(warray_check_type( self, sizeof( type ) ) ? warray_get_ptr( self, index ) : NULL ));
 
 void * warray_get_ptr( warray * self, size_t index );
 void * warray_find( warray * self, void * data );

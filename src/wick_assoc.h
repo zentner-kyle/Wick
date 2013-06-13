@@ -8,20 +8,20 @@
 struct wick_place;
 
 struct wick_assoc_cell {
-	wick_dyn key;
-	wick_dyn val;
+  wick_dyn key;
+  wick_dyn val;
 };
 
 typedef struct wick_assoc_cell wick_assoc_cell;
 
 struct wick_assoc {
-	wick_array array;
+  wick_array array;
 };
 
 typedef struct wick_assoc wick_assoc;
 
 struct wick_assoc_iter {
-	wick_array_iter iter;
+  wick_array_iter iter;
 };
 
 typedef struct wick_assoc_iter wick_assoc_iter;

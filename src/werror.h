@@ -5,8 +5,8 @@
 #include "wtype.h"
 
 def_struct( werror ) {
-	wtype * type;
-	wstr message;
+  wtype * type;
+  wstr message;
 };
 
 void wreport_error( char * msg );

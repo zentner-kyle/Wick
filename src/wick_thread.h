@@ -3,7 +3,7 @@
 #include "wick_dyn.h"
 
 struct wick_thread {
-	struct wick_thread * parent;
+  struct wick_thread * parent;
 };
 
 typedef struct wick_thread wick_thread;

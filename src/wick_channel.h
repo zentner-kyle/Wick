@@ -6,7 +6,7 @@ struct wick_array;
 struct wick_place;
 
 struct wick_channel {
-	struct wick_array * queue;
+  struct wick_array * queue;
 };
 
 typedef struct wick_channel wick_channel;

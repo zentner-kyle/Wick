@@ -7,7 +7,7 @@
 typedef uint64_t hash_t;
 
 struct siphash_key {
-	uint64_t k[2];
+  uint64_t k[2];
 };
 
 typedef struct siphash_key siphash_key;

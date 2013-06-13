@@ -8,25 +8,25 @@
 #include "whash.h"
 
 def_struct( wtable_elem_interface ) {
-	whash_func_t * hash;
-	whash_compare_func_t * compare;
+  whash_func_t * hash;
+  whash_compare_func_t * compare;
 };
 
 def_struct( wtable_bucket ) {
-	void * key;
-	void * value;
-	wtable_bucket * next;
-	whash_t hash;
+  void * key;
+  void * value;
+  wtable_bucket * next;
+  whash_t hash;
 };
 
 def_struct( wtable ) {
-	wtype * type;
-	wtable_elem_interface * interface;
-	wtype * elem_type;
-	size_t mask;
-	size_t num_elems;
-	size_t space;
-	wtable_bucket * data;
+  wtype * type;
+  wtable_elem_interface * interface;
+  wtype * elem_type;
+  size_t mask;
+  size_t num_elems;
+  size_t space;
+  wtable_bucket * data;
 };
 
 /* Badly need to figure out dynamic interfaces in static code.

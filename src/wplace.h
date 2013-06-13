@@ -4,8 +4,8 @@
 #include "werror.h"
 
 def_struct( wplace ) {
-	wtype * type;
-	wchannel * error;
+  wtype * type;
+  wchannel * error;
 };
 
 void wplace_signal_error( wplace * place, werror * error );

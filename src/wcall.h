@@ -6,8 +6,8 @@ typedef void (* wcall_func_t)( void * data );
 typedef void * wcall_data_t;
 
 def_struct( wcall ) {
-	wcall_func_t func;
-	wcall_data_t data;
+  wcall_func_t func;
+  wcall_data_t data;
 };
 
 void winvoke ( wcall c );

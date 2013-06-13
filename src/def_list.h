@@ -62,12 +62,12 @@ typedef int32_t error_number;
 #define ignore_return(_expr_) ((void)(_expr_))
 
 #define WICK_THROW(_error_) \
-	do { \
-		error_number _ERROR_ = _error_; \
-		if (_ERROR_ != WICK_SUCCESS) { \
-			return _ERROR_; \
-		} \
-	} while(0)
+  do { \
+    error_number _ERROR_ = _error_; \
+    if (_ERROR_ != WICK_SUCCESS) { \
+      return _ERROR_; \
+    } \
+  } while(0)
 
 
 #endif /* DEF_LIST_H */
