@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "context.h"
+#include <context.h>
 
-void alloc_error( context * ctxt ) {
-  fprintf(stderr, "Wick: Allocation error.\n");
-}
+void alloc_error ( context * ctxt ) {
+  fprintf ( stderr, "Wick: Allocation error.\n" );
+  }

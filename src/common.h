@@ -1,4 +1,4 @@
-#ifndef COMMON_H
+//#ifndef COMMON_H
 
 #define COMMON_H
 
@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <assert.h>
-#include "wick_error.h"
-#include "wick_alloc.h"
-#include "wick_basic.h"
+#include <wick_error.h>
+#include <wick_alloc.h>
+#include <wick_basic.h>
 
-#endif /* end of include guard: COMMON_H */
+  #endif /* end of include guard: COMMON_H */

@@ -1,6 +1,6 @@
 
-#include "warray.h"
+#include <warray.h>
 
-int main() {
+int main ( ) {
   return 0;
-}
+  }

@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "wtype.h"
-#include "wsym.h"
+#include <wtype.h>
+#include <wsym.h>
 
 typedef uint32_t bytecode_t;
 
@@ -15,9 +15,9 @@ typedef int8_t wasm_arg;
 
 typedef uint8_t wasm_op;
 
-wtype_base opcode_type = { (wtype *) &wtype_base_t, WSYM_LIT( "opcode" ), sizeof( uint32_t ) };
+wtype_base opcode_type = { ( wtype * ) &wtype_base_t, WSYM_LIT ( "opcode" ), sizeof ( uint32_t )   };
 
-void wexec_code( bytecode_t * c );
+void wexec_code ( bytecode_t * c );
 
 #define OP_MAX_ARGS 3
 

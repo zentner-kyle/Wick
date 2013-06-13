@@ -1,3 +1,3 @@
-#include "wmacros.h"
+#include <wmacros.h>
 
-declare_struct( wchannel )
+declare_struct ( wchannel )

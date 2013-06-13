@@ -1,9 +1,9 @@
-#include "wick_iter.h"
+#include <wick_iter.h>
 
-void wick_iter_begin(wick_iter * i, dyn sequence) {
-  if (dyn_is_sequence(sequence)) {
-    wick_string * str = (wick_string*)DYN(sequence);
-    switch(str->id) {
+void wick_iter_begin ( wick_iter * i, dyn sequence ) {
+  if ( dyn_is_sequence ( sequence ) ) {
+    wick_string * str = ( wick_string* ) DYN ( sequence );
+    switch ( str->id ) {
       case WICK_UTF8_TAG:
         i->id = WICK_UTF8_ITER_TAG;
         break;
@@ -18,8 +18,9 @@ void wick_iter_begin(wick_iter * i, dyn sequence) {
         break;
       case WICK_ASSOC_ARRAY_FIRM_TAG:
         i->id = WICK_ASSOC_ARRAY_FIRM_ITER_TAG;
+      }
     }
-  } else {
+  else {
     /* TODO: Add support for user defined sequences. */
+    }
   }
-}

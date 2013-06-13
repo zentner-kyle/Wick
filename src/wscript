@@ -11,39 +11,46 @@ def build(bld):
     bld.program(
         source = 'size_test.c',
         target = 'size_test',
+        includes = '.',
     )
     
     bld.program(
         source = 'scratch.c',
         target = 'scratch',
+        includes = '.',
     )
     
     bld.program(
         use = 'parser_objects',
         source = 'parse.c',
         target = 'parse',
+        includes = '.',
     )
     
     bld.objects(
         source = 'hash.c wcall.c str.c wbits.c',
         target = 'parser_objects',
+        includes = '.',
     )
     
     bld.program(
         source = 'siphash24.c',
         target = 'siphash24',
+        includes = '.',
     )
     
     bld.program(
         #use = 'parser_objects',
         source = 'hash_tests.c',
         target = 'hash_tests',
+        includes = '.',
     )
     
     bld.program(
         use = 'parser_objects',
         source = 'test.c',
         target = 'test',
+        includes = '.',
     )
     
     wick_sources = [
@@ -59,17 +66,20 @@ def build(bld):
     bld.objects(
         source = wick_sources,
         target = 'wick_objects',
+        includes = '.',
     )
     
     bld.shlib(
         source = wick_sources,
         target = 'wick',
         # libs = 'rt',
+        includes = '.',
     )
     
     bld.program(
         source = 'type_system_test.c',
         target = 'type_system_test',
+        includes = '.',
         use = 'wick',
         rpath = '$ORIGIN',
     )
@@ -77,6 +87,7 @@ def build(bld):
     bld.program(
         source = 'wvm.c',
         target = 'wvm',
+        includes = '.',
         use = 'wick',
         rpath = '$ORIGIN',
     )
@@ -84,6 +95,7 @@ def build(bld):
     bld.program(
         source = 'wasm.c',
         target = 'wasm',
+        includes = '.',
         use = 'wick',
         rpath = '$ORIGIN',
     )

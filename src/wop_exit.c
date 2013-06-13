@@ -1,9 +1,9 @@
 #define OP_NAME exit
 
-#include "wopcode_begin.c"
+#include <wopcode_begin.c>
 
 #ifdef OPCODE_BODY
   goto exit;
-#endif
+  #endif
 
-#include "wopcode_end.c"
+#include <wopcode_end.c>

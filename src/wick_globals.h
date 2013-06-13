@@ -1,5 +1,5 @@
-#include "wick_type.h"
-#include "wick_error.h"
+#include <wick_type.h>
+#include <wick_error.h>
 
 struct wick_core_type {
   wick_type _int;
@@ -11,7 +11,7 @@ struct wick_core_type {
   wick_type _string;
   wick_type _assoc;
   wick_type _assoc_cell;
-};
+  };
 
 typedef struct wick_core_type wick_core_type;
 
@@ -26,14 +26,14 @@ struct wick_core_error {
   wick_error bad_data;
   wick_error null_ptr;
   wick_error index;
-};
+  };
 
 typedef struct wick_core_error wick_core_error;
 
 struct wick_global_t {
   wick_core_type type;
   wick_core_error error;
-};
+  };
 
 typedef struct wick_global_t wick_global_t;
 

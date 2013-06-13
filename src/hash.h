@@ -8,10 +8,10 @@ typedef uint64_t hash_t;
 
 struct siphash_key {
   uint64_t k[2];
-};
+  };
 
 typedef struct siphash_key siphash_key;
 
-hash_t siphash_24( const siphash_key key, const uint8_t * msg, const size_t len );
+hash_t siphash_24 ( const siphash_key key, const uint8_t * msg, const size_t len );
 
 #endif /* included HASH_H */

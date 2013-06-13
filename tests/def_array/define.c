@@ -1,7 +1,7 @@
 #define array_t int
-#include "def_array.h"
-#include "def_array.c"
+#include <def_array.h>
+#include <def_array.c>
 
-int main() {
+int main ( ) {
   return 0;
-}
+  }

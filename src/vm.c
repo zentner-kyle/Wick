@@ -1,4 +1,4 @@
-#include "vm.h"
+#include <vm.h>
 
-void alloc_error( context * ctxt ) {
-}
+void alloc_error ( context * ctxt ) {
+  }

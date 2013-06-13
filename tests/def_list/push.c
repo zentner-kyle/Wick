@@ -1,11 +1,11 @@
 #define list_t int
-#include "def_list.h"
-#include "def_list.c"
+#include <def_list.h>
+#include <def_list.c>
 
-int main() {
+int main ( ) {
   int_list * list = NULL;
-  int * i = malloc(sizeof(int));
+  int * i = malloc ( sizeof ( int ) );
   *i = 1337;
-  WICK_THROW(int_list_push(&list, i));
+  WICK_THROW ( int_list_push ( &list, i ) );
   return 0;
-}
+  }

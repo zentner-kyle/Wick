@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "vm_h.h"
+#include <vm_h.h>
 
 /* Struct declarations, typedefs. */
 
@@ -30,28 +30,28 @@ const extern uint16_t repeated_field;
 
 /* Global functions. */
 
-size_t segment_info_size( segment_info * );
-bool last_field( field_info finfo );
+size_t segment_info_size ( segment_info * );
+bool last_field ( field_info finfo );
 
 
 /* Struct definitions. */
 
 struct identifier {
   unsigned long long index;
-};
+  };
 
 
 struct field_info {
   object * name;
   size_t size;
   uint16_t kind;
-};
+  };
 
 
 struct segment_info {
   segment_id id;
   field_info fields;
   /* All fields are the same space and type, so &fields + index calculates their location. */
-};
+  };
 
 #endif /* SEGMENT_H */

@@ -1,1 +1,1 @@
-#include "whash.h"
+#include <whash.h>

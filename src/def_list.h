@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012, Kyle Zentner
+Copyright ( c ) 2012, Kyle Zentner
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -18,11 +18,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
 A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
 HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES ( INCLUDING, BUT NOT
 LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION ) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+( INCLUDING NEGLIGENCE OR OTHERWISE ) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -53,21 +53,21 @@ typedef int32_t error_number;
 
 #define WICK_BAD_DATA 8
 
-#define macro_join_inner(_token_a_, _token_b_) _token_a_ ## _token_b_
-#define macro_join(_token_a_, _token_b_) macro_join_inner(_token_a_, _token_b_)
+#define macro_join_inner( _token_a_, _token_b_ ) _token_a_ ## _token_b_
+#define macro_join( _token_a_, _token_b_ ) macro_join_inner ( _token_a_, _token_b_ )
 
-#define token_to_string(token) #token
-#define macro_to_string(token) token_to_string(token)
+#define token_to_string( token ) #token
+#define macro_to_string( token ) token_to_string ( token )
 
-#define ignore_return(_expr_) ((void)(_expr_))
+#define ignore_return( _expr_ ) ( ( void ) ( _expr_ ) )
 
-#define WICK_THROW(_error_) \
+#define WICK_THROW( _error_ ) \
   do { \
     error_number _ERROR_ = _error_; \
-    if (_ERROR_ != WICK_SUCCESS) { \
+    if ( _ERROR_ != WICK_SUCCESS ) { \
       return _ERROR_; \
-    } \
-  } while(0)
+      } \
+    } while ( 0 )
 
 
 #endif /* DEF_LIST_H */

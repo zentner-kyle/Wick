@@ -1,5 +1,5 @@
-#include "segment.h"
-#include "vm_h.h"
+#include <segment.h>
+#include <vm_h.h>
 
 /* Struct declarations, typedefs. */
 
@@ -14,4 +14,4 @@ struct vm {
   segment_info * string_info;
 
   identifier last_identifier;
-};
+  };

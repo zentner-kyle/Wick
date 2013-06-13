@@ -9,13 +9,13 @@
 
 extern const void * end_args;
 
-size_t round_up_power_2( size_t to_round );
+size_t round_up_power_2 ( size_t to_round );
 
-bool is_power_2( size_t input );
+bool is_power_2 ( size_t input );
 
-uint32_t mask_of_pow2( uint32_t val );
+uint32_t mask_of_pow2 ( uint32_t val );
 
-#define alloc( type, count ) ((type *)(malloc(sizeof(type) * (count))))
+#define alloc( type, count ) ( ( type * ) ( malloc ( sizeof ( type ) * ( count ) ) ) )
 
 
 #endif /* end of include guard: ALLOC_H */
