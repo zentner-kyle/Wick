@@ -11,7 +11,7 @@
 
 #ifndef array_end_arg
   #define array_end_arg ~ ( array_t )0
-    #endif
+  #endif
 
 #ifndef array_cmp
   #define array_cmp( a, b ) ( ( a ) - ( b ) )

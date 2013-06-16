@@ -43,7 +43,7 @@ uint64_t inline siphash_24 ( const siphash_key key, const uint8_t * msg, const s
   s.v[2] = key.k[0] ^ 0x6c7967656e657261ull;
   s.v[3] = key.k[1] ^ 0x7465646279746573ull;
 
-  /*Loop for all but last seven bytes.*/
+  /* Loop for all but last seven bytes. */
   for ( i = 0; i < words; i += 8 ) {
     mi = * ( uint64_t * ) ( msg + i );
     s.v[3] ^= mi;

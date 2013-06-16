@@ -1,4 +1,3 @@
-/*#define __USE_POSIX199309*/
 #include <sys/time.h>
 #include <time.h>
 #include <stdint.h>

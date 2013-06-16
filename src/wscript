@@ -60,7 +60,7 @@ def build(bld):
         'wick_assoc.c', 'warray.c', 'wcall.c', 'wstr.c', 'wsym.c',
         'wbits.c', 'wtype.c', 'wbuiltins.c',
         'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
-        'wplace.c', 'wchannel.c', 'wtable.c'
+        'wplace.c', 'wchannel.c', 'wtable.c', 'hash.c'
     ] 
     
     bld.objects(
@@ -73,6 +73,20 @@ def build(bld):
         source = wick_sources,
         target = 'wick',
         # libs = 'rt',
+        includes = '.',
+    )
+
+    bld.shlib (
+        source = 'memcpy_test_lib.c',
+        target = 'memcpy_test_lib',
+        includes = '.',
+    )
+
+    bld.program (
+        source = 'memcpy_test.c',
+        target = 'memcpy_test',
+        use = 'memcpy_test_lib',
+        rpath = '$ORIGIN',
         includes = '.',
     )
     

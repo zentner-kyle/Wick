@@ -1,10 +1,20 @@
-#include <wstr.h>
-#include <wtype.h>
-#include <walloc.h>
 #include <string.h>
 #include <assert.h>
 
+#include <wstr.h>
+#include <wtype.h>
+#include <walloc.h>
+#include <hash.h>
+
+int wstr_compare_void ( void * v_str_a, void * v_str_b );
+whash_t wstr_hash_void ( void * str );
+
 wtype wstr_type;
+
+wtable_elem_interface wstr_wtable_i = {
+  &wstr_hash_void,
+  &wstr_compare_void
+  };
 
 size_t wstr_size ( const wstr str ) {
   return str.past_end - str.start;
@@ -137,4 +147,50 @@ void wstr_print ( wstr str ) {
 void wstr_println ( wstr str ) {
   wstr_print ( str );
   printf ( "\n" );
+  }
+
+siphash_key wstr_key = { { 0xe8f35937acefffaa, 0x331e89da1849403f } };
+
+whash_t wstr_hash_void ( void * str ) {
+  wstr self = *( wstr * ) str;
+  return wstr_hash ( self );
+  }
+
+whash_t wstr_hash ( wstr self ) {
+  return siphash_24 ( wstr_key, ( uint8_t * ) self.start, wstr_size ( self ) );
+  }
+
+int wstr_compare_void ( void * v_str_a, void * v_str_b ) {
+  wstr str_a = * ( wstr * ) v_str_a;
+  wstr str_b = * ( wstr * ) v_str_b;
+  return wstr_compare ( str_a, str_b );
+  }
+
+void wstr_init_alloc ( wstr * self, const char * start, const char * past_end, enum wstr_alloc_type alloc_type ) {
+  if ( ( ! past_end ) && start ) {
+    past_end = start;
+    while (*past_end) {
+      past_end++;
+      }
+    }
+  self->type = &wstr_type;
+  self->start = start;
+  self->past_end = past_end;
+  }
+
+void wstr_init ( wstr * self, const char * start, const char * past_end ) {
+  wstr_init_alloc ( self, start, past_end, wstr_dynamic );
+  }
+
+wstr * wstr_new_alloc ( const char * start, const char * past_end, enum wstr_alloc_type alloc_type ) {
+  wstr * to_return = walloc_simple ( wstr, 1 );
+  if ( ! to_return ) {
+    return NULL;
+    }
+  wstr_init_alloc ( to_return, start, past_end, alloc_type );
+  return to_return;
+  }
+
+wstr * wstr_new ( const char * start, const char * past_end ) {
+  return wstr_new_alloc ( start, past_end, wstr_dynamic );
   }

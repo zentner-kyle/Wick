@@ -1,25 +1,33 @@
 #include <assert.h>
+#include <string.h>
 #include <wtable.h>
 #include <wbits.h>
 #include <walloc.h>
 
-#define SELECT_BUCKET( self, key, buckets, when_first, when_not_first, when_missing_first, when_missing_not_first ) \
+#define SELECT_BUCKET( \
+    macro_self, \
+    macro_key, \
+    macro_buckets, \
+    macro_when_first, \
+    macro_when_not_first, \
+    macro_when_missing_first, \
+    macro_when_missing_not_first ) \
   do { \
-    wtable_bucket * macro_the_bucket = ( buckets ) + ( ( self->interface->hash ( key ) ) & ( self )->mask ); \
+    wtable_bucket * macro_the_bucket = ( macro_buckets ) + ( ( macro_self->interface->hash ( macro_key ) ) & ( macro_self )->mask ); \
     if ( ! macro_the_bucket->hash ) { \
-      when_missing_first ( macro_the_bucket ); \
+      macro_when_missing_first ( macro_the_bucket ); \
       } \
-    else if ( self->interface->compare ( macro_the_bucket->key, key ) == 0 ) { \
-      when_first ( macro_the_bucket ); \
+    else if ( macro_self->interface->compare ( macro_the_bucket->key, macro_key ) == 0 ) { \
+      macro_when_first ( macro_the_bucket ); \
       } \
     else { \
       while ( macro_the_bucket->next ) { \
         macro_the_bucket = macro_the_bucket->next; \
-        if ( self->interface->compare ( macro_the_bucket->key, key ) == 0 ) { \
-          when_not_first ( macro_the_bucket ); \
+        if ( macro_self->interface->compare ( macro_the_bucket->key, macro_key ) == 0 ) { \
+          macro_when_not_first ( macro_the_bucket ); \
           } \
         } \
-      when_missing_not_first ( macro_the_bucket ); \
+      macro_when_missing_not_first ( macro_the_bucket ); \
       } \
     } while ( 0 )
 
@@ -136,11 +144,53 @@ void wtable_set ( wtable * self, void * key, void * value ) {
   #undef SET
   }
 
-inline bool wtable_needs_resize ( wtable * self ) {
-  return self->num_elems & ( ( self->mask + 1 ) << 1 );
+inline bool wtable_needs_grow ( wtable * self ) {
+  /* self->num_elems / self->space >= 0.5 */
+  return self->num_elems >= (self->space >> 1);
+  }
+
+inline bool wtable_needs_shrink ( wtable * self ) {
+  return self->num_elems <= (self->space >> 2);
   }
 
 inline void wtable_resize ( wtable * self ) {
+  wtable_bucket * new_buckets = walloc_simple ( wtable_bucket, self->space << 1 );
+  wtable_bucket * old_bucket = self->data;
+  self->mask = (self->mask << 1) | 1;
+  #define IGNORE( bucket ) {}
+  #define IMPOSSIBLE( bucket ) assert(0);
+  #define MOVE_FIRST( bucket ) \
+    memcpy ( bucket, old_bucket, sizeof ( wtable_bucket ) );
+  #define MOVE_AND_FREE( bucket ) \
+    memcpy ( bucket, old_bucket, sizeof ( wtable_bucket ) ); \
+    free ( old_bucket );
+  #define RELINK( bucket ) \
+    bucket->next = old_bucket;
   for ( int i = 0; i < self->space; i++ ) {
+    old_bucket = self->data + i;
+    if (old_bucket->hash) {
+      SELECT_BUCKET (
+          self,
+          old_bucket->key,
+          new_buckets,
+          IMPOSSIBLE,
+          IMPOSSIBLE,
+          MOVE_FIRST,
+          IMPOSSIBLE );
+      old_bucket = old_bucket->next;
+      while (old_bucket) {
+        SELECT_BUCKET (
+            self,
+            old_bucket->key,
+            new_buckets,
+            IMPOSSIBLE,
+            IMPOSSIBLE,
+            MOVE_AND_FREE,
+            RELINK );
+        old_bucket = old_bucket->next;
+        }
+      }
     }
+  free ( self->data );
+  self->data = new_buckets;
   }
