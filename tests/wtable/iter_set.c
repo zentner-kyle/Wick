@@ -9,9 +9,6 @@ int main ( ) {
   wtable_init ( &table, &wstr_type, &wstr_wtable_i, null_wcall );
   for ( long long i = 0; i < iterations; i++ ) {
     wstr * str = wstr_from_llong( i );
-    printf ( "setting " );
-    wstr_println ( *str );
-    fflush ( stdout );
     wtable_set ( &table, ( void * ) str, ( void * ) str );
     }
   return 0;

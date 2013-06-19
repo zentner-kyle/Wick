@@ -110,10 +110,6 @@ size_t wstr_code_length ( const wstr str ) {
   }
 
 int wstr_compare ( wstr a, wstr b ) {
-  printf ( "comparing " );
-  wstr_print ( a );
-  printf ( " and " );
-  wstr_println ( b );
   size_t a_size = wstr_size ( a );
   size_t b_size = wstr_size ( b );
   if ( a_size == b_size ) {

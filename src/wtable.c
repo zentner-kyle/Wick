@@ -29,10 +29,6 @@ void wtable_grow ( wtable * restrict self );
   do { \
     whash_t hashed = macro_self->interface->hash ( macro_key ); \
     wtable_bucket * macro_the_bucket = ( macro_buckets ) + ( ( hashed ) & ( macro_self )->mask ); \
-    printf ( "mask 0x%lx\n", ( macro_self )->mask ); \
-    printf ( "hashed 0x%lx\n", hashed ); \
-    printf ( "index %zd\n", ( macro_the_bucket - macro_buckets ) ); \
-    printf ( "macro_the_bucket->hash = 0x%lx\n", macro_the_bucket->hash ); \
     if ( ! macro_the_bucket->hash ) { \
       macro_when_missing_first ( macro_the_bucket ); \
       } \
@@ -52,27 +48,37 @@ void wtable_grow ( wtable * restrict self );
 
 const size_t wtable_default_size = 8;
 
-void wtable_check_buckets ( wtable * self ) {
-  for ( int i = 0; i < self->space; i++ ) {
-    wtable_bucket * b = self->data + i;
-    printf ( "." );
-    while ( b ) {
-      printf ( "," );
-      /*fflush ( stdout );*/
-      if ( b->hash ) {
-        assert ( b->key );
+#ifdef WICK_DEBUG
+  void wtable_check_buckets ( wtable * self ) {
+    bool print = false;
+    for ( int i = 0; i < self->space; i++ ) {
+      wtable_bucket * b = self->data + i;
+      if ( print ) {
+        printf ( "." );
         }
+      while ( b ) {
+        if ( print ) {
+          printf ( "," );
+          }
+        if ( b->hash ) {
+          assert ( b->key );
+          }
 
-      /* Ensure that the next pointer is not inside the self->data. */
+        /* Ensure that the next pointer is not inside the self->data. */
 
-      if ( b->next > self->data ) {
-        assert ( b->next >= self->data + self->space );
+        if ( b->next > self->data ) {
+          assert ( b->next >= self->data + self->space );
+          }
+        b = b->next;
         }
-      b = b->next;
+      }
+    if ( print ) {
+      printf ( "\n" );
       }
     }
-  printf ( "\n" );
-  }
+#else
+  #define wtable_check_buckets( ignored ) do { } while (0)
+#endif
 
 size_t wtable_count_elems ( wtable * self ) {
   int out = 0;
@@ -206,7 +212,6 @@ void wtable_set ( wtable * self, void * key, void * value ) {
     ( bucket )->key = key; \
     ( bucket )->value = value; \
     wtable_check_buckets ( self ); \
-    printf ( "here\n" ); \
     if ( wtable_needs_grow ( self ) ){ \
       wtable_grow ( self ); \
       }
@@ -242,7 +247,6 @@ void wtable_grow ( wtable * restrict self ) {
   wtable_bucket * old_bucket = self->data;
   self->mask = (self->mask << 1) | 1;
   for ( int i = 0; i < self->space; i++ ) {
-    printf ( "moving bucket %d\n", i );
     /*fflush ( stdout );*/
     old_bucket = self->data + i;
     if ( old_bucket->hash ) {
@@ -262,31 +266,15 @@ void wtable_grow ( wtable * restrict self ) {
           IMPOSSIBLE );
       old_bucket = old_bucket->next;
       while ( old_bucket ) {
-        assert ( old_bucket->hash != 1 );
-        printf ( "at top: " );
-        /*wtable_check_buckets ( self );*/
-        printf ( "old_bucket = %p\n", old_bucket );
-        printf ( "old_bucket->key = %p\n", old_bucket->key );
-        printf ( "old_bucket->value = %p\n", old_bucket->value );
-        printf ( "old_bucket->hash = 0x%lx\n", old_bucket->hash );
-        printf ( "old_bucket->next = %p\n", old_bucket->next );
         #define MOVE_AND_FREE( bucket ) \
-          printf ( "before move and free: " ); \
-          /*wtable_check_buckets ( self ); */ \
           memcpy ( bucket, old_bucket, sizeof ( wtable_bucket ) ); \
-          /*old_bucket->hash = 0; */ \
-          /*old_bucket->key = 0; */ \
           free ( old_bucket ); \
           old_bucket = ( bucket )->next; \
-          ( bucket )->next = 0; \
-          printf ( "after move and free: " ); \
-          /*wtable_check_buckets ( self );*/
+          ( bucket )->next = 0;
         #define RELINK( bucket ) \
           ( bucket )->next = old_bucket; \
           old_bucket = old_bucket->next; \
           ( bucket )->next->next = 0;
-          /*wtable_check_buckets ( self );*/
-        /*wtable_check_buckets ( self );*/
         SELECT_BUCKET (
             self,
             old_bucket->key,
@@ -302,7 +290,5 @@ void wtable_grow ( wtable * restrict self ) {
   free ( self->data );
   self->data = new_buckets;
   wtable_check_buckets ( self );
-  printf ( "self->num_elems = %zd\n", self->num_elems );
-  printf ( "wtable_count_elems ( self ) = %zd\n", wtable_count_elems ( self ) );
   assert ( self->num_elems == wtable_count_elems ( self ) );
   }
