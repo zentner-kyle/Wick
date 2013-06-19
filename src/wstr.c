@@ -110,6 +110,10 @@ size_t wstr_code_length ( const wstr str ) {
   }
 
 int wstr_compare ( wstr a, wstr b ) {
+  printf ( "comparing " );
+  wstr_print ( a );
+  printf ( " and " );
+  wstr_println ( b );
   size_t a_size = wstr_size ( a );
   size_t b_size = wstr_size ( b );
   if ( a_size == b_size ) {
@@ -193,4 +197,11 @@ wstr * wstr_new_alloc ( const char * start, const char * past_end, enum wstr_all
 
 wstr * wstr_new ( const char * start, const char * past_end ) {
   return wstr_new_alloc ( start, past_end, wstr_dynamic );
+  }
+
+wstr * wstr_from_llong ( long long input ) {
+  char * text = malloc ( sizeof( char ) * 40 );
+  int length = snprintf ( text, 40, "%lld", input );
+  assert ( length <= 40 );
+  return wstr_new ( text, NULL );
   }

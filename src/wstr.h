@@ -53,4 +53,6 @@ wstr * wstr_new_alloc ( const char * start, const char * past_end, enum wstr_all
 void wstr_init ( wstr * self, const char * start, const char * past_end );
 void wstr_init_alloc ( wstr * self, const char * start, const char * past_end, enum wstr_alloc_type alloc_type );
 
+wstr * wstr_from_llong ( long long input );
+
 #endif /* end of include guard: WSTR_H */
