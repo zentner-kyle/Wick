@@ -52,11 +52,11 @@ def test(ctxt):
         output = p.communicate()
         ret = p.returncode
         if ret == 0:
-            print('.', end='')
+            print('.', end='', flush=True)
         else:
             failed_tests.append(filename)
             stdout_logs[filename] = output
-            print('x', end='')
+            print('x', end='', flush=True)
     if not failed_tests:
         print()
         print('OK (Ran {0} test)'.format(total_tests))
