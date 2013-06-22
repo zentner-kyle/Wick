@@ -57,10 +57,11 @@ def build(bld):
         'wick_core.c', 'wick_alloc.c', 'wick_place.c',
         'wick_channel.c', 'wick_globals.c', 'wick_dyn.c',
         'wick_string.c', 'wick_error.c', 'wick_equal.c', 'wick_array.c',
-        'wick_assoc.c', 'warray.c', 'wcall.c', 'wstr.c', 'wsym.c',
-        'wbits.c', 'wtype.c', 'wbuiltins.c',
+        'wick_assoc.c', 'warray_wval.c', 'wcall.c', 'wstr.c', 'wsym.c',
+        'wbits.c', 'wtype.c', 'wbuiltins.c', 'warray_int.c',
         'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
-        'wplace.c', 'wchannel.c', 'wtable.c', 'hash.c'
+        'wplace.c', 'wchannel.c', 'wtable.c', 'hash.c', 'warray_opbunch.c',
+        'wvm.c',
     ] 
     
     bld.objects(
@@ -99,7 +100,7 @@ def build(bld):
     )
     
     bld.program(
-        source = 'wvm.c',
+        source = 'main.c',
         target = 'wvm',
         includes = '.',
         use = 'wick',

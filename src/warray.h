@@ -1,11 +1,9 @@
-#include <warray_internal.h>
+#include <warray_wval.h>
 #include <wmacros.h>
 
 #ifndef elem_t
   #error Must define elem_t.
   #endif
-
-#define back_cast( val ) ( ( elem_t ) ( val ).i )
 
 #ifndef warray_name
   #define warray_name elem_t
@@ -28,118 +26,46 @@ def_struct ( warray_iter_struct ) {
   warray_iter iter;
   };
 
-#define inline
+bool method( init ) ( warray_struct * self, wcall error );
+bool method( init_to_size ) ( warray_struct * self, size_t num_elems, wcall error );
+
+warray_struct * method ( new ) ( wcall error );
+warray_struct * method ( new_to_size ) ( size_t num_elems, wcall error );
+
+void method ( deinit ) ( warray_struct * self );
+void method ( delete ) ( warray_struct * self );
 
 
-inline bool method( init ) ( warray_struct * self, wcall error ) {
-  return warray_init ( &self->array, warray_elem_wtype, error );
-  }
+bool method ( empty ) ( warray_struct * self );
+bool method ( full ) ( warray_struct * self );
 
-inline bool method( init_to_size ) ( warray_struct * self, size_t num_elems, wcall error ) {
-  return warray_init_to_size ( &self->array, warray_elem_wtype, num_elems, error );
-  }
+void method ( push_back ) ( warray_struct * self, elem_t elem, wcall error );
+void method ( push_front ) ( warray_struct * self, elem_t elem, wcall error );
 
+elem_t method ( pop_back ) ( warray_struct * self, wcall error );
+elem_t method ( pop_front ) ( warray_struct * self, wcall error );
 
-inline warray_struct * method ( new ) ( wcall error ) {
-  return ( warray_struct * ) warray_new ( warray_elem_wtype, error );
-  }
+size_t method ( length ) ( warray_struct * self );
+bool method ( good_index ) ( warray_struct * self, size_t index );
+elem_t * method ( index ) ( warray_struct * self, size_t index );
+elem_t method ( get ) ( warray_struct * self, size_t index );
+elem_t method ( set ) ( warray_struct * self, size_t index, elem_t val );
 
-inline warray_struct * method ( new_to_size ) ( size_t num_elems, wcall error ) {
-  return ( warray_struct * ) warray_new_to_size ( warray_elem_wtype, num_elems, error );
-  }
+warray_iter_struct method ( start ) ( warray_struct * parent );
+warray_iter_struct method ( end ) ( warray_struct * parent );
 
+bool method ( prev ) ( warray_iter_struct * self );
+bool method ( next ) ( warray_iter_struct * self );
 
-inline void method ( deinit ) ( warray_struct * self ) {
-  warray_deinit ( &self->array );
-  }
-
-inline void method ( delete ) ( warray_struct * self ) {
-  warray_delete ( &self->array );
-  }
+bool method ( good ) ( warray_iter_struct * self );
+elem_t method ( deref ) ( warray_iter_struct * self );
 
 
-inline bool method ( empty ) ( warray_struct * self ) {
-  return warray_empty ( &self->array );
-  }
+long method ( index_of ) ( warray_struct * self, elem_t to_find );
+void method ( debug_print ) ( warray_struct * self );
 
-inline bool method ( full ) ( warray_struct * self ) {
-  return warray_full ( &self->array );
-  }
-
-
-inline void method ( push_back ) ( warray_struct * self, elem_t elem, wcall error ) {
-  warray_push_back ( &self->array, (wval) { elem }, error );
-  }
-
-inline void method ( push_front ) ( warray_struct * self, elem_t elem, wcall error ) {
-  warray_push_front ( &self->array, (wval) { elem }, error );
-  }
-
-
-inline elem_t method ( pop_back ) ( warray_struct * self, wcall error ) {
-  return back_cast ( warray_pop_back ( &self->array, error ) );
-  }
-
-inline elem_t method ( pop_front ) ( warray_struct * self, wcall error ) {
-  return back_cast ( warray_pop_front ( &self->array, error ) );
-  }
-
-
-inline size_t method ( length ) ( warray_struct * self ) {
-  return warray_length ( &self->array );
-  }
-
-inline bool method ( good_index ) ( warray_struct * self, size_t index ) {
-  return warray_good_index ( &self->array, index );
-  }
-
-inline elem_t * method ( index ) ( warray_struct * self, size_t index ) {
-  return ( elem_t * ) warray_index ( &self->array, index );
-  }
-
-inline elem_t method ( get ) ( warray_struct * self, size_t index ) {
-  return back_cast ( warray_get ( &self->array, index ) );
-  }
-
-inline elem_t method ( set ) ( warray_struct * self, size_t index, elem_t val ) {
-  return back_cast ( warray_set ( &self->array, index, ( wval ) { val } ) );
-  }
-
-
-inline warray_iter_struct method ( start ) ( warray_struct * parent ) {
-  return (warray_iter_struct) { warray_start ( &parent->array ) };
-  }
-
-inline warray_iter_struct method ( end ) ( warray_struct * parent ) {
-  return (warray_iter_struct) { warray_end ( &parent->array ) };
-  }
-
-
-inline bool method ( prev ) ( warray_iter_struct * self ) {
-  return warray_prev ( &self->iter );
-  }
-
-inline bool method ( next ) ( warray_iter_struct * self ) {
-  return warray_next ( &self->iter );
-  }
-
-
-inline bool method ( good ) ( warray_iter_struct * self ) {
-  return warray_good ( &self->iter );
-  }
-
-inline elem_t method ( deref ) ( warray_iter_struct * self ) {
-  return back_cast ( warray_deref ( &self->iter ) );
-  }
-
-
-
-inline long method ( index_of ) ( warray_struct * self, elem_t to_find ) {
-  return warray_index_of ( &self->array, (wval) { to_find } );
-  }
-
-inline void method ( debug_print ) ( warray_struct * self ) {
-  warray_debug_print ( &self->array );
-  }
-
-#undef back_cast
+#undef elem_t
+#undef method
+#undef warray_iter_struct
+#undef warray_name
+#undef warray_struct

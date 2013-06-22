@@ -22,6 +22,8 @@
   #define DISPATCH switch ( op_bunch & 0xff )
   #endif
 
+wtype_base opbunch_type_base = { ( wtype * ) &wtype_base_t, WSYM_LIT ( "opcode" ), sizeof ( uint32_t )   };
+
 static const char * wopcode_names[] = {
   #define OPCODE_LIST
   #define OPCODE_NAME
@@ -256,12 +258,4 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
     }
   printf ( "\n" );
   return code;
-  }
-
-int main ( int argc, char *argv[] ) {
-  printf ( "Starting Wick VM.\n" );
-  printf ( "src/test.wasm:\n%s\n", wstr_from_filename ( WSTR_LIT ( "src/test.wasm" ) ).start );
-  opbunch * code = wbytecode_from_filename ( WSTR_LIT ( "src/test.wasm" ) );
-  wexec_code ( code );
-  return 0;
   }

@@ -2,7 +2,7 @@
 #define WTYPE_H
 #include <wmacros.h>
 #include <stdlib.h>
-#include <warray_internal.h>
+#include <warray_wval.h>
 #include <wtable.h>
 #include <wsym.h>
 #include <wtype_h.h>
