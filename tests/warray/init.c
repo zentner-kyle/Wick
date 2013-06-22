@@ -12,7 +12,7 @@ void report_error ( void * ignored ) {
 int main ( ) {
   wbuiltins_init ( );
   warray a;
-  wcall error_wcall = { .func = report_error, .data = NULL   };
+  wcall error_wcall = { .func = report_error, .data = NULL };
   warray_init ( &a, wtype_upcast ( &wtype_int ), error_wcall );
   return error;
   }
