@@ -14,11 +14,11 @@ void report_error ( void * ignored ) {
 
 int main ( ) {
   wbuiltins_init ( );
-  warray_int a;
   wcall error_wcall = { .func = report_error, .data = NULL   };
-  warray_int_init ( &a, error_wcall );
-  int i = 100;
-  warray_int_push_front ( &a, i, error_wcall );
-  assert ( warray_int_get ( &a, 0 ) == 100 );
+  warray_int * a = warray_int_new ( error_wcall );
+  warray_int_push_front ( a, 1, error_wcall );
+  warray_int_push_front ( a, 2, error_wcall );
+  warray_int_push_front ( a, 3, error_wcall );
+  assert ( warray_int_index_of ( a, 2 ) == 1 );
   return error;
   }

@@ -1,8 +1,10 @@
 #include <assert.h>
 #include <stdio.h>
-#include <warray.h>
 #include <wcall.h>
 #include <wbuiltins.h>
+
+#define elem_t int
+#include <warray.h>
 
 bool error = false;
 
@@ -12,10 +14,9 @@ void report_error ( void * ignored ) {
 
 int main ( ) {
   wbuiltins_init ( );
-  warray a;
+  warray_int a;
   wcall error_wcall = { .func = report_error, .data = NULL   };
-  warray_init_to_size ( &a, wtype_upcast ( &wtype_int ), 64, error_wcall );
-  printf ( "warray->space = %zd\n", a.space );
-  assert ( a.space == 64 * sizeof ( int ) );
+  warray_int_init_to_size ( &a, 60, error_wcall );
+  /*assert ( a.array.space == 64 );*/
   return error;
   }

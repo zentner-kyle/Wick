@@ -6,6 +6,9 @@
 #include <walloc.h>
 #include <werror.h>
 
+#define elem_t opbunch
+#include <warray.h>
+
 #define WICK_STACK_SIZE 256
 #define WICK_ENV_SIZE 256
 
@@ -32,8 +35,8 @@ static const char wopcode_args[] = {
   };
 
 
-void wexec_code ( bytecode_t * c ) {
-  bytecode_t op_bunch = *c;
+void wexec_code ( opbunch * c ) {
+  opbunch op_bunch = *c;
   wasm_arg args[4];
   field_t * stack_start = walloc_simple ( field_t, WICK_STACK_SIZE );
   field_t * stack_end = stack_start;
@@ -187,7 +190,7 @@ uint8_t parse_arg ( wstr line, wstr * rest, werror * report ) {
   return arg;
   }
 
-bytecode_t * wbytecode_from_filename ( wstr filename ) {
+opbunch * wbytecode_from_filename ( wstr filename ) {
   wstr file = wstr_from_filename ( filename );
   wstr file_remaining = file;
   wstr line;
@@ -195,7 +198,7 @@ bytecode_t * wbytecode_from_filename ( wstr filename ) {
   int left_in_opcode = 4;
   wstr success = WSTR_LIT ( "success" );
   werror parse_error = { ( wtype * ) &werror_type, success   };
-  warray * uncollapsed_code = warray_new ( ( wtype * ) &opcode_type, null_wcall );
+  warray_opbunch * uncollapsed_code = warray_opbunch_new ( null_wcall );
   while ( wstr_size ( file_remaining ) != 0 ) {
     get_next_line ( file_remaining, &line, &file_remaining );
     wstr name;
@@ -219,18 +222,18 @@ bytecode_t * wbytecode_from_filename ( wstr filename ) {
       }
     skip_wspace ( &line );
     assert ( wstr_size ( line ) == 0 || line.start[ 0 ] == '#' );
-    warray_push_back ( uncollapsed_code, ( void * ) &opcode, null_wcall );
+    warray_opbunch_push_back ( uncollapsed_code, opcode, null_wcall );
     }
   ++total_size;
-  bytecode_t * code = malloc ( sizeof ( bytecode_t ) * total_size );
-  bytecode_t * code_i = code;
-  bytecode_t opcode;
+  opbunch * code = malloc ( sizeof ( opbunch ) * total_size );
+  opbunch * code_i = code;
+  opbunch opcode;
   uint8_t used_in_opcode = 0;
-  while ( ! warray_empty ( uncollapsed_code ) ) {
-    warray_pop_front ( uncollapsed_code, ( void * ) &opcode, null_wcall );
+  while ( ! warray_opbunch_empty ( uncollapsed_code ) ) {
+    opcode = warray_opbunch_pop_front ( uncollapsed_code, null_wcall );
     uint8_t size = wopcode_args[opcode & 0xff] + 1;
-    if ( used_in_opcode + size > sizeof ( bytecode_t ) ) {
-      while ( used_in_opcode < sizeof ( bytecode_t ) ) {
+    if ( used_in_opcode + size > sizeof ( opbunch ) ) {
+      while ( used_in_opcode < sizeof ( opbunch ) ) {
         *code_i &= ~ ( 0xff << ( used_in_opcode * 8 ) );
         ++used_in_opcode;
         }
@@ -243,7 +246,7 @@ bytecode_t * wbytecode_from_filename ( wstr filename ) {
       }
     used_in_opcode += size;
     }
-  while ( used_in_opcode < sizeof ( bytecode_t ) ) {
+  while ( used_in_opcode < sizeof ( opbunch ) ) {
     *code_i &= ~ ( 0xff << ( used_in_opcode * 8 ) );
     ++used_in_opcode;
     }
@@ -258,7 +261,7 @@ bytecode_t * wbytecode_from_filename ( wstr filename ) {
 int main ( int argc, char *argv[] ) {
   printf ( "Starting Wick VM.\n" );
   printf ( "src/test.wasm:\n%s\n", wstr_from_filename ( WSTR_LIT ( "src/test.wasm" ) ).start );
-  bytecode_t * code = wbytecode_from_filename ( WSTR_LIT ( "src/test.wasm" ) );
+  opbunch * code = wbytecode_from_filename ( WSTR_LIT ( "src/test.wasm" ) );
   wexec_code ( code );
   return 0;
   }

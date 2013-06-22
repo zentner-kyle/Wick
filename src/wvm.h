@@ -7,7 +7,7 @@
 #include <wtype.h>
 #include <wsym.h>
 
-typedef uint32_t bytecode_t;
+typedef uint32_t opbunch;
 
 typedef size_t field_t;
 
@@ -15,9 +15,11 @@ typedef int8_t wasm_arg;
 
 typedef uint8_t wasm_op;
 
-wtype_base opcode_type = { ( wtype * ) &wtype_base_t, WSYM_LIT ( "opcode" ), sizeof ( uint32_t )   };
+wtype_base opbunch_type_base = { ( wtype * ) &wtype_base_t, WSYM_LIT ( "opcode" ), sizeof ( uint32_t )   };
 
-void wexec_code ( bytecode_t * c );
+#define opbunch_type ((wtype *) &opbunch_type_base)
+
+void wexec_code ( opbunch * c );
 
 #define OP_MAX_ARGS 3
 

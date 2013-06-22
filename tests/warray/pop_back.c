@@ -1,8 +1,10 @@
 #include <assert.h>
 #include <stdio.h>
-#include <warray.h>
 #include <wcall.h>
 #include <wbuiltins.h>
+
+#define elem_t int
+#include <warray.h>
 
 bool error = false;
 
@@ -12,16 +14,13 @@ void report_error ( void * ignored ) {
 
 int main ( ) {
   wbuiltins_init ( );
-  warray a;
+  warray_int a;
   wcall error_wcall = { .func = report_error, .data = NULL   };
-  warray_init ( &a, wtype_upcast ( &wtype_int ), error_wcall );
+  warray_int_init ( &a, error_wcall );
   int i = 100;
-  warray_push_back ( &a, &i, error_wcall );
-  printf ( "warray.data[0] == %d\n", * ( int * )a.data );
+  warray_int_push_back ( &a, i, error_wcall );
   int i2 = 0;
-  warray_debug_print ( &a );
-  fflush ( stdout );
-  warray_pop_back ( &a, &i2, error_wcall );
+  i2 = warray_int_pop_back ( &a, error_wcall );
   printf ( "i2 = %d\n", i2 );
   assert ( i2 == 100 );
   return error;
