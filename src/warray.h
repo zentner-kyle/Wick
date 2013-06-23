@@ -16,8 +16,6 @@
 #define warray_struct join_token ( warray_, warray_name ) 
 #define warray_iter_struct join_token ( join_token ( warray_, warray_name ), _iter )
 
-/* TODO: Add (optional) pointer checking. */
-
 def_struct ( warray_struct ) {
   warray array;
   };

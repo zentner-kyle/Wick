@@ -39,7 +39,6 @@ def common_configure(conf):
     ]
     conf.check(feature='cc cprogram cstdlib', cflags=warning_flags + [version])
     conf.env.append_value('CFLAGS', warning_flags + [version])
-    conf.env.append_value('CFLAGS', warning_flags + [version])
     if conf.options.computed_gotos in ['yes', 'try']:
         need_computed_gotos = conf.options.computed_gotos == 'yes'
         have_computed_gotos = conf.check_cc(

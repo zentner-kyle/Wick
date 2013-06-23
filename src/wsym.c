@@ -2,12 +2,12 @@
 #include <hash.h>
 #include <walloc.h>
 
-int wsym_compare_void ( void * a_v, void * b_v );
-whash_t wsym_hash_void ( void * sym );
+int wsym_compare_wval ( wval a_v, wval b_v );
+whash wsym_hash_wval ( wval sym );
 
 wtable_elem_interface wsym_wtable_i = {
-  &wsym_hash_void,
-  &wsym_compare_void
+  &wsym_hash_wval,
+  &wsym_compare_wval
   };
 
 wsym wsym_of_wstr ( wstr s ) {
@@ -26,20 +26,20 @@ int wsym_compare ( wsym a, wsym b ) {
   return wstr_compare ( a.text, b.text );
   }
 
-int wsym_compare_void ( void * a_v, void * b_v ) {
-  wsym a = * ( wsym * ) a_v;
-  wsym b = * ( wsym * ) b_v;
+int wsym_compare_wval ( wval a_v, wval b_v ) {
+  wsym a = * ( wsym * ) a_v.p;
+  wsym b = * ( wsym * ) b_v.p;
   return wsym_compare ( a, b );
   }
 
-whash_t wsym_hash_void ( void * sym ) {
-  wsym self = * (wsym *) sym;
+whash wsym_hash_wval ( wval sym ) {
+  wsym self = * (wsym *) sym.p;
   return wsym_hash ( self );
   }
 
 siphash_key wsym_key = { { 0x6a369e6ea9fbcd30, 0xd86d7859de5bbb27 } };
 
-whash_t wsym_hash ( wsym self ) {
+whash wsym_hash ( wsym self ) {
   uint64_t to_hash[3];
   to_hash[0] = self.id[0];
   to_hash[1] = self.id[1];

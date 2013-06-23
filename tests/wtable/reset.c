@@ -1,29 +1,37 @@
-
 #include <string.h>
-#include <wtable.h>
 #include <wcall.h>
 #include <wstr.h>
 
+#define wtable_key_t wstr *
+#define wtable_key_name wstr
+#define wtable_val_t wstr *
+#define wtable_val_name wstr
+#include <wtable.h>
+
+
 int main ( ) {
-  wtable table;
+  wtable_wstr_to_wstr table;
   const char * test_string = "this is the test string";
-  wtable_init ( &table, &wstr_type, &wstr_wtable_i, null_wcall );
-  wtable_set (
+  wtable_wstr_to_wstr_init ( &table, null_wcall );
+  wtable_wstr_to_wstr_set (
       &table,
-      ( void * ) wstr_new ( test_string, strchr ( test_string, ' ' ) ),
-      ( void * ) "this value" );
+      wstr_new ( test_string, strchr ( test_string, ' ' ) ),
+      wstr_new ( "this value", NULL ),
+      null_wcall );
 
-  wtable_set (
+  wtable_wstr_to_wstr_set (
       &table,
-      ( void * ) wstr_new ( test_string, strchr ( test_string, ' ' ) ),
-      ( void * ) "this value 2" );
+      wstr_new ( test_string, strchr ( test_string, ' ' ) ),
+      wstr_new ( "this value 2", NULL),
+      null_wcall );
 
-  char * value = wtable_lookup ( &table, wstr_new( "this", NULL ) );
-  printf( "table[\"this\"] = %s\n", value );
+  wstr * value = wtable_wstr_to_wstr_lookup ( &table, wstr_new( "this", NULL ) );
+  puts ( "table[\"this\"] = " );
+  wstr_println ( *value );
   if ( ! value ) {
     return 1;
     }
-  if ( strcmp ( value, "this value 2" ) != 0 ) {
+  if ( wstr_compare ( *value, WSTR_LIT ( "this value 2" ) ) != 0 ) {
     return 1;
     }
   return 0;

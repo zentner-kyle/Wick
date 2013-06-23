@@ -3,7 +3,7 @@
 #include <wtype_h.h>
 #include <wmacros.h>
 #include <wstr.h>
-#include <wtable.h>
+#include <wtable_wval.h>
 
 def_struct ( wsym ) {
   uint64_t id[2];
@@ -14,7 +14,7 @@ extern wtable_elem_interface wsym_wtable_i;
 
 wsym wsym_of_wstr ( wstr s );
 
-whash_t wsym_hash ( wsym self );
+whash wsym_hash ( wsym self );
 int wsym_compare ( wsym a, wsym b );
 
 #define WSYM_LIT( literal ) \

@@ -60,8 +60,8 @@ def build(bld):
         'wick_assoc.c', 'warray_wval.c', 'wcall.c', 'wstr.c', 'wsym.c',
         'wbits.c', 'wtype.c', 'wbuiltins.c', 'warray_int.c',
         'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
-        'wplace.c', 'wchannel.c', 'wtable.c', 'hash.c', 'warray_opbunch.c',
-        'wvm.c',
+        'wplace.c', 'wchannel.c', 'wtable_wval.c', 'hash.c', 'warray_opbunch.c',
+        'wvm.c', 'wtable_wstr_to_wstr.c'
     ] 
     
     bld.objects(

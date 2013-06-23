@@ -6,14 +6,14 @@
 #include <walloc.h>
 #include <hash.h>
 
-int wstr_compare_void ( void * v_str_a, void * v_str_b );
-whash_t wstr_hash_void ( void * str );
+int wcompare_wstr ( wval v_str_a, wval v_str_b );
+whash whash_wstr ( wval str );
 
 wtype wstr_type;
 
 wtable_elem_interface wstr_wtable_i = {
-  &wstr_hash_void,
-  &wstr_compare_void
+  &whash_wstr,
+  &wcompare_wstr
   };
 
 size_t wstr_size ( const wstr str ) {
@@ -151,18 +151,18 @@ void wstr_println ( wstr str ) {
 
 siphash_key wstr_key = { { 0xe8f35937acefffaa, 0x331e89da1849403f } };
 
-whash_t wstr_hash_void ( void * str ) {
-  wstr self = *( wstr * ) str;
+whash whash_wstr ( wval str ) {
+  wstr self = *( wstr * ) str.p;
   return wstr_hash ( self );
   }
 
-whash_t wstr_hash ( wstr self ) {
+whash wstr_hash ( wstr self ) {
   return siphash_24 ( wstr_key, ( uint8_t * ) self.start, wstr_size ( self ) );
   }
 
-int wstr_compare_void ( void * v_str_a, void * v_str_b ) {
-  wstr str_a = * ( wstr * ) v_str_a;
-  wstr str_b = * ( wstr * ) v_str_b;
+int wcompare_wstr ( wval v_str_a, wval v_str_b ) {
+  wstr str_a = * ( wstr * ) v_str_a.p;
+  wstr str_b = * ( wstr * ) v_str_b.p;
   return wstr_compare ( str_a, str_b );
   }
 
@@ -197,7 +197,6 @@ wstr * wstr_new ( const char * start, const char * past_end ) {
 
 wstr * wstr_from_llong ( long long input ) {
   char * text = malloc ( sizeof( char ) * 40 );
-  int length = snprintf ( text, 40, "%lld", input );
-  assert ( length <= 40 );
+  snprintf ( text, 40, "%lld", input );
   return wstr_new ( text, NULL );
   }

@@ -1,20 +1,31 @@
 #include <string.h>
-#include <wtable.h>
 #include <wcall.h>
 #include <wstr.h>
 
-int main ( ) {
-  wtable table;
-  const char * test_string = "this is the test string";
-  wtable_init ( &table, &wstr_type, &wstr_wtable_i, null_wcall );
-  wtable_set ( &table, ( void * ) wstr_new ( test_string, strchr ( test_string, ' ' ) ), ( void * ) "this value" );
+#define wtable_key_t wstr *
+#define wtable_key_name wstr
+#define wtable_val_t wstr *
+#define wtable_val_name wstr
+#include <wtable.h>
 
-  char * value = wtable_lookup ( &table, wstr_new( "this", NULL ) );
-  printf( "table[\"this\"] = %s\n", value );
+
+int main ( ) {
+  wtable_wstr_to_wstr table;
+  const char * test_string = "this is the test string";
+  wtable_wstr_to_wstr_init ( &table, null_wcall );
+  wtable_wstr_to_wstr_set (
+    &table,
+    wstr_new ( test_string, strchr ( test_string, ' ' ) ),
+    wstr_new ( "this value", NULL ),
+    null_wcall );
+
+  wstr * value = wtable_wstr_to_wstr_lookup ( &table, wstr_new( "this", NULL ) );
+  puts ( "table[\"this\"] = " );
+  wstr_println ( *value );
   if ( ! value ) {
     return 1;
     }
-  if ( strcmp ( value, "this value" ) != 0 ) {
+  if ( wstr_compare ( *value, WSTR_LIT ( "this value" ) ) != 0 ) {
     return 1;
     }
   return 0;

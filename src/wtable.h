@@ -1,59 +1,105 @@
-#ifndef WTABLE_H
-#define WTABLE_H
-#include <stdbool.h>
-#include <stdlib.h>
-#include <wcall.h>
+#include <wtable_wval.h>
 #include <wmacros.h>
-#include <wtype_h.h>
-#include <whash.h>
 
-def_struct ( wtable_elem_interface ) {
-  whash_func_t * hash;
-  whash_compare_func_t * compare;
+#ifndef wtable_key_t
+  #error Must define wtable_key_t.
+  #endif
+
+#ifndef wtable_val_t
+  #error Must define wtable_val_t.
+  #endif
+
+#ifndef wtable_key_name
+  #define wtable_key_name wtable_key_t
+  #endif
+
+#ifndef wtable_val_name
+  #define wtable_val_name wtable_val_t
+  #endif
+
+
+#ifndef wtable_key_wtype
+  #define wtable_key_wtype join_token ( wtable_key_name, _type )
+  #endif
+
+#ifndef wtable_val_wtype
+  #define wtable_val_wtype join_token ( wtable_val_name, _type )
+  #endif
+
+
+#ifndef wtable_key_hash
+  #define wtable_key_hash join_token ( whash_, wtable_key_name )
+  #endif
+
+#ifndef wtable_key_compare
+  #define wtable_key_compare join_token ( wcompare_, wtable_key_name )
+  #endif
+
+
+#ifndef wtable_name
+  #define wtable_name join_token ( join_token ( wtable_key_name, _to_ ), wtable_val_name )
+  #endif
+
+#define method( mname ) join_token ( join_token ( wtable_, wtable_name ), join_token ( _, mname ) )
+
+#define wtable_struct join_token ( wtable_, wtable_name )
+
+#define wtable_interface join_token ( wtable_, join_token ( wtable_name, _interface ) )
+
+
+wtable_elem_interface wtable_interface = {
+  &wtable_key_hash,
+  &wtable_key_compare
   };
 
-def_struct ( wtable_bucket ) {
-  void * key;
-  void * value;
-  wtable_bucket * next;
-  whash_t hash;
+#define wtable_struct_to_table( wtable_s ) (&(wtable_s)->table )
+#define wtable_backcast_val( val ) ((wtable_val_t) (val).i)
+#define wtable_backcast_key( key ) ((wtable_key_t) (key).i)
+#define wtable_cast_key( key ) ((wval) { .p = (wobj *) key })
+#define wtable_cast_val( val ) ((wval) { .p = (wobj *) val })
+
+def_struct ( wtable_struct ) {
+  wtable table;
   };
 
-def_struct ( wtable ) {
-  wtype * type;
-  wtable_elem_interface * interface;
-  wtype * elem_type;
-  size_t mask;
-  size_t num_elems;
-  size_t space;
-  wtable_bucket * data;
-  };
-
-/* 
- * Badly need to figure out dynamic interfaces in static code.
- * Porbably should build most of it on top of wcalls or similar.
- */
-
-bool wtable_init_to_size (
-    wtable * self,
-    wtype * elem_type,
+bool method ( init_to_size ) (
+    wtable_struct * self,
     size_t predicted_elems,
-    wtable_elem_interface * hash_interface,
-    wcall error );
+    wcall on_error );
 
-bool wtable_init (
-    wtable * self,
-    wtype * elem_type,
-    wtable_elem_interface * hash_interface,
-    wcall error );
+bool method ( init ) (
+    wtable_struct * self,
+    wcall on_error );
 
-void * wtable_lookup ( wtable * self, void * key );
+wtable_val_t method ( lookup ) ( wtable_struct * self, wtable_key_t key );
 
-void * wtable_lookup_or_add ( wtable * self, void * key, void * ( *on_missing ) ( void * key ) );
+wtable_val_t method ( lookup_or_add ) (
+    wtable_struct * self,
+    wtable_key_t key,
+    wval ( *on_missing ) ( wval key ),
+    wcall on_error );
 
-void * wtable_lookup_default ( wtable * self, void * key, void * default_value );
+wtable_val_t method ( lookup_default ) (
+    wtable_struct * self,
+    wtable_key_t key,
+    wtable_val_t default_value,
+    wcall on_error );
 
-void wtable_set ( wtable * self, void * key, void * value );
+void method ( set ) (
+    wtable_struct * self,
+    wtable_key_t key,
+    wtable_val_t value,
+    wcall on_error );
 
+#ifndef wtable_source
+  #undef wtable_key_wtype
+  #undef wtable_val_wtype
+  #undef wtable_key_hash
+  #undef wtable_key_compare
+  #undef wtable_name
+  #undef method
+  #undef wtable_struct
+  #undef wtable_interface
+  #undef wtable_struct_to_table
 
-#endif /* end of include guard: WTABLE_H */
+  #endif

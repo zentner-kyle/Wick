@@ -18,8 +18,6 @@
 #define warray_struct join_token ( warray_, warray_name ) 
 #define warray_iter_struct join_token ( join_token ( warray_, warray_name ), _iter )
 
-/* TODO: Add (optional) pointer checking. */
-
 bool method( init ) ( warray_struct * self, wcall error ) {
   return warray_init ( &self->array, warray_elem_wtype, error );
   }

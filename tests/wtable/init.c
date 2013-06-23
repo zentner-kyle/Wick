@@ -1,9 +1,14 @@
-#include <wtable.h>
 #include <wcall.h>
 #include <wstr.h>
 
+#define wtable_key_t wstr *
+#define wtable_key_name wstr
+#define wtable_val_t wstr *
+#define wtable_val_name wstr
+#include <wtable.h>
+
 int main ( ) {
-  wtable table;
-  wtable_init ( &table, &wstr_type, &wstr_wtable_i, null_wcall );
+  wtable_wstr_to_wstr table;
+  wtable_wstr_to_wstr_init ( &table, null_wcall );
   return 0;
   }
