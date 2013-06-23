@@ -5,6 +5,7 @@
 #include <wvm.h>
 #include <walloc.h>
 #include <werror.h>
+#include <wsym.h>
 
 #define elem_t opbunch
 #include <warray.h>
@@ -22,7 +23,7 @@
   #define DISPATCH switch ( op_bunch & 0xff )
   #endif
 
-wtype_base opbunch_type_base = { ( wtype * ) &wtype_base_t, WSYM_LIT ( "opcode" ), sizeof ( uint32_t )   };
+wtype_base wtype_opbunch = { ( wtype * ) &wtype_base_t, wsym_lit ( "opcode" ), sizeof ( uint32_t )   };
 
 static const char * wopcode_names[] = {
   #define OPCODE_LIST
@@ -168,12 +169,12 @@ uint8_t parse_arg ( wstr line, wstr * rest, werror * report ) {
     }
   else {
   if ( line.start[ 0 ] != 'r' ) {
-  report->message = WSTR_LIT ( "Expected argument to start with either 's' or 'r'." );
+  report->message = wstr_lit ( "Expected argument to start with either 's' or 'r'." );
   return 0;
   }
     }
   if ( ! isxdigit ( line.start[ 1 ] ) ) {
-    report->message = WSTR_LIT ( "No hex digit in argument." );
+    report->message = wstr_lit ( "No hex digit in argument." );
     return 0;
     }
   int shift = 0;
@@ -186,7 +187,7 @@ uint8_t parse_arg ( wstr line, wstr * rest, werror * report ) {
   rest->past_end = line.past_end;
   uint8_t larger = hex_digit ( line.start[ 1 ] );
   if ( ( ( larger << shift ) & ( 1 << 7 ) ) || isxdigit ( rest->start[ 0 ] ) ) {
-    report->message = WSTR_LIT ( "Argument is too large." );
+    report->message = wstr_lit ( "Argument is too large." );
     }
   arg |= larger << shift;
   return arg;
@@ -198,9 +199,9 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
   wstr line;
   size_t total_size = 0;
   int left_in_opcode = 4;
-  wstr success = WSTR_LIT ( "success" );
+  wstr success = wstr_lit ( "success" );
   werror parse_error = { ( wtype * ) &werror_type, success   };
-  warray_opbunch * uncollapsed_code = warray_opbunch_new ( null_wcall );
+  warray_opbunch * uncollapsed_code = warray_opbunch_new ( &null_wcall );
   while ( wstr_size ( file_remaining ) != 0 ) {
     get_next_line ( file_remaining, &line, &file_remaining );
     wstr name;
@@ -224,7 +225,7 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
       }
     skip_wspace ( &line );
     assert ( wstr_size ( line ) == 0 || line.start[ 0 ] == '#' );
-    warray_opbunch_push_back ( uncollapsed_code, opcode, null_wcall );
+    warray_opbunch_push_back ( uncollapsed_code, opcode, &null_wcall );
     }
   ++total_size;
   opbunch * code = malloc ( sizeof ( opbunch ) * total_size );
@@ -232,7 +233,7 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
   opbunch opcode;
   uint8_t used_in_opcode = 0;
   while ( ! warray_opbunch_empty ( uncollapsed_code ) ) {
-    opcode = warray_opbunch_pop_front ( uncollapsed_code, null_wcall );
+    opcode = warray_opbunch_pop_front ( uncollapsed_code, &null_wcall );
     uint8_t size = wopcode_args[opcode & 0xff] + 1;
     if ( used_in_opcode + size > sizeof ( opbunch ) ) {
       while ( used_in_opcode < sizeof ( opbunch ) ) {

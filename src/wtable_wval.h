@@ -37,14 +37,14 @@ bool wtable_init_to_size (
     wtype * val_type,
     size_t predicted_elems,
     wtable_elem_interface * hash_interface,
-    wcall on_error );
+    wcall * on_error );
 
 bool wtable_init (
     wtable * self,
     wtype * key_type,
     wtype * val_type,
     wtable_elem_interface * hash_interface,
-    wcall on_error );
+    wcall * on_error );
 
 wval wtable_lookup ( wtable * self, wval key );
 wval wtable_lookup_hash ( wtable * self, wval key, whash hash );
@@ -53,36 +53,36 @@ wval wtable_lookup_or_add (
     wtable * self,
     wval key,
     wval ( *on_missing ) ( wval key ),
-    wcall on_error );
+    wcall * on_error );
 wval wtable_lookup_or_add_hash (
     wtable * self,
     wval key,
     wval ( *on_missing ) ( wval key ),
-    wcall on_error,
+    wcall * on_error,
     whash hash );
 
 wval wtable_lookup_default (
     wtable * self,
     wval key,
     wval default_value,
-    wcall on_error );
+    wcall * on_error );
 wval wtable_lookup_default_hash (
     wtable * self,
     wval key,
     wval default_value,
-    wcall on_error,
+    wcall * on_error,
     whash hash );
 
 void wtable_set (
     wtable * self,
     wval key,
     wval value,
-    wcall on_error );
+    wcall * on_error );
 void wtable_set_hash (
     wtable * self,
     wval key,
     wval value,
-    wcall on_error,
+    wcall * on_error,
     whash hash );
 
 

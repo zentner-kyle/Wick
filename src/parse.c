@@ -66,7 +66,7 @@ typedef struct token_table token_table;
 
 const size_t token_table_starting_size = 1024;
 
-void token_table_init ( token_table * self, wcall error ) {
+void token_table_init ( token_table * self, wcall * error ) {
   assert ( self );
   self->mask = mask_of_pow2 ( token_table_starting_size );
   self->size = token_table_starting_size;
@@ -74,12 +74,12 @@ void token_table_init ( token_table * self, wcall error ) {
   self->data = ( token_table_bucket * ) malloc ( token_table_starting_size * sizeof ( token_table_bucket * ) );
   self->hashkey = ( siphash_key ) {{0xf1255325d0fd78e2, 0x9644fae0e4d88426  }};
   if ( ! self->data ) {
-    winvoke ( error );
+    winvoke_0 ( error );
     }
   }
 
 /* Returns true on success, false otherwise. */
-bool resize_token_table ( token_table * self, wcall error ) {
+bool resize_token_table ( token_table * self, wcall * error ) {
   size_t old_size = self->size;
   size_t new_size = self->size * 2;
   hash_t new_mask = mask_of_pow2 ( new_size );
@@ -87,7 +87,7 @@ bool resize_token_table ( token_table * self, wcall error ) {
 
   token_table_bucket * new_data = ( token_table_bucket * ) malloc ( new_size );
   if ( ! new_data ) {
-    winvoke ( error );
+    winvoke_0 ( error );
     return false;
     }
   memset ( new_data, 0, new_size );
@@ -112,7 +112,7 @@ bool resize_token_table ( token_table * self, wcall error ) {
  * Finds a token in the table. If the token is not found, then a ( deep ) copy
  * of it is inserted. Returns the token ( inserted or found ).
  */
-token * token_table_unique ( token_table * self, token t, wcall error ) {
+token * token_table_unique ( token_table * self, token t, wcall * error ) {
   hash_t to_find = token_hash ( self->hashkey, &t );
   int i = to_find & self->mask;
   for ( ; self->data[i].hash; i = ( i + 1 ) & self->mask ) {
@@ -195,12 +195,11 @@ const struct {
   } parser_errors = { 0, 1 };
 
 void array_insert ( array * a, void * elem, size_t elem_size, wcall error ) {
-  assert ( a && elem && error.func );
   if ( a->count == a->space ) {
     size_t new_size = a->count * 2;
     void * new_data = malloc ( elem_size * new_size );
     if ( ! new_data ) {
-      winvoke ( error );
+      winvoke_0 ( &error );
       return;
       }
     memcpy ( new_data, a->data, elem_size * a->count );
@@ -211,13 +210,13 @@ void array_insert ( array * a, void * elem, size_t elem_size, wcall error ) {
   memcpy ( ( void * ) ( elem_size * a->count++ + ( char * ) a->data ), elem, elem_size );
   }
 
-void array_init ( array * self, size_t elem_size, size_t elem_count, wcall error ) {
+void array_init ( array * self, size_t elem_size, size_t elem_count, wcall * error ) {
   assert ( self );
   self->count = 0;
   self->space = 0;
   self->data = malloc ( elem_size * elem_count );
   if ( ! self->data ) {
-    winvoke ( error );
+    winvoke_0 ( error );
     }
   }
 
@@ -225,15 +224,20 @@ void array_free ( array * self ) {
   free ( self->data );
   }
 
-void alloc_error ( void * vparser ) {
-  parser * p = ( parser * ) vparser;
+wstatus alloc_error ( wval vparser ) {
+  parser * p = ( parser * ) vparser.p;
   p->error = parser_errors.alloc;
+  return W_ERROR;
   }
 
 void insert_reactor ( parser * self, parser_component * reactor ) {
   assert ( self && reactor );
   if ( ! self->error ) {
-    array_insert ( ( array * ) &self->reactors, ( void * ) reactor, sizeof ( parser_component ), ( wcall ) { alloc_error, ( void * ) self   } );
+    array_insert (
+        ( array * ) &self->reactors,
+        ( void * ) reactor,
+        sizeof ( parser_component ),
+        ( wcall ) { &alloc_error, { .p = ( wobj * ) self } } );
     }
   }
 
@@ -258,12 +262,12 @@ int main ( int argv, char * argc[] ) {
   init_parser ( &p );
   insert_reactor ( &p, & ( parser_component ) { &skip_whitespace, 0   } );
   token_table table;
-  wcall d = {0, 0  };
+  wcall d = { 0, { 0 } };
   token tok1 = {str_from_c ( "test_token" ), 0  };
   token tok2 = {str_from_c ( "test_token" ), 0  };
-  token_table_init ( &table, d );
-  token * t1 = token_table_unique ( &table, tok1, d );
-  token * t2 = token_table_unique ( &table, tok2, d );
+  token_table_init ( &table, &d );
+  token * t1 = token_table_unique ( &table, tok1, &d );
+  token * t2 = token_table_unique ( &table, tok2, &d );
   printf ( "%d\n", t1 == t2 );
   printf ( "%p\n", t1 );
   printf ( "%p\n", t2 );

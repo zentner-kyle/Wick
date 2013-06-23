@@ -33,11 +33,11 @@
 
 
 #ifndef wtable_key_wtype
-  #define wtable_key_wtype join_token ( wtable_key_name, _type )
+  #define wtable_key_wtype w_type_to_wtype ( wtable_key_name )
   #endif
 
 #ifndef wtable_val_wtype
-  #define wtable_val_wtype join_token ( wtable_val_name, _type )
+  #define wtable_val_wtype w_type_to_wtype ( wtable_val_name )
   #endif
 
 
@@ -119,11 +119,11 @@ def_struct ( wtable_struct ) {
 bool method ( init_to_size ) (
     wtable_struct * self,
     size_t predicted_elems,
-    wcall on_error );
+    wcall * on_error );
 
 bool method ( init ) (
     wtable_struct * self,
-    wcall on_error );
+    wcall * on_error );
 
 wtable_val_t method ( lookup ) ( wtable_struct * self, wtable_key_t key );
 
@@ -131,19 +131,19 @@ wtable_val_t method ( lookup_or_add ) (
     wtable_struct * self,
     wtable_key_t key,
     wval ( *on_missing ) ( wval key ),
-    wcall on_error );
+    wcall * on_error );
 
 wtable_val_t method ( lookup_default ) (
     wtable_struct * self,
     wtable_key_t key,
     wtable_val_t default_value,
-    wcall on_error );
+    wcall * on_error );
 
 void method ( set ) (
     wtable_struct * self,
     wtable_key_t key,
     wtable_val_t value,
-    wcall on_error );
+    wcall * on_error );
 
 #ifndef wtable_source
   #undef floating

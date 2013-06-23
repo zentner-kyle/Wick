@@ -14,6 +14,6 @@ void * wick_memalign ( size_t num_bytes, size_t alignment );
 
 #define walloc_simple( type, count ) ( ( type * ) wick_base_alloc ( sizeof ( type ) * count ) )
 
-void * walloc_static ( wtype * t, wcall on_error );
+void * walloc_static ( wtype * t, wcall * on_error );
 
 #endif /* end of include guard: WALLOC_H */

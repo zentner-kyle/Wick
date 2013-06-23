@@ -15,9 +15,7 @@ typedef int8_t wasm_arg;
 
 typedef uint8_t wasm_op;
 
-extern wtype_base opbunch_type_base;
-
-#define opbunch_type ((wtype *) &opbunch_type_base)
+extern wtype_base wtype_opbunch;
 
 void wexec_code ( opbunch * c );
 

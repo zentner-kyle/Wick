@@ -11,6 +11,6 @@
 
 int main ( ) {
   wtable_wstr_to_wstr table;
-  wtable_wstr_to_wstr_init ( &table, null_wcall );
+  wtable_wstr_to_wstr_init ( &table, &null_wcall );
   return 0;
   }

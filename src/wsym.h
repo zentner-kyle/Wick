@@ -17,8 +17,8 @@ wsym wsym_of_wstr ( wstr s );
 whash wsym_hash ( wsym self );
 int wsym_compare ( wsym a, wsym b );
 
-#define WSYM_LIT( literal ) \
-  ( ( wsym ) { { 0, 0 }, WSTR_LIT ( literal )   } )
+#define wsym_lit( literal ) \
+  ( ( wsym ) { { 0, 0 }, wstr_lit ( literal )   } )
 
 void wsym_init ( wsym * self, uint64_t id[2], const char * start, const char * past_end );
 void wsym_init_alloc ( wsym * self, uint64_t id[2], const char * start, const char * past_end, enum wstr_alloc_type alloc_type );

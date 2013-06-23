@@ -6,20 +6,20 @@
 
 #define back_cast( val ) ( ( elem_t ) ( val ).i )
 
-bool method( init ) ( warray_struct * self, wcall error ) {
+bool method( init ) ( warray_struct * self, wcall * error ) {
   return warray_init ( &self->array, warray_elem_wtype, error );
   }
 
-bool method( init_to_size ) ( warray_struct * self, size_t num_elems, wcall error ) {
+bool method( init_to_size ) ( warray_struct * self, size_t num_elems, wcall * error ) {
   return warray_init_to_size ( &self->array, warray_elem_wtype, num_elems, error );
   }
 
 
-warray_struct * method ( new ) ( wcall error ) {
+warray_struct * method ( new ) ( wcall * error ) {
   return ( warray_struct * ) warray_new ( warray_elem_wtype, error );
   }
 
-warray_struct * method ( new_to_size ) ( size_t num_elems, wcall error ) {
+warray_struct * method ( new_to_size ) ( size_t num_elems, wcall * error ) {
   return ( warray_struct * ) warray_new_to_size ( warray_elem_wtype, num_elems, error );
   }
 
@@ -42,20 +42,20 @@ bool method ( full ) ( warray_struct * self ) {
   }
 
 
-void method ( push_back ) ( warray_struct * self, elem_t elem, wcall error ) {
+void method ( push_back ) ( warray_struct * self, elem_t elem, wcall * error ) {
   warray_push_back ( &self->array, (wval) { elem }, error );
   }
 
-void method ( push_front ) ( warray_struct * self, elem_t elem, wcall error ) {
+void method ( push_front ) ( warray_struct * self, elem_t elem, wcall * error ) {
   warray_push_front ( &self->array, (wval) { elem }, error );
   }
 
 
-elem_t method ( pop_back ) ( warray_struct * self, wcall error ) {
+elem_t method ( pop_back ) ( warray_struct * self, wcall * error ) {
   return back_cast ( warray_pop_back ( &self->array, error ) );
   }
 
-elem_t method ( pop_front ) ( warray_struct * self, wcall error ) {
+elem_t method ( pop_front ) ( warray_struct * self, wcall * error ) {
   return back_cast ( warray_pop_front ( &self->array, error ) );
   }
 

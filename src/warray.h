@@ -5,11 +5,15 @@
   #error Must define elem_t.
   #endif
 
+#ifndef warray_elem_name
+  #define warray_elem_name elem_t
+  #endif
+
 #ifndef warray_name
   #define warray_name elem_t
   #endif
 
-#define warray_elem_wtype join_token ( elem_t, _type )
+#define warray_elem_wtype ((wtype *) & w_type_to_wtype ( warray_elem_name ))
 
 #define method( mname ) join_token ( join_token ( warray_, warray_name ), join_token ( _, mname ) )
 
@@ -24,11 +28,11 @@ def_struct ( warray_iter_struct ) {
   warray_iter iter;
   };
 
-bool method( init ) ( warray_struct * self, wcall error );
-bool method( init_to_size ) ( warray_struct * self, size_t num_elems, wcall error );
+bool method( init ) ( warray_struct * self, wcall * error );
+bool method( init_to_size ) ( warray_struct * self, size_t num_elems, wcall * error );
 
-warray_struct * method ( new ) ( wcall error );
-warray_struct * method ( new_to_size ) ( size_t num_elems, wcall error );
+warray_struct * method ( new ) ( wcall * error );
+warray_struct * method ( new_to_size ) ( size_t num_elems, wcall * error );
 
 void method ( deinit ) ( warray_struct * self );
 void method ( delete ) ( warray_struct * self );
@@ -37,11 +41,11 @@ void method ( delete ) ( warray_struct * self );
 bool method ( empty ) ( warray_struct * self );
 bool method ( full ) ( warray_struct * self );
 
-void method ( push_back ) ( warray_struct * self, elem_t elem, wcall error );
-void method ( push_front ) ( warray_struct * self, elem_t elem, wcall error );
+void method ( push_back ) ( warray_struct * self, elem_t elem, wcall * error );
+void method ( push_front ) ( warray_struct * self, elem_t elem, wcall * error );
 
-elem_t method ( pop_back ) ( warray_struct * self, wcall error );
-elem_t method ( pop_front ) ( warray_struct * self, wcall error );
+elem_t method ( pop_back ) ( warray_struct * self, wcall * error );
+elem_t method ( pop_front ) ( warray_struct * self, wcall * error );
 
 size_t method ( length ) ( warray_struct * self );
 bool method ( good_index ) ( warray_struct * self, size_t index );

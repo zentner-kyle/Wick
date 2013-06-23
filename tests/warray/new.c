@@ -8,14 +8,15 @@
 
 bool error = false;
 
-void report_error ( void * ignored ) {
+wstatus report_error ( wval ignored ) {
   error = true;
+  return W_ERROR;
   }
 
 int main ( ) {
   wbuiltins_init ( );
-  wcall error_wcall = { .func = report_error, .data = NULL   };
-  warray_int * a = warray_int_new ( error_wcall );
+  wcall error_wcall = { .func = &report_error, .data = { 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+  warray_int * a = warray_int_new ( &error_wcall );
   printf ( "%p\n", a->array.data );
   return error;
   }

@@ -9,7 +9,7 @@
 int wcompare_wstr ( wval v_str_a, wval v_str_b );
 whash whash_wstr ( wval str );
 
-wtype wstr_type;
+wtype wtype_wstr;
 
 wtable_elem_interface wstr_wtable_i = {
   &whash_wstr,
@@ -22,7 +22,7 @@ size_t wstr_size ( const wstr str ) {
 
 wstr wstr_from_literal ( const char * literal ) {
   wstr out;
-  out.type = &wstr_type;
+  out.type = &wtype_wstr;
   out.start = literal;
   out.past_end = literal + strlen ( literal );
   out.alloc_type = wstr_static;
@@ -31,7 +31,7 @@ wstr wstr_from_literal ( const char * literal ) {
 
 wstr wstr_from_dynamic ( const char * dynamic ) {
   wstr out;
-  out.type = &wstr_type;
+  out.type = &wtype_wstr;
   out.start = dynamic;
   out.past_end = dynamic + strlen ( dynamic );
   out.alloc_type = wstr_dynamic;
@@ -50,7 +50,7 @@ long int wick_get_file_size ( FILE * file ) {
 
 wstr wstr_from_file ( FILE * file ) {
   wstr out;
-  out.type = &wstr_type;
+  out.type = &wtype_wstr;
   out.alloc_type = wstr_dynamic;
   if ( file == NULL ) {
     out.start = NULL;
@@ -134,7 +134,7 @@ int wstr_compare ( wstr a, wstr b ) {
   }
 
 void wstr_init_dynamic ( wstr * to_init ) {
-  to_init->type = ( wtype * ) &wstr_type;
+  to_init->type = ( wtype * ) &wtype_wstr;
   to_init->alloc_type = wstr_dynamic;
   }
 
@@ -173,7 +173,7 @@ void wstr_init_alloc ( wstr * self, const char * start, const char * past_end, e
       past_end++;
       }
     }
-  self->type = &wstr_type;
+  self->type = &wtype_wstr;
   self->start = start;
   self->past_end = past_end;
   }

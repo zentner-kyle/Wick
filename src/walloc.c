@@ -7,16 +7,16 @@
 
   /* For use in low level code. */
 
-werror wick_out_of_memory = { &werror_type, WSTR_LIT ( "Out of memory" )   };
+werror wick_out_of_memory = { &werror_type, wstr_lit ( "Out of memory" )   };
 
-void * walloc_static ( wtype * t, wcall on_error ) {
+void * walloc_static ( wtype * t, wcall * on_error ) {
   void * result = wick_base_alloc ( t->size );
   if ( result ) {
     /* Hopefully makes finding bugs easier. */
     memset ( result, 0xff, t->size );
       }
 else {
-    winvoke ( on_error );
+    winvoke_0 ( on_error );
       }
   return result;
     }

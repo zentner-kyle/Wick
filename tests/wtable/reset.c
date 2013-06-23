@@ -14,18 +14,18 @@
 int main ( ) {
   wtable_wstr_to_wstr table;
   const char * test_string = "this is the test string";
-  wtable_wstr_to_wstr_init ( &table, null_wcall );
+  wtable_wstr_to_wstr_init ( &table, &null_wcall );
   wtable_wstr_to_wstr_set (
       &table,
       wstr_new ( test_string, strchr ( test_string, ' ' ) ),
       wstr_new ( "this value", NULL ),
-      null_wcall );
+      &null_wcall );
 
   wtable_wstr_to_wstr_set (
       &table,
       wstr_new ( test_string, strchr ( test_string, ' ' ) ),
       wstr_new ( "this value 2", NULL),
-      null_wcall );
+      &null_wcall );
 
   wstr * value = wtable_wstr_to_wstr_lookup ( &table, wstr_new( "this", NULL ) );
   puts ( "table[\"this\"] = " );
@@ -33,7 +33,7 @@ int main ( ) {
   if ( ! value ) {
     return 1;
     }
-  if ( wstr_compare ( *value, WSTR_LIT ( "this value 2" ) ) != 0 ) {
+  if ( wstr_compare ( *value, wstr_lit ( "this value 2" ) ) != 0 ) {
     return 1;
     }
   return 0;

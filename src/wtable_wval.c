@@ -10,7 +10,7 @@ bool wtable_needs_grow ( wtable * self );
 
 bool wtable_needs_shrink ( wtable * self );
 
-void wtable_grow ( wtable * restrict self, wcall on_error );
+void wtable_grow ( wtable * restrict self, wcall * on_error );
 
 #define SELECT_BUCKET( \
     macro_self, \
@@ -63,7 +63,7 @@ bool wtable_init_to_size (
     wtype * val_type,
     size_t predicted_elems,
     wtable_elem_interface * hash_interface,
-    wcall on_error
+    wcall * on_error
     ) {
   assert ( self );
   predicted_elems = round_up_power_2 ( predicted_elems );
@@ -75,7 +75,7 @@ bool wtable_init_to_size (
   self->num_elems = 0;
   self->data = walloc_simple ( wtable_bucket, predicted_elems );
   if ( self->data == NULL ) {
-    winvoke ( on_error );
+    winvoke_0 ( on_error );
     return false;
     }
   else {
@@ -89,7 +89,7 @@ bool wtable_init (
     wtype * key_type,
     wtype * val_type,
     wtable_elem_interface * hash_interface,
-    wcall on_error
+    wcall * on_error
     ) {
   return wtable_init_to_size (
       self,
@@ -124,7 +124,7 @@ wval wtable_lookup_or_add (
     wtable * self,
     wval key,
     wval ( *on_missing ) ( wval key ),
-    wcall on_error
+    wcall * on_error
     ) {
   return wtable_lookup_or_add_hash (
       self,
@@ -137,7 +137,7 @@ wval wtable_lookup_or_add_hash (
     wtable * self,
     wval key,
     wval ( *on_missing ) ( wval key ),
-    wcall on_error,
+    wcall * on_error,
     whash hash
     ) {
   #define RETURN_FOUND( bucket ) \
@@ -154,7 +154,7 @@ wval wtable_lookup_or_add_hash (
   #define ADD_NOT_FIRST( bucket ) \
     wtable_bucket * new_bucket = walloc_simple ( wtable_bucket, 1 ); \
     if ( new_bucket == NULL ) { \
-      winvoke ( on_error ); \
+      winvoke_0 ( on_error ); \
       } \
     ( bucket )->next = new_bucket;  \
     new_bucket->next = NULL; \
@@ -176,7 +176,7 @@ wval wtable_lookup_default (
     wtable * self,
     wval key,
     wval default_value,
-    wcall on_error
+    wcall * on_error
     ) {
   return wtable_lookup_default_hash (
       self,
@@ -190,7 +190,7 @@ wval wtable_lookup_default_hash (
     wtable * self,
     wval key,
     wval default_value,
-    wcall on_error,
+    wcall * on_error,
     whash hash
     ) {
   #undef ADD_FIRST
@@ -219,7 +219,7 @@ void wtable_set (
     wtable * self,
     wval key,
     wval value,
-    wcall on_error
+    wcall * on_error
     ) {
   return wtable_set_hash (
       self,
@@ -232,7 +232,7 @@ void wtable_set_hash (
     wtable * self,
     wval key,
     wval value,
-    wcall on_error,
+    wcall * on_error,
     whash hash
     ) {
   #undef ADD_FIRST
@@ -268,10 +268,10 @@ bool wtable_needs_shrink ( wtable * self ) {
   return self->num_elems <= (self->space >> 2);
   }
 
-void wtable_grow ( wtable * restrict self, wcall on_error ) {
+void wtable_grow ( wtable * restrict self, wcall * on_error ) {
   wtable_bucket * new_buckets = walloc_simple ( wtable_bucket, self->space << 1 );
   if ( new_buckets == NULL ) {
-    winvoke ( on_error );
+    winvoke_0 ( on_error );
     }
   memset ( ( void * ) new_buckets, 0, (self->space << 1) * sizeof ( wtable_bucket ) );
   wtable_bucket * old_bucket = self->data;

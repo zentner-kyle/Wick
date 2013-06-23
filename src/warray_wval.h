@@ -30,11 +30,11 @@ def_struct ( warray_iter ) {
   int index;
   };
 
-bool warray_init ( warray * self, wtype * elem_type, wcall error );
-bool warray_init_to_size ( warray * self, wtype * elem_type, size_t num_elements, wcall error );
+bool warray_init ( warray * self, wtype * elem_type, wcall * error );
+bool warray_init_to_size ( warray * self, wtype * elem_type, size_t num_elements, wcall * error );
 
-warray * warray_new ( wtype * elem_type, wcall error );
-warray * warray_new_to_size ( wtype * elem_type, size_t num_elements, wcall error );
+warray * warray_new ( wtype * elem_type, wcall * error );
+warray * warray_new_to_size ( wtype * elem_type, size_t num_elements, wcall * error );
 
 void warray_deinit ( warray * self );
 void warray_delete ( warray * self );
@@ -42,10 +42,10 @@ void warray_delete ( warray * self );
 bool warray_empty ( warray * self );
 bool warray_full ( warray * self );
 
-void warray_push_back ( warray * self, wval elem, wcall error );
-void warray_push_front ( warray * self, wval elem, wcall error );
-wval warray_pop_back ( warray * self, wcall error );
-wval warray_pop_front ( warray * self, wcall error );
+void warray_push_back ( warray * self, wval elem, wcall * error );
+void warray_push_front ( warray * self, wval elem, wcall * error );
+wval warray_pop_back ( warray * self, wcall * error );
+wval warray_pop_front ( warray * self, wcall * error );
 
 size_t warray_length ( warray * self );
 bool warray_good_index ( warray * self, size_t index );

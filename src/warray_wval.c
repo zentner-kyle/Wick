@@ -9,7 +9,7 @@
 
 const static size_t warray_default_size = 8;
 
-bool warray_init ( warray * self, wtype * elem_type, wcall error ) {
+bool warray_init ( warray * self, wtype * elem_type, wcall * error ) {
   return warray_init_to_size ( self, elem_type, warray_default_size, error );
   }
 
@@ -17,7 +17,7 @@ bool warray_init_to_size (
     warray * self,
     wtype * elem_type,
     size_t num_elements,
-    wcall error
+    wcall * error
     ) {
   self->elem_type = elem_type;
   self->space = num_elements;
@@ -27,7 +27,7 @@ bool warray_init_to_size (
   self->data = malloc ( sizeof ( wval ) * self->space );
 
   if ( ! self->data ) {
-    winvoke ( error );
+    winvoke_0 ( error );
     return false;
     }
   else {
@@ -36,17 +36,17 @@ bool warray_init_to_size (
   }
 
 
-warray * warray_new ( wtype * elem_type, wcall error ) {
+warray * warray_new ( wtype * elem_type, wcall * error ) {
   return warray_new_to_size ( elem_type, warray_default_size, error );
   }
 
-warray * warray_new_to_size ( wtype * elem_type, size_t num_elements, wcall error ) {
+warray * warray_new_to_size ( wtype * elem_type, size_t num_elements, wcall * error ) {
   warray * self = ( warray * ) malloc ( sizeof ( warray ) );
   if ( ! self ) {
-    winvoke ( error );
+    winvoke_0 ( error );
     return NULL;
     }
-  if ( ! warray_init_to_size ( self, elem_type, num_elements, null_wcall ) ) {
+  if ( ! warray_init_to_size ( self, elem_type, num_elements, &null_wcall ) ) {
       free ( self );
       self = NULL;
     }
@@ -69,11 +69,11 @@ static bool warray_looped ( warray * self ) {
   }
 
 
-bool warray_grow ( warray * self, wcall error ) {
+bool warray_grow ( warray * self, wcall * error ) {
   size_t new_size = round_up_power_2 ( self->space + 1 );
   wval * new_data = walloc_simple ( wval, new_size );
   if ( ! new_data ) {
-    winvoke ( error );
+    winvoke_0 ( error );
     return false;
     }
   if ( warray_looped ( self ) ) {
@@ -106,7 +106,7 @@ bool warray_full ( warray * self ) {
   return ( self->past_end != 0 && self->start == self->past_end ) || ( self->start == 0 && self->past_end == self->space );
   }
 
-void warray_push_back ( warray * self, wval elem, wcall error ) {
+void warray_push_back ( warray * self, wval elem, wcall * error ) {
   if ( warray_full ( self ) ) {
     if ( ! warray_grow ( self, error ) ) {
       return;
@@ -122,7 +122,7 @@ void warray_push_back ( warray * self, wval elem, wcall error ) {
     }
   }
 
-void warray_push_front ( warray * self, wval elem, wcall error ) {
+void warray_push_front ( warray * self, wval elem, wcall * error ) {
   if ( warray_full ( self ) ) {
     warray_grow ( self, error );
     }
@@ -143,9 +143,9 @@ void warray_push_front ( warray * self, wval elem, wcall error ) {
     }
   }
 
-wval warray_pop_back ( warray * self, wcall error ) {
+wval warray_pop_back ( warray * self, wcall * error ) {
   if ( warray_empty ( self ) ) {
-    winvoke ( error );
+    winvoke_0 ( error );
     }
 
   wval to_return = self->data[--self->past_end];
@@ -168,9 +168,9 @@ wval warray_pop_back ( warray * self, wcall error ) {
   return to_return;
   }
 
-wval warray_pop_front ( warray * self, wcall error ) {
+wval warray_pop_front ( warray * self, wcall * error ) {
   if ( warray_empty ( self ) ) {
-    winvoke ( error );
+    winvoke_0 ( error );
     }
 
   wval to_return = self->data[self->start++];

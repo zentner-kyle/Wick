@@ -19,9 +19,9 @@ int main ( ) {
   wstr * str = wstr_new ( test_string, NULL );
   wtable_wstr_to_wstr table;
   int iterations = 10 * 1000;
-  wtable_wstr_to_wstr_init ( &table, null_wcall );
+  wtable_wstr_to_wstr_init ( &table, &null_wcall );
   for ( long long i = 0; i < iterations; i++ ) {
-    wtable_wstr_to_wstr_set ( &table, str, str, null_wcall );
+    wtable_wstr_to_wstr_set ( &table, str, str, &null_wcall );
     }
   return 0;
   }
