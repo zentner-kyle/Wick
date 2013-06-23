@@ -1,22 +1,10 @@
 #include <warray_wval.h>
 #include <wmacros.h>
 
-#ifndef elem_t
-  #error Must define elem_t.
-  #endif
+#define warray_source
+#include <warray.h>
 
 #define back_cast( val ) ( ( elem_t ) ( val ).i )
-
-#ifndef warray_name
-  #define warray_name elem_t
-  #endif
-
-#define warray_elem_wtype join_token ( elem_t, _type )
-
-#define method( mname ) join_token ( join_token ( warray_, warray_name ), join_token ( _, mname ) )
-
-#define warray_struct join_token ( warray_, warray_name ) 
-#define warray_iter_struct join_token ( join_token ( warray_, warray_name ), _iter )
 
 bool method( init ) ( warray_struct * self, wcall error ) {
   return warray_init ( &self->array, warray_elem_wtype, error );

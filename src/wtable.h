@@ -18,6 +18,20 @@
   #endif
 
 
+#define integer 1
+#define uinteger 2
+#define floating 3
+#define pointer 4
+
+#ifndef wtable_key_kind
+  #error Please define wtable_key_kind to one of integer, uinteger, floating, or pointer.
+  #endif
+
+#ifndef wtable_val_kind
+  #error Please define wtable_val_kind to one of integer, uinteger, floating, or pointer.
+  #endif
+
+
 #ifndef wtable_key_wtype
   #define wtable_key_wtype join_token ( wtable_key_name, _type )
   #endif
@@ -53,10 +67,50 @@ wtable_elem_interface wtable_interface = {
   };
 
 #define wtable_struct_to_table( wtable_s ) (&(wtable_s)->table )
-#define wtable_backcast_val( val ) ((wtable_val_t) (val).i)
-#define wtable_backcast_key( key ) ((wtable_key_t) (key).i)
-#define wtable_cast_key( key ) ((wval) { .p = (wobj *) key })
-#define wtable_cast_val( val ) ((wval) { .p = (wobj *) val })
+
+//#define wtable_backcast_key( key ) ((wtable_key_t) (key).wtable_key_kind)
+//#define wtable_backcast_val( val ) ((wtable_val_t) (val).wtable_val_kind)
+
+#if wtable_key_kind == integer
+  #define wtable_backcast_key( key ) ((wtable_key_t) (key).i)
+#elif wtable_key_kind == uinteger
+  #define wtable_backcast_key( key ) ((wtable_key_t) (key).u)
+#elif wtable_key_kind == floating
+  #define wtable_backcast_key( key ) ((wtable_key_t) (key).f)
+#elif wtable_key_kind == pointer
+  #define wtable_backcast_key( key ) ((wtable_key_t) (key).p)
+  #endif
+
+#if wtable_val_kind == integer
+  #define wtable_backcast_val( val ) ((wtable_val_t) (val).i)
+#elif wtable_val_kind == uinteger
+  #define wtable_backcast_val( val ) ((wtable_val_t) (val).u)
+#elif wtable_val_kind == floating
+  #define wtable_backcast_val( val ) ((wtable_val_t) (val).f)
+#elif wtable_val_kind == pointer
+  #define wtable_backcast_val( val ) ((wtable_val_t) (val).p)
+  #endif
+
+
+#if wtable_key_kind == integer
+  #define wtable_cast_key( key ) ((wval) { .i = key })
+#elif wtable_key_kind == uinteger
+  #define wtable_cast_key( key ) ((wval) { .u = key })
+#elif wtable_key_kind == floating
+  #define wtable_cast_key( key ) ((wval) { .f = key })
+#elif wtable_key_kind == pointer
+  #define wtable_cast_key( key ) ((wval) { .p = ( wobj * ) key })
+  #endif
+
+#if wtable_val_kind == integer
+  #define wtable_cast_val( val ) ((wval) { .i = val })
+#elif wtable_val_kind == uinteger
+  #define wtable_cast_val( val ) ((wval) { .u = val })
+#elif wtable_val_kind == floating
+  #define wtable_cast_val( val ) ((wval) { .f = val })
+#elif wtable_val_kind == pointer
+  #define wtable_cast_val( val ) ((wval) { .p = ( wobj * ) val })
+  #endif
 
 def_struct ( wtable_struct ) {
   wtable table;
@@ -92,14 +146,29 @@ void method ( set ) (
     wcall on_error );
 
 #ifndef wtable_source
-  #undef wtable_key_wtype
-  #undef wtable_val_wtype
-  #undef wtable_key_hash
-  #undef wtable_key_compare
-  #undef wtable_name
+  #undef floating
+  #undef integer
   #undef method
-  #undef wtable_struct
+  #undef pointer
+  #undef uinteger
+  #undef wtable_backcast_key
+  #undef wtable_backcast_val
+  #undef wtable_cast_key
+  #undef wtable_cast_val
   #undef wtable_interface
+  #undef wtable_key_compare
+  #undef wtable_key_hash
+  #undef wtable_key_kind
+  #undef wtable_key_name
+  #undef wtable_key_t
+  #undef wtable_key_wtype
+  #undef wtable_name
+  #undef wtable_source
+  #undef wtable_struct
   #undef wtable_struct_to_table
+  #undef wtable_val_kind
+  #undef wtable_val_name
+  #undef wtable_val_t
+  #undef wtable_val_wtype
 
   #endif

@@ -62,8 +62,13 @@ elem_t method ( deref ) ( warray_iter_struct * self );
 long method ( index_of ) ( warray_struct * self, elem_t to_find );
 void method ( debug_print ) ( warray_struct * self );
 
-#undef elem_t
-#undef method
-#undef warray_iter_struct
-#undef warray_name
-#undef warray_struct
+#ifndef warray_source
+  #undef elem_t
+  #undef method
+  #undef warray_elem_wtype
+  #undef warray_iter_struct
+  #undef warray_name
+  #undef warray_source
+  #undef warray_struct
+
+  #endif
