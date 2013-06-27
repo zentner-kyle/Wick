@@ -1,4 +1,4 @@
-#include <sys/time.h>
+#define __USE_POSIX
 #include <time.h>
 #include <stdint.h>
 #include <stdio.h>

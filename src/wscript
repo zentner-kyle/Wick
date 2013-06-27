@@ -17,6 +17,7 @@ def build(bld):
     bld.program(
         source = 'scratch.c',
         target = 'scratch',
+        use = 'wick',
         includes = '.',
     )
     
@@ -44,6 +45,7 @@ def build(bld):
         source = 'hash_tests.c',
         target = 'hash_tests',
         includes = '.',
+        libs = 'rt',
     )
     
     bld.program(
@@ -61,8 +63,15 @@ def build(bld):
         'wbits.c', 'wtype.c', 'wbuiltins.c', 'warray_int.c',
         'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
         'wplace.c', 'wchannel.c', 'wtable_wval.c', 'hash.c', 'warray_opbunch.c',
-        'wvm.c', 'wtable_wstr_to_wstr.c'
+        'wtable_wstr_to_wstr.c'
     ] 
+
+    bld.objects(
+        source   = 'wvm.c',
+        target   = 'wvm_core',
+        cflags   = '-fno-gcse' if bld.env['use_no_gcse_for_core'] else '',
+        includes = '.',
+        )
     
     bld.objects(
         source = wick_sources,
@@ -70,11 +79,10 @@ def build(bld):
         includes = '.',
     )
     
-    bld.shlib(
-        source = wick_sources,
+    bld(
+        features = 'c cshlib',
+        use    = 'wick_objects wvm_core',
         target = 'wick',
-        # libs = 'rt',
-        includes = '.',
     )
 
     bld.shlib (

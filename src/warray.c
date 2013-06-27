@@ -4,7 +4,7 @@
 #define warray_source
 #include <warray.h>
 
-#define back_cast( val ) ( ( elem_t ) ( val ).i )
+#define back_cast( val ) ( ( elem_t ) ( val ).integer )
 
 bool method( init ) ( warray_struct * self, wcall * error ) {
   return warray_init ( &self->array, warray_elem_wtype, error );

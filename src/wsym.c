@@ -27,13 +27,13 @@ int wsym_compare ( wsym a, wsym b ) {
   }
 
 int wsym_compare_wval ( wval a_v, wval b_v ) {
-  wsym a = * ( wsym * ) a_v.p;
-  wsym b = * ( wsym * ) b_v.p;
+  wsym a = * ( wsym * ) a_v.pointer;
+  wsym b = * ( wsym * ) b_v.pointer;
   return wsym_compare ( a, b );
   }
 
 whash wsym_hash_wval ( wval sym ) {
-  wsym self = * (wsym *) sym.p;
+  wsym self = * (wsym *) sym.pointer;
   return wsym_hash ( self );
   }
 

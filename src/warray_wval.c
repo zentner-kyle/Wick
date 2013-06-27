@@ -4,8 +4,11 @@
 #include <wtype.h>
 #include <wbits.h>
 #include <walloc.h>
+#include <wmacros.h>
 
 #include <warray_wval.h>
+
+wdefine_base ( warray );
 
 const static size_t warray_default_size = 8;
 
@@ -289,7 +292,7 @@ wval warray_deref ( warray_iter * self ) {
 long warray_index_of ( warray * self, wval to_find ) {
   warray_iter i = warray_start ( self );
   while ( warray_good ( &i ) ) {
-    if ( to_find.i == warray_deref ( &i ).i ) {
+    if ( to_find.integer == warray_deref ( &i ).integer ) {
       return i.index;
       }
     warray_next ( &i );

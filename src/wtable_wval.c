@@ -107,7 +107,7 @@ wval wtable_lookup_hash ( wtable * self, wval key, whash hash ) {
   #define RETURN_VAL( bucket ) \
     return bucket->value;
   #define RETURN_NULL( bucket ) \
-    return (wval) { .p = NULL };
+    return (wval) { .pointer = NULL };
   SELECT_BUCKET ( self,
                   key,
                   hash,

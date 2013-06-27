@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <wtype.h>
 #include <wsym.h>
+#include <wmacros.h>
 
 typedef uint32_t opbunch;
 
@@ -15,7 +16,7 @@ typedef int8_t wasm_arg;
 
 typedef uint8_t wasm_op;
 
-extern wtype_base wtype_opbunch;
+wdeclare_base ( opbunch );
 
 void wexec_code ( opbunch * c );
 

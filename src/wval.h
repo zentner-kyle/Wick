@@ -7,10 +7,10 @@
 #include <wmacros.h>
 
 def_union ( wval ) {
-  int64_t i;
-  uint64_t u;
-  double f;
-  wobj * p;
+  int64_t integer;
+  uint64_t uinteger;
+  double floating;
+  wobj * pointer;
   };
 
 

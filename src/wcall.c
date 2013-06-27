@@ -21,4 +21,4 @@ wcall static_wcall ( wcall_func_t func, wcall_data_t data ) {
   return c;
   }
 
-wcall null_wcall = { 0, { .p = 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+wcall null_wcall = { 0, { .pointer = 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };

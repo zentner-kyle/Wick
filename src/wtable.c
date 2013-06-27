@@ -2,6 +2,11 @@
 
 #include <wtable.h>
 
+wtable_elem_interface wtable_interface = {
+  &wtable_key_hash,
+  &wtable_key_compare
+  };
+
 bool method ( init_to_size ) (
     wtable_struct * self,
     size_t predicted_elems,

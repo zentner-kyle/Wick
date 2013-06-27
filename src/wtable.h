@@ -18,11 +18,6 @@
   #endif
 
 
-#define integer 1
-#define uinteger 2
-#define floating 3
-#define pointer 4
-
 #ifndef wtable_key_kind
   #error Please define wtable_key_kind to one of integer, uinteger, floating, or pointer.
   #endif
@@ -61,55 +56,23 @@
 #define wtable_interface join_token ( wtable_, join_token ( wtable_name, _interface ) )
 
 
-wtable_elem_interface wtable_interface = {
-  &wtable_key_hash,
-  &wtable_key_compare
-  };
+extern wtable_elem_interface wtable_interface;
 
 #define wtable_struct_to_table( wtable_s ) (&(wtable_s)->table )
 
-//#define wtable_backcast_key( key ) ((wtable_key_t) (key).wtable_key_kind)
-//#define wtable_backcast_val( val ) ((wtable_val_t) (val).wtable_val_kind)
+#define wtable_backcast_key( key ) ((wtable_key_t) (key).wtable_key_kind)
+#define wtable_backcast_val( val ) ((wtable_val_t) (val).wtable_val_kind)
 
-#if wtable_key_kind == integer
-  #define wtable_backcast_key( key ) ((wtable_key_t) (key).i)
-#elif wtable_key_kind == uinteger
-  #define wtable_backcast_key( key ) ((wtable_key_t) (key).u)
-#elif wtable_key_kind == floating
-  #define wtable_backcast_key( key ) ((wtable_key_t) (key).f)
-#elif wtable_key_kind == pointer
-  #define wtable_backcast_key( key ) ((wtable_key_t) (key).p)
+#if wtable_key_kind == pointer
+  #define wtable_cast_key( key ) ((wval) { .wtable_key_kind = ( wobj * ) key })
+#else
+  #define wtable_cast_key( key ) ((wval) { .wtable_key_kind = key })
   #endif
 
-#if wtable_val_kind == integer
-  #define wtable_backcast_val( val ) ((wtable_val_t) (val).i)
-#elif wtable_val_kind == uinteger
-  #define wtable_backcast_val( val ) ((wtable_val_t) (val).u)
-#elif wtable_val_kind == floating
-  #define wtable_backcast_val( val ) ((wtable_val_t) (val).f)
-#elif wtable_val_kind == pointer
-  #define wtable_backcast_val( val ) ((wtable_val_t) (val).p)
-  #endif
-
-
-#if wtable_key_kind == integer
-  #define wtable_cast_key( key ) ((wval) { .i = key })
-#elif wtable_key_kind == uinteger
-  #define wtable_cast_key( key ) ((wval) { .u = key })
-#elif wtable_key_kind == floating
-  #define wtable_cast_key( key ) ((wval) { .f = key })
-#elif wtable_key_kind == pointer
-  #define wtable_cast_key( key ) ((wval) { .p = ( wobj * ) key })
-  #endif
-
-#if wtable_val_kind == integer
-  #define wtable_cast_val( val ) ((wval) { .i = val })
-#elif wtable_val_kind == uinteger
-  #define wtable_cast_val( val ) ((wval) { .u = val })
-#elif wtable_val_kind == floating
-  #define wtable_cast_val( val ) ((wval) { .f = val })
-#elif wtable_val_kind == pointer
-  #define wtable_cast_val( val ) ((wval) { .p = ( wobj * ) val })
+#if wtable_val_kind == pointer
+  #define wtable_cast_val( val ) ((wval) { .wtable_val_kind = ( wobj * ) val })
+#else
+  #define wtable_cast_val( val ) ((wval) { .wtable_val_kind = val })
   #endif
 
 def_struct ( wtable_struct ) {

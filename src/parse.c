@@ -225,7 +225,7 @@ void array_free ( array * self ) {
   }
 
 wstatus alloc_error ( wval vparser ) {
-  parser * p = ( parser * ) vparser.p;
+  parser * p = ( parser * ) vparser.pointer;
   p->error = parser_errors.alloc;
   return W_ERROR;
   }
@@ -237,7 +237,7 @@ void insert_reactor ( parser * self, parser_component * reactor ) {
         ( array * ) &self->reactors,
         ( void * ) reactor,
         sizeof ( parser_component ),
-        ( wcall ) { &alloc_error, { .p = ( wobj * ) self } } );
+        ( wcall ) { &alloc_error, { .pointer = ( wobj * ) self } } );
     }
   }
 

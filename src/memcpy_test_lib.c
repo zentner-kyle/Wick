@@ -1,7 +1,7 @@
-const int size = 10;
+int * source_ptr;
+int * target_ptr;
 
-int source[size];
-int target[size];
-
-int * source_ptr = source;
-int * target_ptr = target;
+void set ( int * source, int * target ) {
+  source_ptr = source;
+  target_ptr = target;
+  }

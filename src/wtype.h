@@ -80,9 +80,14 @@ void wtype_init_header ( wtype * t );
 
 void wtype_init_base ( wtype_base * t, wstr name, size_t size );
 
-wtype_composite wtype_base_t;
-wtype_composite wtype_abstract_t;
-wtype_composite wtype_variable_t;
-wtype_composite wtype_parametric_t;
+extern wtype * wtype_wtype;
+extern wtype * wtype_wtype_alien;
+extern wtype * wtype_wtype_base;
+extern wtype * wtype_wtype_composite;
+extern wtype * wtype_wtype_dynamic;
+extern wtype * wtype_wtype_ptr;
+extern wtype * wtype_wtype_variant;
+extern wtype * wtype_wtype_parametric;
+extern wtype * wtype_wtype_abstract;
 
 #endif /* end of include guard: WTYPE_H */

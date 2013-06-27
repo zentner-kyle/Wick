@@ -1,5 +1,8 @@
 #ifdef OPCODE_LABEL
-  * ( uint32_t * ) args = 0;
+  args[0] = 0;
+  args[1] = 0;
+  args[2] = 0;
+  args[3] = 0;
   if ( ! op_bunch ) {
     op_bunch = *++c;
     }

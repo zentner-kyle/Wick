@@ -42,7 +42,10 @@
 
 #ifdef OPCODE_BODY
   op_bunch >>= 8;
-  * ( uint32_t * ) args = op_bunch;
+  args[0] = (op_bunch >> (0 * 8)) & 0xff;
+  args[1] = (op_bunch >> (1 * 8)) & 0xff;
+  args[2] = (op_bunch >> (2 * 8)) & 0xff;
+  args[3] = (op_bunch >> (3 * 8)) & 0xff;
   #ifdef WICK_DEBUG
     for ( int clearing_args = OP_NUM_ARGS; clearing_args < OP_MAX_ARGS; ++clearing_args ) {
       args[clearing_args] = 0;
