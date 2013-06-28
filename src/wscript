@@ -8,61 +8,59 @@ def configure(conf):
     pass
 
 def build(bld):
-    bld.program(
-        source = 'size_test.c',
-        target = 'size_test',
-        includes = '.',
-    )
+    #bld.program(
+        #source = 'size_test.c',
+        #target = 'size_test',
+        #includes = '.',
+    #)
     
     bld.program(
         source = 'scratch.c',
         target = 'scratch',
         use = 'wick',
         includes = '.',
+        rpath = '$ORIGIN',
     )
     
-    bld.program(
-        use = 'parser_objects',
-        source = 'parse.c',
-        target = 'parse',
-        includes = '.',
-    )
-    
-    bld.objects(
-        source = 'hash.c wcall.c str.c wbits.c',
-        target = 'parser_objects',
-        includes = '.',
-    )
-    
-    bld.program(
-        source = 'siphash24.c',
-        target = 'siphash24',
-        includes = '.',
-    )
-    
-    bld.program(
+    #bld.program(
         #use = 'parser_objects',
-        source = 'hash_tests.c',
-        target = 'hash_tests',
-        includes = '.',
-        libs = 'rt',
-    )
+        #source = 'parse.c',
+        #target = 'parse',
+        #includes = '.',
+    #)
     
-    bld.program(
-        use = 'parser_objects',
-        source = 'test.c',
-        target = 'test',
-        includes = '.',
-    )
+    #bld.objects(
+        #source = 'hash.c wcall.c str.c wbits.c',
+        #target = 'parser_objects',
+        #includes = '.',
+    #)
+    
+    #bld.program(
+        #source = 'siphash24.c',
+        #target = 'siphash24',
+        #includes = '.',
+    #)
+    
+    #bld.program(
+        ##use = 'parser_objects',
+        #source = 'hash_tests.c',
+        #target = 'hash_tests',
+        #includes = '.',
+        #libs = 'rt',
+    #)
+    
+    #bld.program(
+        #use = 'parser_objects',
+        #source = 'test.c',
+        #target = 'test',
+        #includes = '.',
+    #)
     
     wick_sources = [
-        'wick_core.c', 'wick_alloc.c', 'wick_place.c',
-        'wick_channel.c', 'wick_globals.c', 'wick_dyn.c',
-        'wick_string.c', 'wick_error.c', 'wick_equal.c', 'wick_array.c',
-        'wick_assoc.c', 'warray_wval.c', 'wcall.c', 'wstr.c', 'wsym.c',
+        'warray_wval.c', 'wcall.c', 'wstr.c', 'wsym.c',
         'wbits.c', 'wtype.c', 'wbuiltins.c', 'warray_int.c',
-        'walloc.c', 'segment.c', 'object.c', 'context.c', 'random.c',
-        'wplace.c', 'wchannel.c', 'wtable_wval.c', 'hash.c', 'warray_opbunch.c',
+        'walloc.c',
+        'wplace.c', 'wchannel.c', 'wtable_wval.c', 'whash.c', 'warray_opbunch.c',
         'wtable_wstr_to_wstr.c'
     ] 
 
@@ -85,40 +83,40 @@ def build(bld):
         target = 'wick',
     )
 
-    bld.shlib (
-        source = 'memcpy_test_lib.c',
-        target = 'memcpy_test_lib',
-        includes = '.',
-    )
+    #bld.shlib (
+        #source = 'memcpy_test_lib.c',
+        #target = 'memcpy_test_lib',
+        #includes = '.',
+    #)
 
-    bld.program (
-        source = 'memcpy_test.c',
-        target = 'memcpy_test',
-        use = 'memcpy_test_lib',
-        rpath = '$ORIGIN',
-        includes = '.',
-    )
+    #bld.program (
+        #source = 'memcpy_test.c',
+        #target = 'memcpy_test',
+        #use = 'memcpy_test_lib',
+        #rpath = '$ORIGIN',
+        #includes = '.',
+    #)
     
-    bld.program(
-        source = 'type_system_test.c',
-        target = 'type_system_test',
-        includes = '.',
-        use = 'wick',
-        rpath = '$ORIGIN',
-    )
+    #bld.program(
+        #source = 'type_system_test.c',
+        #target = 'type_system_test',
+        #includes = '.',
+        #use = 'wick',
+        #rpath = '$ORIGIN',
+    #)
     
     bld.program(
         source = 'main.c',
-        target = 'wvm',
+        target = 'wick0',
         includes = '.',
         use = 'wick',
         rpath = '$ORIGIN',
     )
 
-    bld.program(
-        source = 'wasm.c',
-        target = 'wasm',
-        includes = '.',
-        use = 'wick',
-        rpath = '$ORIGIN',
-    )
+    #bld.program(
+        #source = 'wasm.c',
+        #target = 'wasm',
+        #includes = '.',
+        #use = 'wick',
+        #rpath = '$ORIGIN',
+    #)

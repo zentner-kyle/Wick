@@ -74,5 +74,6 @@ void method ( debug_print ) ( warray_struct * self );
   #undef warray_name
   #undef warray_source
   #undef warray_struct
+  #undef warray_elem_name
 
   #endif

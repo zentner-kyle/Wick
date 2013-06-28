@@ -2,6 +2,6 @@
 
 def_struct ( parser ) {
   wtype * type;
-  uint32_t id;
   wstr text;
+  wstr remaining;
   }

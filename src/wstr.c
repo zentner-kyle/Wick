@@ -4,7 +4,7 @@
 #include <wstr.h>
 #include <wtype.h>
 #include <walloc.h>
-#include <hash.h>
+#include <whash.h>
 
 int wcompare_wstr ( wval v_str_a, wval v_str_b );
 whash whash_wstr ( wval str );

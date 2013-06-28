@@ -1,5 +1,5 @@
 #include <wsym.h>
-#include <hash.h>
+#include <whash.h>
 #include <walloc.h>
 
 int wsym_compare_wval ( wval a_v, wval b_v );

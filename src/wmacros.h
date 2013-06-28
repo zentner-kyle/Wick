@@ -1,6 +1,8 @@
 #ifndef WMACROS_H
 #define WMACROS_H
 
+#define wdbg_prnt( format, thing ) \
+  printf ( #thing " == " format "\n", (thing) );
 
 /* Structs and typedefs. */
 #define declare_struct( name ) \
@@ -27,11 +29,6 @@
 
 
 /* Tuple manipulation. */
-#define tuple2_1( t ) tuple2_1_inner ( t )
-#define tuple2_1_inner( a, b ) a
-
-#define tuple2_2( t ) tuple2_2_inner ( t )
-#define tuple2_2_inner( a, b ) b
 
 #define w_type_to_wtype( type ) ( join_token ( wtype_, type ) )
 
