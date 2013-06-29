@@ -27,6 +27,8 @@
  */
 
 
+wdefine_composite ( wcall );
+
 const int W_OK = 0;
 const int W_ERROR = 1;
 

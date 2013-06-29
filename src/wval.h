@@ -13,5 +13,7 @@ def_union ( wval ) {
   wobj * pointer;
   };
 
+wdeclare_base ( wval );
+
 
 #endif /* end of include guard: WVAL_H */

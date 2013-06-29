@@ -12,7 +12,7 @@ typedef wstatus ( * wcall_func_t ) (wval * arg);
 extern const int W_OK;
 extern const int W_ERROR;
 
-#define warg( type, value ) &w_type_to_wtype ( type ), wcheck_to_wval ( type, value )
+#define warg( type, kind, value ) w_type_to_wtype ( type ), wcheck_to_wval_##kind ( type, value )
 
 def_struct ( wcall ) {
   wcall_func_t func;
@@ -22,6 +22,8 @@ def_struct ( wcall ) {
   size_t filled_types;
   wtype ** arg_types;
   };
+
+wdeclare_composite ( wcall );
 
 wstatus wcall_push ( wcall * self, wtype * type, wval val );
 wstatus wcall_pop ( wcall * self, size_t count );

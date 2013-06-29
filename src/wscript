@@ -26,6 +26,7 @@ def build(bld):
         'wchannel.c',
         'whash.c',
         'wplace.c',
+        'wparse.c',
         'wstr.c',
         'wsym.c',
         'wtable_wrappers.c',

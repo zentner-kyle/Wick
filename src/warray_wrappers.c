@@ -24,3 +24,10 @@
 #define warray_elem_t wtype_ptr
 #define warray_elem_kind pointer
 #include <warray.c>
+
+#include <wcall.h>
+
+#define warray_elem_t wcall_ptr
+#define warray_elem_kind pointer
+#include <warray.c>
+

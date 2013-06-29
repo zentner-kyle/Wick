@@ -33,9 +33,11 @@
 #define w_type_to_wtype( type ) ( join_token ( wtype_, type ) )
 
 #define wcheck_static_test( type ) ( join_token ( wcheck_, type ) )
-#define wcheck_static_type( type, value ) (1 ? ( value ) : wcheck_static_test ( type ) ( value ) )
-#define wcheck_to_wval( type, value ) (1 ? ( ( wval ) { value } ) : wcheck_static_test ( type ) ( value ) )
 
+#define wcheck_to_wval_pointer( type, value ) ( (wval) { .pointer = ( wobj * ) wcheck_static_test ( type ) ( value ) } )
+#define wcheck_to_wval_integer( type, value ) ( (wval) { .integer = wcheck_static_test ( type ) ( value ) } )
+#define wcheck_to_wval_uinteger( type, value ) ( (wval) { .uinteger = wcheck_static_test ( type ) ( value ) } )
+#define wcheck_to_wval_floating( type, value ) ( (wval) { .floating = wcheck_static_test ( type ) ( value ) } )
 
 #define wdeclare_alien( alien_type ) \
   extern wtype * join_token ( wtype_, alien_type ); \
@@ -115,11 +117,18 @@
 #define wdeclare_ptr( base_type ) \
   typedef base_type * join_token ( base_type, _ptr ); \
   extern wtype * join_token ( wtype_, join_token ( base_type, _ptr ) ); \
-  base_type * wcheck_static_test ( join_token ( base_type, _ptr ) ) ( base_type * );
+  base_type * wcheck_static_test ( join_token ( base_type, _ptr ) ) ( base_type * ); \
+  typedef base_type ** join_token ( base_type, _ptr_ptr ); \
+  extern wtype * join_token ( wtype_, join_token ( base_type, _ptr_ptr ) ); \
+  base_type ** wcheck_static_test ( join_token ( base_type, _ptr_ptr ) ) ( base_type ** );
 
 #define wdefine_ptr( base_type ) \
   wtype * join_token ( wtype_, join_token ( base_type, _ptr ) ); \
   base_type * wcheck_static_test ( join_token ( base_type, _ptr ) ) ( base_type * to_check ) { \
+    return to_check; \
+    }; \
+  wtype * join_token ( wtype_, join_token ( base_type, _ptr_ptr ) ); \
+  base_type ** wcheck_static_test ( join_token ( base_type, _ptr_ptr ) ) ( base_type ** to_check ) { \
     return to_check; \
     };
 
@@ -131,7 +140,15 @@
   join_token ( wtype_, base_type )->type = wtype_wtype_pointer; \
   join_token ( wtype_, base_type )->id = wsym_lit ( string_of_macro ( join_token ( base_type, _ptr ) ) ); \
   join_token ( wtype_, base_type )->size = sizeof ( base_type * ); \
-  ( ( wtype_pointer * ) join_token ( wtype_, base_type ) )->subtype = w_type_to_wtype ( base_type );
+  ( ( wtype_pointer * ) join_token ( wtype_, base_type ) )->subtype = w_type_to_wtype ( base_type ); \
+  join_token ( wtype_, base_type ) = ( wtype * ) walloc_simple ( wtype_pointer, 1 ); \
+  if ( join_token ( wtype_, base_type ) == NULL ) { \
+    walloc_error (); \
+    } \
+  join_token ( wtype_, base_type )->type = wtype_wtype_pointer; \
+  join_token ( wtype_, base_type )->id = wsym_lit ( string_of_macro ( join_token ( base_type, _ptr_ptr ) ) ); \
+  join_token ( wtype_, base_type )->size = sizeof ( base_type ** ); \
+  ( ( wtype_pointer * ) join_token ( wtype_, base_type ) )->subtype = w_type_to_wtype ( join_token ( base_type, _ptr ) );
 
 
 #define Wfunc_to_wcall_thunk( func_name ) \
@@ -149,6 +166,7 @@
 #define wfunc_to_wcall_types( func_name ) \
   ( join_token ( wcall_types_, func_name ) )
 
-
+#define wobj_cast( target_type, value ) \
+    ( value->type == w_type_to_wtype ( target_type ) ? ( ( target_type ) value ) : NULL )
 
 #endif /* end of include guard: WMACROS_H */

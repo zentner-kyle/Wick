@@ -145,7 +145,7 @@ wval wtable_lookup_hash ( wtable * self, wval key, whash hash ) {
 wval wtable_lookup_or_add (
     wtable * self,
     wval key,
-    wval ( *on_missing ) ( wval key ),
+    wcall * on_missing,
     wcall * on_error
     ) {
   return wtable_lookup_or_add_hash (
@@ -158,7 +158,7 @@ wval wtable_lookup_or_add (
 wval wtable_lookup_or_add_hash (
     wtable * self,
     wval key,
-    wval ( *on_missing ) ( wval key ),
+    wcall * on_missing,
     wcall * on_error,
     whash hash
     ) {
@@ -168,11 +168,13 @@ wval wtable_lookup_or_add_hash (
     self->num_elems++; \
     ( bucket )->hash = hashed; \
     ( bucket )->key = key; \
-    wval value = ( bucket )->value = on_missing ( key ); \
+    wcall_push ( on_missing, wtype_wval, key ); \
+    wcall_push ( on_missing, warg ( wval_ptr, pointer, &( bucket )->value ) ); \
+    winvoke ( on_missing ); \
     if ( wtable_needs_grow ( self ) ){ \
       wtable_grow ( self, on_error ); \
       } \
-    return value;
+    return ( bucket )->value;
   #define ADD_NOT_FIRST( bucket ) \
     wtable_bucket * new_bucket = walloc_simple ( wtable_bucket, 1 ); \
     if ( new_bucket == NULL ) { \

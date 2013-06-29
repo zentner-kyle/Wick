@@ -3,7 +3,6 @@
 #include <wstr.h>
 #include <wmacros.h>
 
-
 def_struct ( wtoken ) {
   wtype * type;
   uint32_t family;

@@ -58,12 +58,13 @@ wval wtable_lookup_hash ( wtable * self, wval key, whash hash );
 wval wtable_lookup_or_add (
     wtable * self,
     wval key,
-    wval ( *on_missing ) ( wval key ),
+    wcall * on_missing,
     wcall * on_error );
+
 wval wtable_lookup_or_add_hash (
     wtable * self,
     wval key,
-    wval ( *on_missing ) ( wval key ),
+    wcall * on_missing,
     wcall * on_error,
     whash hash );
 

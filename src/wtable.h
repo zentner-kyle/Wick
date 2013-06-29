@@ -107,7 +107,7 @@ wtable_val_t method ( lookup ) ( wtable_struct * self, wtable_key_t key );
 wtable_val_t method ( lookup_or_add ) (
     wtable_struct * self,
     wtable_key_t key,
-    wval ( *on_missing ) ( wval key ),
+    wcall * on_missing,
     wcall * on_error );
 
 wtable_val_t method ( lookup_default ) (
