@@ -12,17 +12,17 @@ wdefine_base ( warray );
 
 const static size_t warray_default_size = 8;
 
-bool warray_init ( warray * self, wtype * elem_type, wcall * error ) {
-  return warray_init_to_size ( self, elem_type, warray_default_size, error );
+bool warray_init ( warray * self, wtype * warray_elem_type, wcall * error ) {
+  return warray_init_to_size ( self, warray_elem_type, warray_default_size, error );
   }
 
 bool warray_init_to_size (
     warray * self,
-    wtype * elem_type,
+    wtype * warray_elem_type,
     size_t num_elements,
     wcall * error
     ) {
-  self->elem_type = elem_type;
+  self->warray_elem_type = warray_elem_type;
   self->space = num_elements;
   self->start = 0;
   self->past_end = 0;
@@ -39,17 +39,17 @@ bool warray_init_to_size (
   }
 
 
-warray * warray_new ( wtype * elem_type, wcall * error ) {
-  return warray_new_to_size ( elem_type, warray_default_size, error );
+warray * warray_new ( wtype * warray_elem_type, wcall * error ) {
+  return warray_new_to_size ( warray_elem_type, warray_default_size, error );
   }
 
-warray * warray_new_to_size ( wtype * elem_type, size_t num_elements, wcall * error ) {
+warray * warray_new_to_size ( wtype * warray_elem_type, size_t num_elements, wcall * error ) {
   warray * self = ( warray * ) malloc ( sizeof ( warray ) );
   if ( ! self ) {
     winvoke ( error );
     return NULL;
     }
-  if ( ! warray_init_to_size ( self, elem_type, num_elements, &null_wcall ) ) {
+  if ( ! warray_init_to_size ( self, warray_elem_type, num_elements, &null_wcall ) ) {
       free ( self );
       self = NULL;
     }
@@ -301,7 +301,7 @@ long warray_index_of ( warray * self, wval to_find ) {
   }
 
 void warray_debug_print ( warray * self ) {
-  printf ( ".elem_type->size = %zd\n", sizeof ( wval ) );
+  printf ( ".warray_elem_type->size = %zd\n", sizeof ( wval ) );
   printf ( ".space = %zd\n", self->space );
   printf ( ".past_end = %zd\n", self->past_end );
   printf ( ".start = %zd\n", self->start );

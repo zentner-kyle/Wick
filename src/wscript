@@ -8,13 +8,7 @@ def configure(conf):
     pass
 
 def build(bld):
-    #bld.program(
-        #source = 'size_test.c',
-        #target = 'size_test',
-        #includes = '.',
-    #)
-    
-    bld.program(
+    bld.program (
         source = 'scratch.c',
         target = 'scratch',
         use = 'wick',
@@ -22,46 +16,22 @@ def build(bld):
         rpath = '$ORIGIN',
     )
     
-    #bld.program(
-        #use = 'parser_objects',
-        #source = 'parse.c',
-        #target = 'parse',
-        #includes = '.',
-    #)
-    
-    #bld.objects(
-        #source = 'hash.c wcall.c str.c wbits.c',
-        #target = 'parser_objects',
-        #includes = '.',
-    #)
-    
-    #bld.program(
-        #source = 'siphash24.c',
-        #target = 'siphash24',
-        #includes = '.',
-    #)
-    
-    #bld.program(
-        ##use = 'parser_objects',
-        #source = 'hash_tests.c',
-        #target = 'hash_tests',
-        #includes = '.',
-        #libs = 'rt',
-    #)
-    
-    #bld.program(
-        #use = 'parser_objects',
-        #source = 'test.c',
-        #target = 'test',
-        #includes = '.',
-    #)
-    
     wick_sources = [
-        'warray_wval.c', 'wcall.c', 'wstr.c', 'wsym.c',
-        'wbits.c', 'wtype.c', 'wbuiltins.c', 'warray_int.c',
         'walloc.c',
-        'wplace.c', 'wchannel.c', 'wtable_wval.c', 'whash.c', 'warray_opbunch.c',
-        'wtable_wstr_to_wstr.c'
+        'warray_wrappers.c',
+        'warray_wval.c',
+        'wbits.c',
+        'wbuiltins.c',
+        'wcall.c',
+        'wchannel.c',
+        'whash.c',
+        'wplace.c',
+        'wstr.c',
+        'wsym.c',
+        'wtable_wrappers.c',
+        'wtable_wval.c',
+        'wtoken.c',
+        'wtype.c',
     ] 
 
     bld.objects(
@@ -83,28 +53,6 @@ def build(bld):
         target = 'wick',
     )
 
-    #bld.shlib (
-        #source = 'memcpy_test_lib.c',
-        #target = 'memcpy_test_lib',
-        #includes = '.',
-    #)
-
-    #bld.program (
-        #source = 'memcpy_test.c',
-        #target = 'memcpy_test',
-        #use = 'memcpy_test_lib',
-        #rpath = '$ORIGIN',
-        #includes = '.',
-    #)
-    
-    #bld.program(
-        #source = 'type_system_test.c',
-        #target = 'type_system_test',
-        #includes = '.',
-        #use = 'wick',
-        #rpath = '$ORIGIN',
-    #)
-    
     bld.program(
         source = 'main.c',
         target = 'wick0',
@@ -112,11 +60,3 @@ def build(bld):
         use = 'wick',
         rpath = '$ORIGIN',
     )
-
-    #bld.program(
-        #source = 'wasm.c',
-        #target = 'wasm',
-        #includes = '.',
-        #use = 'wick',
-        #rpath = '$ORIGIN',
-    #)

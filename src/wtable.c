@@ -7,6 +7,13 @@ wtable_elem_interface wtable_interface = {
   &wtable_key_compare
   };
 
+wtable_struct * method ( new ) ( ) {
+  return (wtable_struct *) wtable_new (
+      wtable_key_wtype,
+      wtable_val_wtype,
+      &wtable_interface );
+  }
+
 bool method ( init_to_size ) (
     wtable_struct * self,
     size_t predicted_elems,
@@ -85,3 +92,29 @@ void method ( set ) (
       wtable_key_hash ( wtable_cast_key ( key ) )
       );
   }
+
+void method ( delete ) ( wtable_struct * self ) {
+  wtable_delete ( wtable_struct_to_table ( self ) );
+  }
+
+
+#undef wtable_backcast_key
+#undef wtable_backcast_val
+#undef wtable_cast_key
+#undef wtable_cast_val
+#undef wtable_interface
+#undef wtable_key_compare
+#undef wtable_key_hash
+#undef wtable_key_kind
+#undef wtable_key_name
+#undef wtable_key_t
+#undef wtable_key_wtype
+#undef wtable_name
+#undef wtable_source
+#undef wtable_struct
+#undef wtable_struct_to_table
+#undef wtable_val_kind
+#undef wtable_val_name
+#undef wtable_val_t
+#undef wtable_val_wtype
+#undef method

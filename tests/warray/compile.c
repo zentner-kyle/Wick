@@ -1,6 +1,7 @@
 #include <wbuiltins.h>
 
-#define elem_t int
+#define warray_elem_t int
+#define warray_elem_kind integer
 #include <warray.h>
 
 int main ( ) {

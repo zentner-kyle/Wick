@@ -20,7 +20,8 @@ def_struct ( wstr ) {
   enum wstr_alloc_type alloc_type;
   };
 
-extern wtype * wtype_wstr;
+wdeclare_composite ( wstr );
+
 extern wtable_elem_interface wstr_wtable_i;
 
 #define wstr_lit( literal ) \
@@ -47,7 +48,6 @@ void wstr_println ( wstr to_print );
 size_t wstr_size ( const wstr str );
 
 whash wstr_hash ( wstr str );
-whash whash_wstr ( wval str );
 
 wstr * wstr_new ( const char * start, const char * past_end );
 wstr * wstr_new_alloc ( const char * start, const char * past_end, enum wstr_alloc_type alloc_type );
@@ -56,6 +56,7 @@ void wstr_init_alloc ( wstr * self, const char * start, const char * past_end, e
 
 wstr * wstr_from_llong ( long long input );
 
-int wcompare_wstr ( wval v_str_a, wval v_str_b );
+int wcompare_wstr_ptr ( wval v_str_a, wval v_str_b );
+whash whash_wstr_ptr ( wval str );
 
 #endif /* end of include guard: WSTR_H */

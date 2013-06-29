@@ -6,14 +6,11 @@
 #include <walloc.h>
 #include <whash.h>
 
-int wcompare_wstr ( wval v_str_a, wval v_str_b );
-whash whash_wstr ( wval str );
-
-wtype * wtype_wstr;
+wdefine_composite ( wstr );
 
 wtable_elem_interface wstr_wtable_i = {
-  &whash_wstr,
-  &wcompare_wstr
+  &whash_wstr_ptr,
+  &wcompare_wstr_ptr
   };
 
 size_t wstr_size ( const wstr str ) {
@@ -151,7 +148,7 @@ void wstr_println ( wstr str ) {
 
 siphash_key wstr_key = { { 0xe8f35937acefffaa, 0x331e89da1849403f } };
 
-whash whash_wstr ( wval str ) {
+whash whash_wstr_ptr ( wval str ) {
   wstr self = *( wstr * ) str.pointer;
   return wstr_hash ( self );
   }
@@ -160,7 +157,7 @@ whash wstr_hash ( wstr self ) {
   return siphash_24 ( wstr_key, ( uint8_t * ) self.start, wstr_size ( self ) );
   }
 
-int wcompare_wstr ( wval v_str_a, wval v_str_b ) {
+int wcompare_wstr_ptr ( wval v_str_a, wval v_str_b ) {
   wstr str_a = * ( wstr * ) v_str_a.pointer;
   wstr str_b = * ( wstr * ) v_str_b.pointer;
   return wstr_compare ( str_a, str_b );

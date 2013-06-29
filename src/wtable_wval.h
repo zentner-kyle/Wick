@@ -31,6 +31,12 @@ def_struct ( wtable ) {
   wtable_bucket * data;
   };
 
+wtable * wtable_new (
+    wtype * key_type,
+    wtype * val_type,
+    wtable_elem_interface * hash_interface
+    );
+
 bool wtable_init_to_size (
     wtable * self,
     wtype * key_type,
@@ -72,6 +78,8 @@ wval wtable_lookup_default_hash (
     wval default_value,
     wcall * on_error,
     whash hash );
+
+void wtable_delete ( wtable * self );
 
 void wtable_set (
     wtable * self,

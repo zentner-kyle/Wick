@@ -17,7 +17,7 @@
 
 def_struct ( warray ) {
   wtype * type;
-  wtype * elem_type;
+  wtype * warray_elem_type;
   size_t space;
   size_t past_end;
   size_t start;
@@ -37,11 +37,11 @@ wdeclare_base ( warray );
 #define wval_cast_kind_floating( expr ) ( expr )
 #define wval_cast_kind_pointer( expr ) ( ( wobj * ) ( expr ) )
 
-bool warray_init ( warray * self, wtype * elem_type, wcall * error );
-bool warray_init_to_size ( warray * self, wtype * elem_type, size_t num_elements, wcall * error );
+bool warray_init ( warray * self, wtype * warray_elem_type, wcall * error );
+bool warray_init_to_size ( warray * self, wtype * warray_elem_type, size_t num_elements, wcall * error );
 
-warray * warray_new ( wtype * elem_type, wcall * error );
-warray * warray_new_to_size ( wtype * elem_type, size_t num_elements, wcall * error );
+warray * warray_new ( wtype * warray_elem_type, wcall * error );
+warray * warray_new_to_size ( wtype * warray_elem_type, size_t num_elements, wcall * error );
 
 void warray_deinit ( warray * self );
 void warray_delete ( warray * self );

@@ -100,6 +100,28 @@ bool wtable_init (
       on_error );
   }
 
+wtable * wtable_new (
+    wtype * key_type,
+    wtype * val_type,
+    wtable_elem_interface * hash_interface
+  ) {
+  wtable * self = walloc_simple ( wtable, 1 );
+  if ( ! self ) {
+    return NULL;
+    }
+  if ( wtable_init ( self,
+                     key_type,
+                     val_type,
+                     hash_interface,
+                     &null_wcall ) ) {
+    return self;
+    }
+  else {
+    free ( self );
+    return NULL;
+    }
+  }
+
 wval wtable_lookup ( wtable * self, wval key ) {
   return wtable_lookup_hash ( self, key, self->interface->hash ( key ) );
   }
@@ -266,6 +288,13 @@ bool wtable_needs_grow ( wtable * self ) {
 
 bool wtable_needs_shrink ( wtable * self ) {
   return self->num_elems <= (self->space >> 2);
+  }
+
+void wtable_delete ( wtable * self ) {
+  if ( self ) {
+    free ( self->data );
+    }
+  free ( self );
   }
 
 void wtable_grow ( wtable * restrict self, wcall * on_error ) {

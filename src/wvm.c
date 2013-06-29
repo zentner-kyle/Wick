@@ -7,7 +7,8 @@
 #include <werror.h>
 #include <wsym.h>
 
-#define elem_t opbunch
+#define warray_elem_t opbunch
+#define warray_elem_kind integer
 #include <warray.h>
 
 #define WICK_STACK_SIZE 256

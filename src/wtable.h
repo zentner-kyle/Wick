@@ -58,26 +58,40 @@
 
 extern wtable_elem_interface wtable_interface;
 
-#define wtable_struct_to_table( wtable_s ) (&(wtable_s)->table )
+#define wtable_struct_to_table( wtable_s ) ( &( wtable_s )->table )
 
 #define wtable_backcast_key( key ) ((wtable_key_t) (key).wtable_key_kind)
 #define wtable_backcast_val( val ) ((wtable_val_t) (val).wtable_val_kind)
 
+#ifdef pointer
+  #error pointer should not be defined
+  #endif
+
+#define pointer 0xefaced
 #if wtable_key_kind == pointer
+  #undef pointer
   #define wtable_cast_key( key ) ((wval) { .wtable_key_kind = ( wobj * ) key })
 #else
+  #undef pointer
   #define wtable_cast_key( key ) ((wval) { .wtable_key_kind = key })
   #endif
 
+#define pointer 0xefaced
 #if wtable_val_kind == pointer
+  #undef pointer
   #define wtable_cast_val( val ) ((wval) { .wtable_val_kind = ( wobj * ) val })
 #else
+  #undef pointer
   #define wtable_cast_val( val ) ((wval) { .wtable_val_kind = val })
   #endif
 
-def_struct ( wtable_struct ) {
-  wtable table;
-  };
+#ifndef wtable_no_struct
+  def_struct ( wtable_struct ) {
+    wtable table;
+    };
+  #endif
+
+wtable_struct * method ( new ) ( );
 
 bool method ( init_to_size ) (
     wtable_struct * self,
@@ -108,12 +122,9 @@ void method ( set ) (
     wtable_val_t value,
     wcall * on_error );
 
+void method ( delete ) ( wtable_struct * self );
+
 #ifndef wtable_source
-  #undef floating
-  #undef integer
-  #undef method
-  #undef pointer
-  #undef uinteger
   #undef wtable_backcast_key
   #undef wtable_backcast_val
   #undef wtable_cast_key
@@ -133,5 +144,6 @@ void method ( set ) (
   #undef wtable_val_name
   #undef wtable_val_t
   #undef wtable_val_wtype
+  #undef method
 
   #endif

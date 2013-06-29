@@ -4,7 +4,7 @@
 #define warray_source
 #include <warray.h>
 
-#define back_cast( val ) ( ( elem_t ) ( val ).integer )
+#define back_cast( val ) ( ( warray_elem_t ) ( val ).warray_elem_kind )
 
 bool method( init ) ( warray_struct * self, wcall * error ) {
   return warray_init ( &self->array, warray_elem_wtype, error );
@@ -42,20 +42,20 @@ bool method ( full ) ( warray_struct * self ) {
   }
 
 
-void method ( push_back ) ( warray_struct * self, elem_t elem, wcall * error ) {
-  warray_push_back ( &self->array, (wval) { elem }, error );
+void method ( push_back ) ( warray_struct * self, warray_elem_t elem, wcall * error ) {
+  warray_push_back ( &self->array, warray_cast_elem ( elem ), error );
   }
 
-void method ( push_front ) ( warray_struct * self, elem_t elem, wcall * error ) {
-  warray_push_front ( &self->array, (wval) { elem }, error );
+void method ( push_front ) ( warray_struct * self, warray_elem_t elem, wcall * error ) {
+  warray_push_front ( &self->array, warray_cast_elem ( elem ), error );
   }
 
 
-elem_t method ( pop_back ) ( warray_struct * self, wcall * error ) {
+warray_elem_t method ( pop_back ) ( warray_struct * self, wcall * error ) {
   return back_cast ( warray_pop_back ( &self->array, error ) );
   }
 
-elem_t method ( pop_front ) ( warray_struct * self, wcall * error ) {
+warray_elem_t method ( pop_front ) ( warray_struct * self, wcall * error ) {
   return back_cast ( warray_pop_front ( &self->array, error ) );
   }
 
@@ -68,16 +68,16 @@ bool method ( good_index ) ( warray_struct * self, size_t index ) {
   return warray_good_index ( &self->array, index );
   }
 
-elem_t * method ( index ) ( warray_struct * self, size_t index ) {
-  return ( elem_t * ) warray_index ( &self->array, index );
+warray_elem_t * method ( index ) ( warray_struct * self, size_t index ) {
+  return ( warray_elem_t * ) warray_index ( &self->array, index );
   }
 
-elem_t method ( get ) ( warray_struct * self, size_t index ) {
+warray_elem_t method ( get ) ( warray_struct * self, size_t index ) {
   return back_cast ( warray_get ( &self->array, index ) );
   }
 
-elem_t method ( set ) ( warray_struct * self, size_t index, elem_t val ) {
-  return back_cast ( warray_set ( &self->array, index, ( wval ) { val } ) );
+warray_elem_t method ( set ) ( warray_struct * self, size_t index, warray_elem_t val ) {
+  return back_cast ( warray_set ( &self->array, index, warray_cast_elem ( val ) ) );
   }
 
 
@@ -103,14 +103,14 @@ bool method ( good ) ( warray_iter_struct * self ) {
   return warray_good ( &self->iter );
   }
 
-elem_t method ( deref ) ( warray_iter_struct * self ) {
+warray_elem_t method ( deref ) ( warray_iter_struct * self ) {
   return back_cast ( warray_deref ( &self->iter ) );
   }
 
 
 
-long method ( index_of ) ( warray_struct * self, elem_t to_find ) {
-  return warray_index_of ( &self->array, (wval) { to_find } );
+long method ( index_of ) ( warray_struct * self, warray_elem_t to_find ) {
+  return warray_index_of ( &self->array, warray_cast_elem ( to_find ) );
   }
 
 void method ( debug_print ) ( warray_struct * self ) {
@@ -118,8 +118,19 @@ void method ( debug_print ) ( warray_struct * self ) {
   }
 
 #undef back_cast
-#undef elem_t
+#undef warray_elem_t
 #undef method
 #undef warray_iter_struct
 #undef warray_name
 #undef warray_struct
+
+#undef warray_elem_t
+#undef method
+#undef warray_elem_wtype
+#undef warray_iter_struct
+#undef warray_name
+#undef warray_source
+#undef warray_struct
+#undef warray_elem_name
+#undef warray_elem_kind
+#undef warray_cast_elem
