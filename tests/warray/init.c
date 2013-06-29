@@ -7,7 +7,7 @@
 
 bool error = false;
 
-wstatus report_error ( wval ignored ) {
+wstatus report_error ( ) {
   error = true;
   return W_ERROR;
   }
@@ -15,7 +15,8 @@ wstatus report_error ( wval ignored ) {
 int main ( ) {
   wbuiltins_init ( );
   warray_int a;
-  wcall error_wcall = { .func = &report_error, .data = { 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+  wcall error_wcall = null_wcall;
+  error_wcall.func = report_error;
   warray_int_init ( &a, &error_wcall );
   return error;
   }

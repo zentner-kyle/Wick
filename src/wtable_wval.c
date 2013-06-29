@@ -75,7 +75,7 @@ bool wtable_init_to_size (
   self->num_elems = 0;
   self->data = walloc_simple ( wtable_bucket, predicted_elems );
   if ( self->data == NULL ) {
-    winvoke_0 ( on_error );
+    winvoke ( on_error );
     return false;
     }
   else {
@@ -154,7 +154,7 @@ wval wtable_lookup_or_add_hash (
   #define ADD_NOT_FIRST( bucket ) \
     wtable_bucket * new_bucket = walloc_simple ( wtable_bucket, 1 ); \
     if ( new_bucket == NULL ) { \
-      winvoke_0 ( on_error ); \
+      winvoke ( on_error ); \
       } \
     ( bucket )->next = new_bucket;  \
     new_bucket->next = NULL; \
@@ -271,7 +271,7 @@ bool wtable_needs_shrink ( wtable * self ) {
 void wtable_grow ( wtable * restrict self, wcall * on_error ) {
   wtable_bucket * new_buckets = walloc_simple ( wtable_bucket, self->space << 1 );
   if ( new_buckets == NULL ) {
-    winvoke_0 ( on_error );
+    winvoke ( on_error );
     }
   memset ( ( void * ) new_buckets, 0, (self->space << 1) * sizeof ( wtable_bucket ) );
   wtable_bucket * old_bucket = self->data;

@@ -4,7 +4,7 @@
 #include <wopcode_begin.c>
 
 #ifdef OPCODE_BODY
-  acc *= arg_0;
+  acc.integer *= arg_0.integer;
   #endif
 
 #include <wopcode_end.c>

@@ -34,6 +34,7 @@
 
 #define wcheck_static_test( type ) ( join_token ( wcheck_, type ) )
 #define wcheck_static_type( type, value ) (1 ? ( value ) : wcheck_static_test ( type ) ( value ) )
+#define wcheck_to_wval( type, value ) (1 ? ( ( wval ) { value } ) : wcheck_static_test ( type ) ( value ) )
 
 
 #define wdeclare_alien( alien_type ) \

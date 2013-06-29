@@ -17,7 +17,7 @@ void * walloc_static ( wtype * t, wcall * on_error ) {
     memset ( result, 0xff, t->size );
       }
 else {
-    winvoke_0 ( on_error );
+    winvoke ( on_error );
       }
   return result;
     }

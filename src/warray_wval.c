@@ -30,7 +30,7 @@ bool warray_init_to_size (
   self->data = malloc ( sizeof ( wval ) * self->space );
 
   if ( ! self->data ) {
-    winvoke_0 ( error );
+    winvoke ( error );
     return false;
     }
   else {
@@ -46,7 +46,7 @@ warray * warray_new ( wtype * elem_type, wcall * error ) {
 warray * warray_new_to_size ( wtype * elem_type, size_t num_elements, wcall * error ) {
   warray * self = ( warray * ) malloc ( sizeof ( warray ) );
   if ( ! self ) {
-    winvoke_0 ( error );
+    winvoke ( error );
     return NULL;
     }
   if ( ! warray_init_to_size ( self, elem_type, num_elements, &null_wcall ) ) {
@@ -76,7 +76,7 @@ bool warray_grow ( warray * self, wcall * error ) {
   size_t new_size = round_up_power_2 ( self->space + 1 );
   wval * new_data = walloc_simple ( wval, new_size );
   if ( ! new_data ) {
-    winvoke_0 ( error );
+    winvoke ( error );
     return false;
     }
   if ( warray_looped ( self ) ) {
@@ -148,7 +148,7 @@ void warray_push_front ( warray * self, wval elem, wcall * error ) {
 
 wval warray_pop_back ( warray * self, wcall * error ) {
   if ( warray_empty ( self ) ) {
-    winvoke_0 ( error );
+    winvoke ( error );
     }
 
   wval to_return = self->data[--self->past_end];
@@ -173,7 +173,7 @@ wval warray_pop_back ( warray * self, wcall * error ) {
 
 wval warray_pop_front ( warray * self, wcall * error ) {
   if ( warray_empty ( self ) ) {
-    winvoke_0 ( error );
+    winvoke ( error );
     }
 
   wval to_return = self->data[self->start++];

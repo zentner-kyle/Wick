@@ -20,15 +20,15 @@ def_struct ( wstr ) {
   enum wstr_alloc_type alloc_type;
   };
 
-extern wtype wtype_wstr;
+extern wtype * wtype_wstr;
 extern wtable_elem_interface wstr_wtable_i;
 
 #define wstr_lit( literal ) \
-  ( wstr ) { &wtype_wstr, literal, literal + sizeof ( literal ) - 1, wstr_static   }
+  ( wstr ) { wtype_wstr, literal, literal + sizeof ( literal ) - 1, wstr_static }
 
 wstr * wstr_new ( const char * start, const char * past_end );
 
-wstr wstr_from_literal ( const char * literal );
+wstr wstr_from_static ( const char * literal );
 
 wstr wstr_from_dynamic ( const char * dynamic );
 

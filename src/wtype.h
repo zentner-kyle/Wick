@@ -76,6 +76,14 @@ struct wtype_abstract {
   wtype * subtype;
   };
 
+struct wtype_cfunc {
+  wtype * type;
+  wsym id;
+  size_t size;
+  warray arg_names;
+  warray arg_types;
+  };
+
 void wtype_init_header ( wtype * t );
 
 void wtype_init_base ( wtype_base * t, wstr name, size_t size );
@@ -89,5 +97,6 @@ extern wtype * wtype_wtype_ptr;
 extern wtype * wtype_wtype_variant;
 extern wtype * wtype_wtype_parametric;
 extern wtype * wtype_wtype_abstract;
+extern wtype * wtype_wtype_cfunc;
 
 #endif /* end of include guard: WTYPE_H */

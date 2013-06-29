@@ -14,8 +14,8 @@ bool method ( init_to_size ) (
   ) {
   return wtable_init_to_size (
       wtable_struct_to_table ( self ),
-      &wtable_key_wtype,
-      &wtable_val_wtype,
+      wtable_key_wtype,
+      wtable_val_wtype,
       predicted_elems,
       &wtable_interface,
       on_error );
@@ -27,8 +27,8 @@ bool method ( init ) (
   ) {
   return wtable_init (
       wtable_struct_to_table ( self ),
-      &wtable_key_wtype,
-      &wtable_val_wtype,
+      wtable_key_wtype,
+      wtable_val_wtype,
       &wtable_interface,
       on_error );
   }

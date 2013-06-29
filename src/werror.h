@@ -11,7 +11,7 @@ def_struct ( werror ) {
 
 void wreport_error ( char * msg );
 
-wtype werror_type;
+wtype * wtype_werror;
 
 
 #endif /* end of include guard: WERROR_H */

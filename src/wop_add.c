@@ -4,9 +4,7 @@
 #include <wopcode_begin.c>
 
 #ifdef OPCODE_BODY
-  /* printf ( "in add\n" ); */
-  arg_0 = arg_1 + arg_2;
-  /* args[0] = args[1] + args[2]; */
+  arg_0.integer = arg_1.integer + arg_2.integer;
   #endif
 
 #include <wopcode_end.c>

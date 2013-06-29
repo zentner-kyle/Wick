@@ -18,4 +18,5 @@ wtype * wtype_wtype_ptr;
 wtype * wtype_wtype_variant;
 wtype * wtype_wtype_parametric;
 wtype * wtype_wtype_abstract;
+wtype * wtype_wtype_cfunc;
 

@@ -10,8 +10,6 @@
 
 typedef uint32_t opbunch;
 
-typedef size_t field_t;
-
 typedef int8_t wasm_arg;
 
 typedef uint8_t wasm_op;

@@ -5,26 +5,28 @@
 #include <wmacros.h>
 #include <wtype_h.h>
 #include <wval.h>
+#include <wtype_h.h>
 
 typedef int wstatus;
-typedef wval wcall_data_t;
-typedef wstatus ( * wcall_func_t ) ( wcall_data_t data );
+typedef wstatus ( * wcall_func_t ) ();
 extern const int W_OK;
 extern const int W_ERROR;
 
-#define WARG( type, value ) w_type_to_wtype ( type ), wcheck_static_type ( type, value )
+#define warg( type, value ) &w_type_to_wtype ( type ), wcheck_to_wval ( type, value )
 
 def_struct ( wcall ) {
   wcall_func_t func;
-  wcall_data_t data;
   size_t num_args;
+  size_t filled_args;
   wtype * arg_types[10];
+  wval args[10];
   };
 
-wstatus winvoke_0 ( wcall * );
-wstatus winvoke_1 ( wcall *, wtype, wval );
+wstatus wcall_push ( wcall * self, wtype * type, wval val );
+wstatus wcall_pop ( wcall * self, int count );
+wstatus wcall_set_arg_count ( wcall * self, int count );
 
-wcall static_wcall ( wcall_func_t func, wcall_data_t data );
+wstatus winvoke ( wcall * self );
 
 extern wcall null_wcall;
 
