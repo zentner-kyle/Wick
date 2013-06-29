@@ -7,7 +7,7 @@
 
 bool error = false;
 
-wstatus report_error ( ) {
+wstatus report_error ( wval * ignored ) {
   error = true;
   return W_ERROR;
   }

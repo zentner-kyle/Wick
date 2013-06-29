@@ -8,7 +8,7 @@
 #include <wtype_h.h>
 
 typedef int wstatus;
-typedef wstatus ( * wcall_func_t ) ();
+typedef wstatus ( * wcall_func_t ) (wval * arg);
 extern const int W_OK;
 extern const int W_ERROR;
 
@@ -16,15 +16,18 @@ extern const int W_ERROR;
 
 def_struct ( wcall ) {
   wcall_func_t func;
+  wval * args;
   size_t num_args;
   size_t filled_args;
-  wtype * arg_types[10];
-  wval args[10];
+  size_t filled_types;
+  wtype ** arg_types;
   };
 
 wstatus wcall_push ( wcall * self, wtype * type, wval val );
-wstatus wcall_pop ( wcall * self, int count );
-wstatus wcall_set_arg_count ( wcall * self, int count );
+wstatus wcall_pop ( wcall * self, size_t count );
+
+wstatus wcall_push_types ( wcall * self, size_t count, ... );
+wstatus wcall_clear_types ( wcall * self );
 
 wstatus winvoke ( wcall * self );
 

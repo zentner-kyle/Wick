@@ -95,5 +95,21 @@
     (wtype *) w_type_to_wtype ( base_type ) \
     };
 
+#define Wfunc_to_wcall_thunk( func_name ) \
+  ( join_token ( wcall_thunk_, func_name ) )
+
+#define wfunc_to_wcall( func_name ) \
+  ( join_token ( wcall_, func_name ) )
+
+#define wfunc_to_wcall_argc( func_name ) \
+  ( join_token ( wcall_argc_, func_name ) )
+
+#define wfunc_to_wcall_args( func_name ) \
+  ( join_token ( wcall_args_, func_name ) )
+
+#define wfunc_to_wcall_types( func_name ) \
+  ( join_token ( wcall_types_, func_name ) )
+
+
 
 #endif /* end of include guard: WMACROS_H */
