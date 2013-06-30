@@ -16,4 +16,6 @@ void * wick_memalign ( size_t num_bytes, size_t alignment );
 
 void * walloc_static ( wtype * t, wcall * on_error );
 
+extern werror wick_out_of_memory;
+
 #endif /* end of include guard: WALLOC_H */

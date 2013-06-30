@@ -2,6 +2,7 @@
 #include <wcall.h>
 #include <wtoken.h>
 #include <wstr_trie.h>
+#include <werror.h>
 
 #define warray_elem_t wcall_ptr
 #define warray_elem_kind pointer
@@ -20,6 +21,10 @@ def_struct ( wparser ) {
   warray_wtoken_ptr * tokens;
   warray_wcall_ptr * lexers;
   warray_wcall_ptr * parsers;
+  bool stop;
   };
 
 wdeclare_composite ( wparser );
+
+void wparser_error ( wparser * self, werror * error );
+bool wparser_push_token ( wparser * self, wtoken * token );
