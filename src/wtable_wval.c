@@ -5,6 +5,7 @@
 #include <walloc.h>
 #include <wstr.h>
 #include <wval.h>
+#include <wtype.h>
 
 bool wtable_needs_grow ( wtable * self );
 

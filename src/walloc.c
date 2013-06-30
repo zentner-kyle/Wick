@@ -21,17 +21,6 @@ else {
   return result;
     }
 
-wobj * walloc ( wplace * place, wtype * type ) {
-  void * to_store = wick_base_alloc ( type->size );
-  if ( ! to_store ) {
-    wplace_signal_error ( place, &wick_out_of_memory );
-    return NULL;
-      }
-else {
-    return ( wobj * ) to_store;
-      }
-    }
-
 void * wick_memalign ( size_t num_bytes, size_t alignment ) {
   void * to_write;
   assert ( ! ( alignment & ( alignment - 1 ) ) );

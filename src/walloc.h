@@ -2,7 +2,6 @@
 #define WALLOC_H
 #include <wtype_h.h>
 #include <werror.h>
-#include <wplace.h>
 
 #define wick_base_alloc( num_bytes ) malloc ( num_bytes )
 #define wick_base_free( ptr ) free ( ptr )
