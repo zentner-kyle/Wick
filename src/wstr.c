@@ -197,3 +197,20 @@ wstr * wstr_from_llong ( long long input ) {
   snprintf ( text, 40, "%lld", input );
   return wstr_new ( text, NULL );
   }
+
+wstr * wstr_copy ( wstr * original ) {
+  size_t size = wstr_size ( *original );
+  wstr * str = walloc_simple ( wstr, 1 );
+  char * buf = malloc ( size );
+  if ( ! str || ! buf ) {
+    free ( str );
+    free ( buf );
+    return NULL;
+    }
+  memcpy ( buf, original->start, size );
+  str->type = wtype_wstr;
+  str->start = buf;
+  str->past_end = buf + size;
+  str->alloc_type = wstr_dynamic;
+  return str;
+  }

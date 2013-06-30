@@ -59,4 +59,6 @@ wstr * wstr_from_llong ( long long input );
 int wcompare_wstr_ptr ( wval v_str_a, wval v_str_b );
 whash whash_wstr_ptr ( wval str );
 
+wstr * wstr_copy ( wstr * original );
+
 #endif /* end of include guard: WSTR_H */
