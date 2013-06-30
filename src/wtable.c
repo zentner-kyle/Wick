@@ -118,3 +118,4 @@ void method ( delete ) ( wtable_struct * self ) {
 #undef wtable_val_t
 #undef wtable_val_wtype
 #undef method
+#undef wtable_no_struct

@@ -29,8 +29,8 @@ void wbuiltins_init ( ) {
   if ( wbuiltins_initialized ) {
     return;
     }
-#define walloc_error() \
-  return;
+  #define walloc_error() \
+    return;
   winit_base ( bool );
   winit_base ( char );
   winit_base ( double );

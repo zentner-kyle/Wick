@@ -57,7 +57,8 @@
   join_token ( wtype_, alien_type )->type = wtype_alien; \
   join_token ( wtype_, alien_type )->id = wsym_lit ( string_of_macro ( alien_type ) ); \
   join_token ( wtype_, alien_type )->size = sizeof ( alien_type ); \
-  winit_ptr ( alien_type );
+  winit_ptr ( alien_type ); \
+  join_token ( wtype_, alien_type )->ptr_of = join_token ( join_token ( wtype_, alien_type ), _ptr );
 
 
 #define wdeclare_base( base_type ) \
@@ -81,6 +82,7 @@
   join_token ( wtype_, base_type )->id = wsym_lit ( string_of_macro ( base_type ) ); \
   join_token ( wtype_, base_type )->size = sizeof ( base_type ); \
   winit_ptr ( base_type );
+  //join_token ( wtype_, base_type )->ptr_of = join_token ( join_token ( wtype_, base_type ), _ptr );
 
 
 #define wdeclare_composite( composite_type ) \
@@ -111,7 +113,8 @@
     wtable_wstr_ptr_to_size_t_delete ( ( ( wtype_composite * ) join_token ( wtype_, composite_type ) )->names_to_offsets ); \
     walloc_error ( ); \
     } \
-  winit_ptr ( composite_type );
+  winit_ptr ( composite_type ); \
+  join_token ( wtype_, composite_type )->ptr_of = join_token ( join_token ( wtype_, composite_type ), _ptr );
 
 
 #define wdeclare_ptr( base_type ) \
@@ -133,22 +136,24 @@
     };
 
 #define winit_ptr( base_type ) \
-  join_token ( wtype_, base_type ) = ( wtype * ) walloc_simple ( wtype_pointer, 1 ); \
+  join_token ( join_token ( wtype_, base_type ), _ptr ) = ( wtype * ) walloc_simple ( wtype_pointer, 1 ); \
+  if ( join_token ( join_token ( wtype_, base_type ), _ptr ) == NULL ) { \
+    walloc_error (); \
+    } \
+  join_token ( join_token ( wtype_, base_type ), _ptr )->type = wtype_wtype_pointer; \
+  join_token ( join_token ( wtype_, base_type ), _ptr )->id = wsym_lit ( string_of_macro ( join_token ( base_type, _ptr ) ) ); \
+  join_token ( join_token ( wtype_, base_type ), _ptr )->size = sizeof ( base_type * ); \
+  ( ( wtype_pointer * ) join_token ( join_token ( wtype_, base_type ), _ptr ) )->subtype = w_type_to_wtype ( base_type ); \
+  join_token ( join_token ( wtype_, base_type ), _ptr_ptr ) = ( wtype * ) walloc_simple ( wtype_pointer, 1 ); \
   if ( join_token ( wtype_, base_type ) == NULL ) { \
     walloc_error (); \
     } \
-  join_token ( wtype_, base_type )->type = wtype_wtype_pointer; \
-  join_token ( wtype_, base_type )->id = wsym_lit ( string_of_macro ( join_token ( base_type, _ptr ) ) ); \
-  join_token ( wtype_, base_type )->size = sizeof ( base_type * ); \
-  ( ( wtype_pointer * ) join_token ( wtype_, base_type ) )->subtype = w_type_to_wtype ( base_type ); \
-  join_token ( wtype_, base_type ) = ( wtype * ) walloc_simple ( wtype_pointer, 1 ); \
-  if ( join_token ( wtype_, base_type ) == NULL ) { \
-    walloc_error (); \
-    } \
-  join_token ( wtype_, base_type )->type = wtype_wtype_pointer; \
-  join_token ( wtype_, base_type )->id = wsym_lit ( string_of_macro ( join_token ( base_type, _ptr_ptr ) ) ); \
-  join_token ( wtype_, base_type )->size = sizeof ( base_type ** ); \
-  ( ( wtype_pointer * ) join_token ( wtype_, base_type ) )->subtype = w_type_to_wtype ( join_token ( base_type, _ptr ) );
+  join_token ( join_token ( wtype_, base_type ), _ptr_ptr )->type = wtype_wtype_pointer; \
+  join_token ( join_token ( wtype_, base_type ), _ptr_ptr )->ptr_of = NULL; \
+  join_token ( join_token ( wtype_, base_type ), _ptr_ptr )->id = wsym_lit ( string_of_macro ( join_token ( base_type, _ptr_ptr ) ) ); \
+  join_token ( join_token ( wtype_, base_type ), _ptr_ptr )->size = sizeof ( base_type ** ); \
+  ( ( wtype_pointer * ) join_token ( wtype_, base_type ) )->subtype = w_type_to_wtype ( join_token ( base_type, _ptr ) ); \
+  join_token ( join_token ( wtype_, base_type ), _ptr )->ptr_of = join_token ( join_token ( wtype_, base_type ), _ptr_ptr );
 
 
 #define Wfunc_to_wcall_thunk( func_name ) \

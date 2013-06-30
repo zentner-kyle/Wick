@@ -168,8 +168,8 @@ wval wtable_lookup_or_add_hash (
     self->num_elems++; \
     ( bucket )->hash = hashed; \
     ( bucket )->key = key; \
-    wcall_push ( on_missing, wtype_wval, key ); \
-    wcall_push ( on_missing, warg ( wval_ptr, pointer, &( bucket )->value ) ); \
+    wcall_push ( on_missing, self->key_type->ptr_of, (wval) { .pointer = ( wobj * ) &( bucket )->key } ); \
+    wcall_push ( on_missing, self->val_type->ptr_of, (wval) { .pointer = ( wobj * ) &( bucket )->value } ); \
     winvoke ( on_missing ); \
     if ( wtable_needs_grow ( self ) ){ \
       wtable_grow ( self, on_error ); \
