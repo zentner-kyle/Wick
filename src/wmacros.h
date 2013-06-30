@@ -155,22 +155,6 @@
   ( ( wtype_pointer * ) join_token ( wtype_, base_type ) )->subtype = w_type_to_wtype ( join_token ( base_type, _ptr ) ); \
   join_token ( join_token ( wtype_, base_type ), _ptr )->ptr_of = join_token ( join_token ( wtype_, base_type ), _ptr_ptr );
 
-
-#define Wfunc_to_wcall_thunk( func_name ) \
-  ( join_token ( wcall_thunk_, func_name ) )
-
-#define wfunc_to_wcall( func_name ) \
-  ( join_token ( wcall_, func_name ) )
-
-#define wfunc_to_wcall_argc( func_name ) \
-  ( join_token ( wcall_argc_, func_name ) )
-
-#define wfunc_to_wcall_args( func_name ) \
-  ( join_token ( wcall_args_, func_name ) )
-
-#define wfunc_to_wcall_types( func_name ) \
-  ( join_token ( wcall_types_, func_name ) )
-
 #define wobj_cast( target_type, value ) \
     ( value->type == w_type_to_wtype ( target_type ) ? ( ( target_type ) value ) : NULL )
 

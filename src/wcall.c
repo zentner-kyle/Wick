@@ -1,6 +1,7 @@
 #include <wcall.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <walloc.h>
 
 
 
@@ -55,24 +56,13 @@ wstatus wcall_pop ( wcall * self, size_t count ) {
 wstatus wcall_push_types ( wcall * self, size_t count, ... ) {
   va_list types;
   va_start ( types, count );
-  if ( !self || count + self->filled_types > self->num_args ) {
+  if ( !self || count > self->num_args ) {
     return W_ERROR;
     }
   for ( int i = 0; i < count; i++ ) {
-    self->arg_types[self->filled_types++] = va_arg ( types, wtype * );
+    self->arg_types[i] = va_arg ( types, wtype * );
     }
   va_end ( types );
-  return W_OK;
-  }
-
-wstatus wcall_clear_types ( wcall * self ) {
-  if ( ! self ) {
-    return W_ERROR;
-    }
-  for ( int i = 0; i < self->num_args; i++ ) {
-    self->arg_types[i] = NULL;
-    }
-  self->filled_types = 0;
   return W_OK;
   }
 
@@ -88,11 +78,42 @@ wstatus winvoke ( wcall * c ) {
     }
   }
 
+wstatus wcall_clone ( wcall * dest, wcall * src ) {
+  wval * new_args = walloc_simple ( wval, src->num_args );
+  if ( ! new_args ) {
+    return W_ERROR;
+    }
+  dest->func = src->func;
+  dest->num_args = src->num_args;
+  dest->filled_args = src->filled_args;
+  dest->arg_types = src->arg_types;
+  dest->args = new_args;
+  memcpy ( new_args, src->args, src->filled_args * sizeof ( wval ) );
+  return W_OK;
+  }
+
+wstatus wcall_deinit ( wcall * c ) {
+  if ( ! c ) {
+    return W_ERROR;
+    }
+  free ( c->args );
+  *c = null_wcall;
+  return W_OK;
+  }
+
+wstatus wcall_delete ( wcall * c ) {
+  if ( ! c ) {
+    return W_ERROR;
+    }
+  free ( c->args );
+  free ( c );
+  return W_OK;
+  }
+
 wcall null_wcall = {
   0,
   0,
   0,
   0,
   0,
-  0
   };
