@@ -3,6 +3,7 @@
 #include <wtype_h.h>
 #include <wstr.h>
 #include <wmacros.h>
+#include <walloc.h>
 
 whash whash_wtoken ( wval token ) {
   wtoken * self = ( wtoken * ) token.pointer;
@@ -19,5 +20,18 @@ int wcompare_wtoken ( wval token_a, wval token_b ) {
     return self->family - other->family;
     }
   };
+
+wtoken * wtoken_new ( int family, wstr * text, int lbp, int rbp ) {
+  if ( ! text ) {
+    return NULL;
+    }
+  wtoken * t = walloc_simple ( wtoken , 1 );
+  t->type = wtype_wtoken;
+  t->family = family;
+  t->text = text;
+  t->lbp = lbp;
+  t->rbp = rbp;
+  return t;
+  }
 
 wdefine_composite ( wtoken );
