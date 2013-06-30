@@ -6,6 +6,7 @@
 #include <walloc.h>
 #include <wtype.h>
 #include <wval.h>
+#include <wparse.h>
 
 bool wbuiltins_initialized = false;
 
@@ -50,6 +51,10 @@ void wbuiltins_init ( ) {
   winit_composite ( wtoken );
   winit_composite ( wtype );
   winit_composite ( wcall );
+
+  #define wcall_name add_token
+  #define wcall_wtypes wtype_int, wtype_int, wtype_int, wtype_wstr_ptr, wtype_wtoken_ptr_ptr
+  #include <wcall_init.c>
   }
 
 #undef init_builtin

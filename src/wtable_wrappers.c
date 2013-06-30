@@ -30,3 +30,12 @@
 
 #include <wtable.c>
 
+#include <wtoken.h>
+
+#define wtable_key_t wstr_ptr
+#define wtable_key_kind pointer
+
+#define wtable_val_t wtoken_ptr
+#define wtable_val_kind pointer
+#include <wtable.c>
+
