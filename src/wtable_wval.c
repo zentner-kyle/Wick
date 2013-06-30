@@ -165,12 +165,16 @@ wval wtable_lookup_or_add_hash (
   #define RETURN_FOUND( bucket ) \
     return ( bucket )->value;
   #define ADD_FIRST( bucket ) \
-    self->num_elems++; \
     ( bucket )->hash = hashed; \
     ( bucket )->key = key; \
     wcall_push ( on_missing, self->key_type->ptr_of, (wval) { .pointer = ( wobj * ) &( bucket )->key } ); \
     wcall_push ( on_missing, self->val_type->ptr_of, (wval) { .pointer = ( wobj * ) &( bucket )->value } ); \
-    winvoke ( on_missing ); \
+    if (winvoke ( on_missing ) != W_OK ) { \
+      wval macro_value = ( bucket )->value; \
+      ( bucket )->hash = 0; \
+      return macro_value; \
+      } \
+    self->num_elems++; \
     if ( wtable_needs_grow ( self ) ){ \
       wtable_grow ( self, on_error ); \
       } \
@@ -182,7 +186,21 @@ wval wtable_lookup_or_add_hash (
       } \
     ( bucket )->next = new_bucket;  \
     new_bucket->next = NULL; \
-    ADD_FIRST ( new_bucket );
+    ( new_bucket )->hash = hashed; \
+    ( new_bucket )->key = key; \
+    wcall_push ( on_missing, self->key_type->ptr_of, (wval) { .pointer = ( wobj * ) &( new_bucket )->key } ); \
+    wcall_push ( on_missing, self->val_type->ptr_of, (wval) { .pointer = ( wobj * ) &( new_bucket )->value } ); \
+    if ( winvoke ( on_missing ) != W_OK ) { \
+      wval macro_value = ( new_bucket )->value; \
+      free ( new_bucket ); \
+      ( bucket )->next = NULL; \
+      return macro_value; \
+      } \
+    self->num_elems++; \
+    if ( wtable_needs_grow ( self ) ){ \
+      wtable_grow ( self, on_error ); \
+      } \
+    return ( new_bucket )->value;
   SELECT_BUCKET (
       self,
       key,
@@ -192,6 +210,7 @@ wval wtable_lookup_or_add_hash (
       RETURN_FOUND,
       ADD_FIRST,
       ADD_NOT_FIRST );
+      #undef ADD_NOT_FIRST
   }
 
 /* Note that these two functions share most of their implementations. */
@@ -227,6 +246,14 @@ wval wtable_lookup_default_hash (
       wtable_grow ( self, on_error ); \
       } \
     return value;
+  #define ADD_NOT_FIRST( bucket ) \
+    wtable_bucket * new_bucket = walloc_simple ( wtable_bucket, 1 ); \
+    if ( new_bucket == NULL ) { \
+      winvoke ( on_error ); \
+      } \
+    ( bucket )->next = new_bucket;  \
+    new_bucket->next = NULL; \
+    ADD_FIRST ( new_bucket );
   SELECT_BUCKET (
       self,
       key,
