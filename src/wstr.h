@@ -61,4 +61,6 @@ whash whash_wstr_ptr ( wval str );
 
 wstr * wstr_copy ( wstr * original );
 
+wstr wstr_empty ( void );
+
 #endif /* end of include guard: WSTR_H */

@@ -214,3 +214,11 @@ wstr * wstr_copy ( wstr * original ) {
   str->alloc_type = wstr_dynamic;
   return str;
   }
+
+wstr wstr_empty ( void ) {
+  wstr to_return;
+  wstr_init_dynamic ( &to_return );
+  to_return.start = NULL;
+  to_return.past_end = NULL;
+  return to_return;
+  }
