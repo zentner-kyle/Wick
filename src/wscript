@@ -28,7 +28,6 @@ def build(bld):
         'wplace.c',
         'wparse.c',
         'wstr.c',
-        'wsym.c',
         'wtable_wrappers.c',
         'wtable_wval.c',
         'wtoken.c',

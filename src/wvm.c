@@ -5,7 +5,6 @@
 #include <wvm.h>
 #include <walloc.h>
 #include <werror.h>
-#include <wsym.h>
 
 #define warray_elem_t opbunch
 #define warray_elem_kind integer
@@ -24,7 +23,6 @@
   #define DISPATCH switch ( op_bunch & 0xff )
   #endif
 
-/*wtype_base wtype_opbunch = { ( wtype * ) &wtype_base_t, wsym_lit ( "opcode" ), sizeof ( uint32_t )   };*/
 wdefine_base ( opbunch );
 
 static const char * wopcode_names[] = {

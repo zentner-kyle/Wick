@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <warray_wval.h>
 #include <wtable_wval.h>
-#include <wsym.h>
 #include <wstr.h>
 #include <wtype_h.h>
 #include <wbuiltins.h>
@@ -29,28 +28,28 @@ wdeclare_composite ( wtype );
 struct wtype {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   };
 
 struct wtype_alien {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   };
 
 struct wtype_base {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   };
 
 struct wtype_composite {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   wtable_wstr_ptr_to_wtype_ptr * names_to_types;
   wtable_wstr_ptr_to_size_t * names_to_offsets;
@@ -59,14 +58,14 @@ struct wtype_composite {
 struct wtype_dynamic {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   };
 
 struct wtype_pointer {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   wtype * subtype;
   };
@@ -74,7 +73,7 @@ struct wtype_pointer {
 struct wtype_variant {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   warray variants;
   };
@@ -82,15 +81,15 @@ struct wtype_variant {
 struct wtype_variable {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
-  wsym variable_name;
+  wstr variable_name;
   };
 
 struct wtype_parametric {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   wtable variables;
   };
@@ -98,7 +97,7 @@ struct wtype_parametric {
 struct wtype_abstract {
   wtype * type;
   wtype * ptr_of;
-  wsym id;
+  wstr name;
   size_t size;
   wtype * subtype;
   };

@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <wtype.h>
-#include <wsym.h>
 #include <wmacros.h>
 
 typedef uint32_t opbunch;
