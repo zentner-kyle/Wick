@@ -172,12 +172,12 @@ uint8_t parse_arg ( wstr line, wstr * rest, werror * report ) {
     }
   else {
   if ( line.start[ 0 ] != 'r' ) {
-  report->message = wstr_lit ( "Expected argument to start with either 's' or 'r'." );
+  report->message = wstr_new ( "Expected argument to start with either 's' or 'r'.", 0 );
   return 0;
   }
     }
   if ( ! isxdigit ( line.start[ 1 ] ) ) {
-    report->message = wstr_lit ( "No hex digit in argument." );
+    report->message = wstr_new ( "No hex digit in argument.", 0 );
     return 0;
     }
   int shift = 0;
@@ -190,7 +190,7 @@ uint8_t parse_arg ( wstr line, wstr * rest, werror * report ) {
   rest->past_end = line.past_end;
   uint8_t larger = hex_digit ( line.start[ 1 ] );
   if ( ( ( larger << shift ) & ( 1 << 7 ) ) || isxdigit ( rest->start[ 0 ] ) ) {
-    report->message = wstr_lit ( "Argument is too large." );
+    report->message = wstr_new ( "Argument is too large.", 0 );
     }
   arg |= larger << shift;
   return arg;
@@ -203,7 +203,7 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
   size_t total_size = 0;
   int left_in_opcode = 4;
   wstr success = wstr_lit ( "success" );
-  werror parse_error = { wtype_werror, success };
+  werror parse_error = { wtype_werror, & success };
   warray_opbunch * uncollapsed_code = warray_opbunch_new ( &null_wcall );
   while ( wstr_size ( file_remaining ) != 0 ) {
     get_next_line ( file_remaining, &line, &file_remaining );

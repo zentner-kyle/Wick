@@ -12,7 +12,7 @@
 
 #include <wcall.h>
 
-wstatus wfunc_to_wcall_thunk ( wcall_name )( wval * arg ) {
+werror * wfunc_to_wcall_thunk ( wcall_name )( wval * arg ) {
   return wcall_name ( wcall_args );
   }
 int wfunc_to_wcall_argc ( wcall_name ) = wcall_argc;

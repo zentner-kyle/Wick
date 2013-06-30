@@ -169,7 +169,7 @@ wval wtable_lookup_or_add_hash (
     ( bucket )->key = key; \
     wcall_push ( on_missing, self->key_type->ptr_of, (wval) { .pointer = ( wobj * ) &( bucket )->key } ); \
     wcall_push ( on_missing, self->val_type->ptr_of, (wval) { .pointer = ( wobj * ) &( bucket )->value } ); \
-    if (winvoke ( on_missing ) != W_OK ) { \
+    if (winvoke ( on_missing ) != w_ok ) { \
       wval macro_value = ( bucket )->value; \
       ( bucket )->hash = 0; \
       return macro_value; \
@@ -190,7 +190,7 @@ wval wtable_lookup_or_add_hash (
     ( new_bucket )->key = key; \
     wcall_push ( on_missing, self->key_type->ptr_of, (wval) { .pointer = ( wobj * ) &( new_bucket )->key } ); \
     wcall_push ( on_missing, self->val_type->ptr_of, (wval) { .pointer = ( wobj * ) &( new_bucket )->value } ); \
-    if ( winvoke ( on_missing ) != W_OK ) { \
+    if ( winvoke ( on_missing ) != w_ok ) { \
       wval macro_value = ( new_bucket )->value; \
       free ( new_bucket ); \
       ( bucket )->next = NULL; \

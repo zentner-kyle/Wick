@@ -19,9 +19,9 @@ const int family_literal    = 2;
 const int family_operator   = 3;
 const int family_comment    = 4;
 
-wstatus lex_comment ( wparser * self ) {
+werror * lex_comment ( wparser * self ) {
   if ( *self->text.start != '#' ) {
-    return W_ERROR;
+    return &werror_generic;
     }
   wstr str = wstr_empty ();
   str.start = self->text.start;
@@ -32,16 +32,16 @@ wstatus lex_comment ( wparser * self ) {
   wtoken * token = wtoken_new ( family_comment, wstr_copy ( &str ), 0, 0 );
   if ( token ) {
     wparser_push_token ( self, token );
-    return W_OK;
+    return w_ok;
     }
   else {
-    return W_ERROR;
+    return &werror_generic;
     }
   }
 
-wstatus lex_indent ( wparser * restrict self ) {
+werror * lex_indent ( wparser * restrict self ) {
   if ( *self->text.start != '\n' ) {
-    return W_ERROR;
+    return &werror_generic;
     }
   wstr_trie * node = self->token_table;
   wstr str = wstr_empty ();
@@ -50,7 +50,7 @@ wstatus lex_indent ( wparser * restrict self ) {
     node = wstr_trie_enter_next ( node, *self->text.start );
     if ( ! node ) {
       wparser_error ( self, &wick_out_of_memory );
-      return W_ERROR;
+      return &werror_generic;
       }
     ++self->text.start;
     }
@@ -58,14 +58,14 @@ wstatus lex_indent ( wparser * restrict self ) {
   if ( ! node->val ) {
     wtoken * token = wtoken_new ( family_whitespace, wstr_copy ( &str ), 0, 0 );
     if ( ! token ) {
-      return W_ERROR;
+      return &werror_generic;
       }
     node->val = wobj_of ( token );
     }
-  return W_OK;
+  return w_ok;
   }
 
-wstatus lexer ( wparser * self ) {
+werror * lexer ( wparser * self ) {
   while ( *self->text.start++ == '\t' ) { }
   while ( *self->text.start++ == ' ' ) { }
   if ( *self->text.start == '#' ) {
@@ -77,5 +77,5 @@ wstatus lexer ( wparser * self ) {
   else {
     /*return lex_ident ( self );*/
     }
-  return W_OK;
+  return w_ok;
   }

@@ -7,11 +7,11 @@
 #include <wtype_h.h>
 #include <wval.h>
 #include <wtype_h.h>
+#include <werror.h>
 
-typedef int wstatus;
-typedef wstatus ( * wcall_func_t ) (wval * arg);
-extern const int W_OK;
-extern const int W_ERROR;
+typedef werror * ( * wcall_func_t ) (wval * arg);
+extern werror * w_ok;
+extern werror werror_generic;
 
 #define warg( type, kind, value ) w_type_to_wtype ( type ), wcheck_to_wval_##kind ( type, value )
 
@@ -25,16 +25,16 @@ def_struct ( wcall ) {
 
 wdeclare_composite ( wcall );
 
-wstatus wcall_push ( wcall * self, wtype * type, wval val );
-wstatus wcall_pop ( wcall * self, size_t count );
+werror * wcall_push ( wcall * self, wtype * type, wval val );
+werror * wcall_pop ( wcall * self, size_t count );
 
-wstatus wcall_push_types ( wcall * self, size_t count, ... );
+werror * wcall_push_types ( wcall * self, size_t count, ... );
 
-wstatus winvoke ( wcall * self );
+werror * winvoke ( wcall * self );
 
-wstatus wcall_clone ( wcall * dest, wcall * src );
-wstatus wcall_deinit ( wcall * c );
-wstatus wcall_delete ( wcall * c );
+werror * wcall_clone ( wcall * dest, wcall * src );
+werror * wcall_deinit ( wcall * c );
+werror * wcall_delete ( wcall * c );
 
 extern wcall null_wcall;
 

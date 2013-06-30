@@ -9,9 +9,9 @@
 
 bool error = false;
 
-wstatus report_error ( wval * ignored ) {
+werror * report_error ( wval * ignored ) {
   error = true;
-  return W_ERROR;
+  return &werror_generic;
   }
 
 int main ( ) {
