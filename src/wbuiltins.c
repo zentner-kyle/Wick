@@ -7,6 +7,7 @@
 #include <wtype.h>
 #include <wval.h>
 #include <wparse.h>
+#include <wstr_trie.h>
 
 bool wbuiltins_initialized = false;
 
@@ -51,10 +52,7 @@ void wbuiltins_init ( ) {
   winit_composite ( wtoken );
   winit_composite ( wtype );
   winit_composite ( wcall );
-
-  #define wcall_name add_token
-  #define wcall_wtypes wtype_int, wtype_int, wtype_int, wtype_wstr_ptr, wtype_wtoken_ptr_ptr
-  #include <wcall_init.c>
+  winit_composite ( wstr_trie );
   }
 
 #undef init_builtin

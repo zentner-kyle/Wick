@@ -33,6 +33,7 @@ def build(bld):
         'wtable_wval.c',
         'wtoken.c',
         'wtype.c',
+        'wstr_trie.c',
     ] 
 
     bld.objects(
