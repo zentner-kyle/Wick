@@ -158,4 +158,7 @@
 #define wobj_cast( target_type, value ) \
     ( value->type == w_type_to_wtype ( target_type ) ? ( ( target_type ) value ) : NULL )
 
+#define wobj_of( obj ) \
+    ( (void *) &( ( obj )->type ) == ( void * ) ( obj ) ? ( wobj * ) obj : NULL )
+
 #endif /* end of include guard: WMACROS_H */

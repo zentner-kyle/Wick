@@ -19,7 +19,7 @@ def_struct ( wobj ) {
       } \
     } while ( 0 )
 
-#define wobj_of( target_type, varname, expr ) \
+#define wobj_expr( target_type, varname, expr ) \
   do { \
     target_type * varname; \
     wobj_to( target_type, varname, expr ); \
