@@ -12,12 +12,15 @@
 def_struct ( wstr_trie ) {
   wtype * type;
   wstr_trie * next[WSTR_TRIE_BRANCH];
+  wstr_trie * prev;
   wobj * val;
   };
 
 wdeclare_composite ( wstr_trie );
 
 wstr_trie * wstr_trie_enter ( wstr_trie * node, wstr * str );
+
+wstr_trie * wstr_trie_enter_next ( wstr_trie * node, char c );
 
 wstr_trie * wstr_trie_get_longest ( wstr_trie * node, wstr * str );
 

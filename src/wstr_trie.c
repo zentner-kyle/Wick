@@ -12,19 +12,27 @@ wstr_trie * wstr_trie_enter ( wstr_trie * node, wstr * str ) {
     }
   const char * c = str->start;
   while ( c != str->past_end ) {
-    char cc = *c;
-    for (int i = 0; i < sizeof ( char ) / WSTR_TRIE_SHIFT; i++) {
-      if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
-        node->next[cc & WSTR_TRIE_MASK] = (wstr_trie *) calloc ( sizeof ( wstr_trie ), 1 );
-        if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
-          return NULL;
-          }
-        node->next[cc & WSTR_TRIE_MASK]->type = wtype_wstr_trie;
-        }
-        node = node->next[cc & WSTR_TRIE_MASK];
-        cc >>= WSTR_TRIE_SHIFT;
+    node = wstr_trie_enter_next ( node, *c );
+    if ( ! node ) {
+      return NULL;
       }
-      ++c;
+    ++c;
+    }
+    return node;
+  }
+
+wstr_trie * wstr_trie_enter_next ( wstr_trie * node, char cc ) {
+  for (int i = 0; i < sizeof ( char ) / WSTR_TRIE_SHIFT; i++) {
+    if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
+      node->next[cc & WSTR_TRIE_MASK] = (wstr_trie *) calloc ( sizeof ( wstr_trie ), 1 );
+      if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
+        return NULL;
+        }
+      node->next[cc & WSTR_TRIE_MASK]->type = wtype_wstr_trie;
+      node->next[cc & WSTR_TRIE_MASK]->prev = node;
+      }
+      node = node->next[cc & WSTR_TRIE_MASK];
+      cc >>= WSTR_TRIE_SHIFT;
     }
     return node;
   }
