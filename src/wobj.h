@@ -25,5 +25,4 @@ def_struct ( wobj ) {
     wobj_to( target_type, varname, expr ); \
     } while ( 0 )
 
-
 #endif /* WOBJ_H */

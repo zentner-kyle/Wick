@@ -23,14 +23,15 @@ def build(bld):
         'wbits.c',
         'wbuiltins.c',
         'wcall.c',
+        'werror.c',
         'whash.c',
         'wparse.c',
         'wstr.c',
+        'wstr_trie.c',
         'wtable_wrappers.c',
         'wtable_wval.c',
         'wtoken.c',
         'wtype.c',
-        'wstr_trie.c',
     ] 
 
     bld.objects(

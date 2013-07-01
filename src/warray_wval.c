@@ -10,7 +10,7 @@
 
 wdefine_base ( warray );
 
-const static size_t warray_default_size = 8;
+const static long warray_default_size = 8;
 
 bool warray_init ( warray * self, wtype * warray_elem_type, wcall * error ) {
   return warray_init_to_size ( self, warray_elem_type, warray_default_size, error );
@@ -19,7 +19,7 @@ bool warray_init ( warray * self, wtype * warray_elem_type, wcall * error ) {
 bool warray_init_to_size (
     warray * self,
     wtype * warray_elem_type,
-    size_t num_elements,
+    long num_elements,
     wcall * error
     ) {
   self->warray_elem_type = warray_elem_type;
@@ -43,7 +43,7 @@ warray * warray_new ( wtype * warray_elem_type, wcall * error ) {
   return warray_new_to_size ( warray_elem_type, warray_default_size, error );
   }
 
-warray * warray_new_to_size ( wtype * warray_elem_type, size_t num_elements, wcall * error ) {
+warray * warray_new_to_size ( wtype * warray_elem_type, long num_elements, wcall * error ) {
   warray * self = ( warray * ) malloc ( sizeof ( warray ) );
   if ( ! self ) {
     winvoke ( error );
@@ -73,14 +73,14 @@ static bool warray_looped ( warray * self ) {
 
 
 bool warray_grow ( warray * self, wcall * error ) {
-  size_t new_size = round_up_power_2 ( self->space + 1 );
+  long new_size = round_up_power_2 ( self->space + 1 );
   wval * new_data = walloc_simple ( wval, new_size );
   if ( ! new_data ) {
     winvoke ( error );
     return false;
     }
   if ( warray_looped ( self ) ) {
-    size_t end_size = self->space - self->start;
+    long end_size = self->space - self->start;
     memcpy ( ( void * ) new_data,
              (void *) ( self->data + self->start ),
              end_size * sizeof ( wval ) );
@@ -193,10 +193,10 @@ wval warray_pop_front ( warray * self, wcall * error ) {
   }
 
 
-size_t warray_length ( warray * self ) {
+long warray_length ( warray * self ) {
   if ( warray_looped ( self ) ) {
-    size_t end_size = self->space - self->start;
-    size_t front_size = self->past_end;
+    long end_size = self->space - self->start;
+    long front_size = self->past_end;
     return end_size + front_size;
     }
   else {
@@ -204,13 +204,16 @@ size_t warray_length ( warray * self ) {
     }
   }
 
-bool warray_good_index ( warray * self, size_t index ) {
-  return index < warray_length ( self );
+bool warray_good_index ( warray * self, long index ) {
+  return index < warray_length ( self ) && index >= -warray_length ( self );
   }
 
-wval * warray_index ( warray * self, size_t index ) {
+wval * warray_index ( warray * self, long index ) {
+  if ( index < 0 ) {
+    index = warray_length ( self ) + index;
+    }
   if ( warray_looped ( self ) ) {
-    size_t end_size = self->space - self->start;
+    long end_size = self->space - self->start;
     if ( index < end_size ) {
       /* Index is in the loop-back end segment. */
       return self->data + self->start + index;
@@ -236,11 +239,11 @@ wval * warray_index ( warray * self, size_t index ) {
     }
   }
 
-wval warray_get ( warray * self, size_t index ) {
+wval warray_get ( warray * self, long index ) {
   return *warray_index ( self, index );
   }
 
-wval warray_set ( warray * self, size_t index, wval val ) {
+wval warray_set ( warray * self, long index, wval val ) {
   wval * to_set = warray_index ( self, index );
   if ( to_set != NULL ) {
     *to_set = val;
@@ -254,7 +257,7 @@ warray_iter warray_start ( warray * parent ) {
   }
 
 warray_iter warray_end ( warray * parent ) {
-  return ( warray_iter ) {.parent = parent, .index = warray_length ( parent ) - 1  };
+  return ( warray_iter ) {.parent = parent, .index = -1  };
   }
 
 

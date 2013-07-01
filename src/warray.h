@@ -43,10 +43,10 @@ def_struct ( warray_iter_struct ) {
   };
 
 bool method( init ) ( warray_struct * self, wcall * error );
-bool method( init_to_size ) ( warray_struct * self, size_t num_elems, wcall * error );
+bool method( init_to_size ) ( warray_struct * self, long num_elems, wcall * error );
 
 warray_struct * method ( new ) ( wcall * error );
-warray_struct * method ( new_to_size ) ( size_t num_elems, wcall * error );
+warray_struct * method ( new_to_size ) ( long num_elems, wcall * error );
 
 void method ( deinit ) ( warray_struct * self );
 void method ( delete ) ( warray_struct * self );
@@ -61,11 +61,11 @@ void method ( push_front ) ( warray_struct * self, warray_elem_t elem, wcall * e
 warray_elem_t method ( pop_back ) ( warray_struct * self, wcall * error );
 warray_elem_t method ( pop_front ) ( warray_struct * self, wcall * error );
 
-size_t method ( length ) ( warray_struct * self );
-bool method ( good_index ) ( warray_struct * self, size_t index );
-warray_elem_t * method ( index ) ( warray_struct * self, size_t index );
-warray_elem_t method ( get ) ( warray_struct * self, size_t index );
-warray_elem_t method ( set ) ( warray_struct * self, size_t index, warray_elem_t val );
+long method ( length ) ( warray_struct * self );
+bool method ( good_index ) ( warray_struct * self, long index );
+warray_elem_t * method ( index ) ( warray_struct * self, long index );
+warray_elem_t method ( get ) ( warray_struct * self, long index );
+warray_elem_t method ( set ) ( warray_struct * self, long index, warray_elem_t val );
 
 warray_iter_struct method ( start ) ( warray_struct * parent );
 warray_iter_struct method ( end ) ( warray_struct * parent );

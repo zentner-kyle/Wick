@@ -10,7 +10,7 @@ bool method( init ) ( warray_struct * self, wcall * error ) {
   return warray_init ( &self->array, warray_elem_wtype, error );
   }
 
-bool method( init_to_size ) ( warray_struct * self, size_t num_elems, wcall * error ) {
+bool method( init_to_size ) ( warray_struct * self, long num_elems, wcall * error ) {
   return warray_init_to_size ( &self->array, warray_elem_wtype, num_elems, error );
   }
 
@@ -19,7 +19,7 @@ warray_struct * method ( new ) ( wcall * error ) {
   return ( warray_struct * ) warray_new ( warray_elem_wtype, error );
   }
 
-warray_struct * method ( new_to_size ) ( size_t num_elems, wcall * error ) {
+warray_struct * method ( new_to_size ) ( long num_elems, wcall * error ) {
   return ( warray_struct * ) warray_new_to_size ( warray_elem_wtype, num_elems, error );
   }
 
@@ -60,23 +60,23 @@ warray_elem_t method ( pop_front ) ( warray_struct * self, wcall * error ) {
   }
 
 
-size_t method ( length ) ( warray_struct * self ) {
+long method ( length ) ( warray_struct * self ) {
   return warray_length ( &self->array );
   }
 
-bool method ( good_index ) ( warray_struct * self, size_t index ) {
+bool method ( good_index ) ( warray_struct * self, long index ) {
   return warray_good_index ( &self->array, index );
   }
 
-warray_elem_t * method ( index ) ( warray_struct * self, size_t index ) {
+warray_elem_t * method ( index ) ( warray_struct * self, long index ) {
   return ( warray_elem_t * ) warray_index ( &self->array, index );
   }
 
-warray_elem_t method ( get ) ( warray_struct * self, size_t index ) {
+warray_elem_t method ( get ) ( warray_struct * self, long index ) {
   return back_cast ( warray_get ( &self->array, index ) );
   }
 
-warray_elem_t method ( set ) ( warray_struct * self, size_t index, warray_elem_t val ) {
+warray_elem_t method ( set ) ( warray_struct * self, long index, warray_elem_t val ) {
   return back_cast ( warray_set ( &self->array, index, warray_cast_elem ( val ) ) );
   }
 

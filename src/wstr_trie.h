@@ -24,4 +24,6 @@ wstr_trie * wstr_trie_enter_next ( wstr_trie * node, char c );
 
 wstr_trie * wstr_trie_get_longest ( wstr_trie * node, wstr * str );
 
+wstr_trie * wstr_trie_get_next ( wstr_trie * node, char c );
+
 #endif /* end of include guard: WSTR_TRIE_H */

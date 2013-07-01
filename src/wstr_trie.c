@@ -37,6 +37,17 @@ wstr_trie * wstr_trie_enter_next ( wstr_trie * node, char cc ) {
     return node;
   }
 
+wstr_trie * wstr_trie_get_next ( wstr_trie * node, char cc ) {
+  for (int i = 0; i < sizeof ( char ) / WSTR_TRIE_SHIFT; i++) {
+    if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
+      return node;
+      }
+      node = node->next[cc & WSTR_TRIE_MASK];
+      cc >>= WSTR_TRIE_SHIFT;
+    }
+  return node;
+  }
+
 wstr_trie * wstr_trie_get_longest ( wstr_trie * node, wstr * str ) {
   assert ( WSTR_TRIE_BRANCH - 1 == WSTR_TRIE_MASK );
   if ( ! node || ! str ) {
@@ -44,15 +55,12 @@ wstr_trie * wstr_trie_get_longest ( wstr_trie * node, wstr * str ) {
     }
   const char * c = str->start;
   while ( c != str->past_end ) {
-    char cc = *c;
-    for (int i = 0; i < sizeof ( char ) / WSTR_TRIE_SHIFT; i++) {
-      if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
-        return node;
-        }
-        node = node->next[cc & WSTR_TRIE_MASK];
-        cc >>= WSTR_TRIE_SHIFT;
+    wstr_trie * prev_node = node
+    node = wstr_trie_get_next ( node, *c );
+    if ( node == prev_node ) {
+      return node;
       }
-      ++c;
+    ++c;
     }
     return node;
   }

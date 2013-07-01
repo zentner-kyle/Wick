@@ -17,7 +17,8 @@ def_struct ( wparser ) {
   wstr all_text;
   wstr text;
   wcall * handle_error;
-  wstr_trie * token_table;
+  wstr_trie * short_table;
+  wstr_trie * long_table;
   warray_wtoken_ptr * tokens;
   warray_wcall_ptr * lexers;
   warray_wcall_ptr * parsers;

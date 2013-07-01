@@ -12,7 +12,9 @@ def_struct ( werror ) {
 
 void wreport_error ( char * msg );
 
-wtype * wtype_werror;
+wdeclare_composite ( werror );
+
+extern werror wcast_error;
 
 
 #endif /* end of include guard: WERROR_H */

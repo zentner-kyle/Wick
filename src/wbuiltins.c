@@ -8,6 +8,7 @@
 #include <wval.h>
 #include <wparse.h>
 #include <wstr_trie.h>
+#include <werror.h>
 
 bool wbuiltins_initialized = false;
 
@@ -53,6 +54,7 @@ void wbuiltins_init ( ) {
   winit_composite ( wtype );
   winit_composite ( wcall );
   winit_composite ( wstr_trie );
+  winit_composite ( werror );
   }
 
 #undef init_builtin
