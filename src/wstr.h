@@ -63,4 +63,6 @@ wstr * wstr_copy ( wstr * original );
 
 wstr wstr_empty ( void );
 
+void wstr_free ( wstr * str );
+
 #endif /* end of include guard: WSTR_H */

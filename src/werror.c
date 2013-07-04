@@ -8,3 +8,6 @@ void wreport_error ( char * msg ) {
 werror wcast_error;
 
 wdefine_composite ( werror );
+
+werror * w_ok = 0;
+werror werror_generic;

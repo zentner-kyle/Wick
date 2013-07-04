@@ -70,8 +70,8 @@ warray_elem_t method ( set ) ( warray_struct * self, long index, warray_elem_t v
 warray_iter_struct method ( start ) ( warray_struct * parent );
 warray_iter_struct method ( end ) ( warray_struct * parent );
 
-bool method ( prev ) ( warray_iter_struct * self );
-bool method ( next ) ( warray_iter_struct * self );
+void method ( prev ) ( warray_iter_struct * self );
+void method ( next ) ( warray_iter_struct * self );
 
 bool method ( good ) ( warray_iter_struct * self );
 warray_elem_t method ( deref ) ( warray_iter_struct * self );

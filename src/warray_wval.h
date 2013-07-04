@@ -63,8 +63,8 @@ wval warray_set ( warray * self, long index, wval val );
 warray_iter warray_start ( warray * parent );
 warray_iter warray_end ( warray * parent );
 
-bool warray_prev ( warray_iter * self );
-bool warray_next ( warray_iter * self );
+void warray_prev ( warray_iter * self );
+void warray_next ( warray_iter * self );
 
 bool warray_good ( warray_iter * self );
 wval warray_deref ( warray_iter * self );

@@ -30,9 +30,6 @@
 
 wdefine_composite ( wcall );
 
-werror * w_ok = 0;
-werror werror_generic;
-
 werror * wcall_push ( wcall * self, wtype * type, wval val ) {
   if ( self->num_args > self->filled_args && type && type == self->arg_types[self->filled_args] ) {
     self->args[self->filled_args++] = val;

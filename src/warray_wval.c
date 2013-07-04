@@ -261,24 +261,24 @@ warray_iter warray_end ( warray * parent ) {
   }
 
 
-bool warray_next ( warray_iter * self ) {
-  if ( warray_good_index ( self->parent, self->index + 1 ) ) {
-    self->index += 1;
-    return true;
-    }
-  else {
-    return false;
-    }
+void warray_next ( warray_iter * self ) {
+  self->index += 1;
+  /*if ( warray_good_index ( self->parent, self->index + 1 ) ) {*/
+    /*return true;*/
+    /*}*/
+  /*else {*/
+    /*return false;*/
+    /*}*/
   }
 
-bool warray_prev ( warray_iter * self ) {
-  if ( warray_good_index ( self->parent, self->index - 1 ) ) {
-    self->index -= 1;
-    return true;
-    }
-  else {
-    return false;
-    }
+void warray_prev ( warray_iter * self ) {
+  self->index -= 1;
+  /*if ( warray_good_index ( self->parent, self->index - 1 ) ) {*/
+    /*return true;*/
+    /*}*/
+  /*else {*/
+    /*return false;*/
+    /*}*/
   }
 
 
@@ -311,7 +311,7 @@ void warray_debug_print ( warray * self ) {
   printf ( ".data = %p\n", self->data );
   printf ( "data contents:\n" );
   uint32_t * data = ( uint32_t * ) self->data;
-  for ( int i = 0; i * sizeof ( wval ) < self->space; i++ ) {
+  for ( int i = 0; i < self->space; i++ ) {
     printf ( "%.8x ", data[ i ] );
     }
   printf ( "\n" );

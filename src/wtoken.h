@@ -18,7 +18,8 @@ def_struct ( wtoken ) {
 whash whash_wtoken ( wval );
 int wcompare_wtoken ( wval, wval );
 
-wtoken * wtoken_new ( int family, wstr * text, int lbp, int rbp );
+wtoken * wtoken_new ( int family, wstr * text );
+wtoken * wtoken_new_op ( int family, wstr * text, int lbp, int rbp );
 
 wdeclare_composite ( wtoken );
 

@@ -15,6 +15,8 @@ void wreport_error ( char * msg );
 wdeclare_composite ( werror );
 
 extern werror wcast_error;
+extern werror * w_ok;
+extern werror werror_generic;
 
 
 #endif /* end of include guard: WERROR_H */

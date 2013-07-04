@@ -222,3 +222,12 @@ wstr wstr_empty ( void ) {
   to_return.past_end = NULL;
   return to_return;
   }
+
+void wstr_free ( wstr * str ) {
+    if ( str ) {
+      if ( str->alloc_type == wstr_dynamic ) {
+        free ( ( void * ) str->start );
+        }
+      free ( str );
+      }
+    }

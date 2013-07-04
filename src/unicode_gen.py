@@ -23,7 +23,7 @@ def get(node, val, default):
             node = node.left
     return default
 
-var_name = 'to_find'
+var_name = 'c'
 
 code_template = \
 '''
@@ -72,7 +72,6 @@ def get_node(node, val):
             node = node.right
         else:
             node = node.left
-    return None
 
 def insert(low, high, key, node):
     val = (low + high) / 2.0
@@ -255,5 +254,11 @@ def get_merged_tree(filename):
     assert check_merges(mtree.root)
     return mtree
 
-mtree = get_merged_tree('deps/UCD/extracted/DerivedGeneralCategory.txt')
-print(mtree.gen_code('false'))
+def main():
+    import sys
+    mtree = get_merged_tree(sys.argv[2])
+    with open(sys.argv[1], 'w') as f:
+        f.write(mtree.gen_code('false'))
+
+if __name__ == '__main__':
+    main()

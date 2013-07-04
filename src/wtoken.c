@@ -21,7 +21,20 @@ int wcompare_wtoken ( wval token_a, wval token_b ) {
     }
   };
 
-wtoken * wtoken_new ( int family, wstr * text, int lbp, int rbp ) {
+wtoken * wtoken_new ( int family, wstr * text ) {
+  if ( ! text ) {
+    return NULL;
+    }
+  wtoken * t = walloc_simple ( wtoken , 1 );
+  t->type = wtype_wtoken;
+  t->family = family;
+  t->text = text;
+  t->lbp = 0;
+  t->rbp = 0;
+  return t;
+  }
+
+wtoken * wtoken_new_op ( int family, wstr * text, int lbp, int rbp ) {
   if ( ! text ) {
     return NULL;
     }

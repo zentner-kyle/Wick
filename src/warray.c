@@ -90,12 +90,12 @@ warray_iter_struct method ( end ) ( warray_struct * parent ) {
   }
 
 
-bool method ( prev ) ( warray_iter_struct * self ) {
-  return warray_prev ( &self->iter );
+void method ( prev ) ( warray_iter_struct * self ) {
+  warray_prev ( &self->iter );
   }
 
-bool method ( next ) ( warray_iter_struct * self ) {
-  return warray_next ( &self->iter );
+void method ( next ) ( warray_iter_struct * self ) {
+  warray_next ( &self->iter );
   }
 
 

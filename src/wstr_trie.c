@@ -22,7 +22,9 @@ wstr_trie * wstr_trie_enter ( wstr_trie * node, wstr * str ) {
   }
 
 wstr_trie * wstr_trie_enter_next ( wstr_trie * node, char cc ) {
-  for (int i = 0; i < sizeof ( char ) / WSTR_TRIE_SHIFT; i++) {
+  printf ( "enter next %c\n", cc );
+  for (int i = 0; i <= (sizeof ( char ) * 8) / WSTR_TRIE_SHIFT; i++) {
+    printf ( "index = %d\n", cc & WSTR_TRIE_MASK );
     if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
       node->next[cc & WSTR_TRIE_MASK] = (wstr_trie *) calloc ( sizeof ( wstr_trie ), 1 );
       if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
@@ -38,12 +40,13 @@ wstr_trie * wstr_trie_enter_next ( wstr_trie * node, char cc ) {
   }
 
 wstr_trie * wstr_trie_get_next ( wstr_trie * node, char cc ) {
-  for (int i = 0; i < sizeof ( char ) / WSTR_TRIE_SHIFT; i++) {
+  wstr_trie * prev_node = node;
+  for (int i = 0; i < (sizeof ( char ) * 8) / WSTR_TRIE_SHIFT; i++) {
     if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
-      return node;
+      return prev_node;
       }
-      node = node->next[cc & WSTR_TRIE_MASK];
-      cc >>= WSTR_TRIE_SHIFT;
+    node = node->next[cc & WSTR_TRIE_MASK];
+    cc >>= WSTR_TRIE_SHIFT;
     }
   return node;
   }
@@ -55,7 +58,7 @@ wstr_trie * wstr_trie_get_longest ( wstr_trie * node, wstr * str ) {
     }
   const char * c = str->start;
   while ( c != str->past_end ) {
-    wstr_trie * prev_node = node
+    wstr_trie * prev_node = node;
     node = wstr_trie_get_next ( node, *c );
     if ( node == prev_node ) {
       return node;
@@ -65,3 +68,19 @@ wstr_trie * wstr_trie_get_longest ( wstr_trie * node, wstr * str ) {
     return node;
   }
 
+wstr_trie * wstr_trie_new ( void ) {
+  wstr_trie * self = ( wstr_trie * ) calloc ( sizeof ( wstr_trie * ), 1 );
+  if ( self ) {
+    self->type = wtype_wstr_trie;
+    }
+  return self;
+  }
+
+void wstr_trie_free ( wstr_trie * self ) {
+  if ( self ) {
+    for (int i = 0; i < WSTR_TRIE_BRANCH; i++) {
+      wstr_trie_free ( self->next[i] );
+      }
+    }
+  free ( self );
+  }

@@ -17,11 +17,8 @@ def_struct ( wparser ) {
   wstr all_text;
   wstr text;
   wcall * handle_error;
-  wstr_trie * short_table;
-  wstr_trie * long_table;
+  wstr_trie * token_table;
   warray_wtoken_ptr * tokens;
-  warray_wcall_ptr * lexers;
-  warray_wcall_ptr * parsers;
   bool stop;
   };
 
@@ -29,3 +26,9 @@ wdeclare_composite ( wparser );
 
 void wparser_error ( wparser * self, werror * error );
 bool wparser_push_token ( wparser * self, wtoken * token );
+
+wparser * wparser_new ( wstr * text );
+
+werror * wparser_lex ( wparser * self );
+
+void wparser_print_tokens ( wparser * self );

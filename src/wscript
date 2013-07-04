@@ -32,6 +32,7 @@ def build(bld):
         'wtable_wval.c',
         'wtoken.c',
         'wtype.c',
+        'wutf8.c',
     ] 
 
     bld.objects(
@@ -59,4 +60,12 @@ def build(bld):
         includes = '.',
         use = 'wick',
         rpath = '$ORIGIN',
+    )
+
+    from os.path import join
+    bld(
+        rule = 'python ${SRC} ${TGT} ' + join(bld.top_dir,
+            'deps/UCD/extracted/DerivedGeneralCategory.txt' ),
+        source = 'unicode_gen.py',
+        target = 'is_letter_tree.c',
     )

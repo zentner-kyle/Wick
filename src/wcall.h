@@ -10,8 +10,6 @@
 #include <werror.h>
 
 typedef werror * ( * wcall_func_t ) (wval * arg);
-extern werror * w_ok;
-extern werror werror_generic;
 
 #define warg( type, kind, value ) w_type_to_wtype ( type ), wcheck_to_wval_##kind ( type, value )
 
