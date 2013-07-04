@@ -65,16 +65,17 @@ def gen_code(node, default, indent=0):
                 left_code, '  ' * indent)
 
 def get_node(node, val):
-    prev_node = None
+    #prev_node = None
     while node:
-        prev_node = node
+        #prev_node = node
         if node.low <= val and val <= node.high:
             return node
         if val > mid(node):
             node = node.right
         else:
             node = node.left
-    return prev_node
+    return None
+    #return prev_node
 
 def insert(low, high, key, node):
     val = (low + high) / 2.0
@@ -215,13 +216,35 @@ def merge_ranges(tree):
     low = tree.get_lowest()
     while low < stop:
         high = low
-        key = tree.get_node(low).key
+        #key = tree.get_node(low).key
+        key = tree.get(low, 'false')
+        #while high < stop and tree.get(high + 1, 'false') == key:
         while high < stop:
             node = tree.get_node(high + 1)
-            if node.key != key:
-                break
-            else:
+            if node is None and key is 'false':
+                high += 1
+            elif node.key == key:
                 high = node.high
+            else:
+                break
+            #if node is not None or key is 'false':
+                #high += 1
+
+            # Try to increase high by one
+
+            #node = tree.get_node(high + 1)
+            #if node.key != key:
+            #if tree.get(high, 'false') != key:
+                
+# If that would result in a new key, stop and do not increase high.
+
+                #break
+            #else:
+
+# Otherwise, increase high to this node's highest value.
+
+                #high = node.high
+                #high += 1
         new_tree.insert(low, high, key)
         low = high + 1
     return new_tree
@@ -252,9 +275,33 @@ def check_merges(node):
 
 def get_merged_tree(filename):
     tree = tree_from_filename(filename)
+    d1 = {}
+    for i in range(0, tree.get_highest()):
+        d1[i] = tree.get(i, 'false')
     print("unmerged size", tree.size())
     mtree = merge_ranges(tree)
+    d2 = {}
+    for i in range(0, tree.get_highest()):
+        d2[i] = mtree.get(i, 'false')
+    start = None
+    end = None
+    for i in range(0, tree.get_highest()):
+        if d1[i] != d2[i] and start is None:
+            start = i
+        if d1[i] == d2[i] and start is not None:
+            end = i
+        if start is not None and end is not None:
+            print('{}..{}: {} != {}'.format(start, end, d1[start], d2[start]))
+            start = None
+            end = None
+    #if start is not None and end is None:
+        #end = tree.get_highest()
+        #print('{}..{}: {} != {}'.format(start, end, d1[start], d2[start]))
+        #start = None
+        #end = None
+    #assert d1 == d2
     assert check_merges(mtree.root)
+    #tree.print()
     #mtree.print()
     print("merged size", mtree.size())
     return mtree
