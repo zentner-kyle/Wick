@@ -1,155 +1,157 @@
+#!/usr/bin/env wick0
+
 
 week_one = module {
 import core.math
 
 a_plus_abs_b = ( a :: Number, b :: Number ) ->
-	@doc( 'Return a + abs( b ), but without calling abs.' )
-	a + max( b, -b ) >> out
+  @doc( 'Return a + abs( b ), but without calling abs.' )
+  a + max( b, -b ) >> out
 
 two_of_three = ( a :: Number, b :: Number, c :: Number ) ->
-	@doc( 'Return x*x + y*y, where x and y are the two largest of a, b, c.')
-	sort( [a, b, c] ) last( 2 ) map( x -> x * x ) reduce( ( x, y ) -> x + y ) >> out
+  @doc( 'Return x*x + y*y, where x and y are the two largest of a, b, c.')
+  sort( [a, b, c] ) last( 2 ) map( x -> x * x ) reduce( ( x, y ) -> x + y ) >> out
 
 top_two = (args :: [Number]) ->
-	@doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.')
-	ordered:
-		x, y = 0, 0
-		x <- args highest !! remove
-		y <- args highest !! remove	
-		x*x + y*y >> out
+  @doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.')
+  ordered:
+    x, y = 0, 0
+    x <- args highest !! remove
+    y <- args highest !! remove 
+    x*x + y*y >> out
 
 top_two = (args :: [Number]) ->
-	@doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.')
-	rest, x = *(args highest) !! remove
-	y = args highest
-	x*x + y*y >> out
+  @doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.')
+  rest, x = *(args highest) !! remove
+  y = args highest
+  x*x + y*y >> out
 
 highest = (args :: [Number]) ->
-	assert arg.length > 0
-	ordered:
-		highest <- &arg.first # Alternatively, &arg[0]
-		for a, arg:
-			if a > *highest:
-				highest <- &a
-		highest >> out
+  assert arg.length > 0
+  ordered:
+    highest <- &arg.first # Alternatively, &arg[0]
+    for a, arg:
+      if a > *highest:
+        highest <- &a
+    highest >> out
 
 if_function = args@( condition, true_result, false_result ) ->
-	@doc( 'Return true_result if condition is a true value, and false_result otherwise.' )
-	@eager( args )
-	if condition:
-		true_result
-	else:
-		false_result
+  @doc( 'Return true_result if condition is a true value, and false_result otherwise.' )
+  @eager( args )
+  if condition:
+    true_result
+  else:
+    false_result
 
 with_if_statement =
-	if c():
-		t()
-	else
-		f()
+  if c():
+    t()
+  else
+    f()
 
 with_if_function =
-	if_function( c(), t(), f() )
+  if_function( c(), t(), f() )
 
 c = () -> false
 t = () -> 1
 f = () -> undefined # Or f()
 
 hailstone = ( n ) ->
-	c = 0
-	ordered:
-		println( n )
-		while n != 1:
-			c <- c + 1
-			if n % 2 == 0:
-				n <- n / 2
-			else:
-				n <- 3*n + 1
-		c >> out
+  c = 0
+  ordered:
+    println( n )
+    while n != 1:
+      c <- c + 1
+      if n % 2 == 0:
+        n <- n / 2
+      else:
+        n <- 3*n + 1
+    c >> out
 
 }
 
 week_two = module {
-	square = x -> x * x
-	product = ( n, term ) ->
-		(if n == 1: term( n ) else: term( n ) * product( n - 1, term )) >> out
-	factorial = n -> product( n, x -> x )
-	accumulate = ( combiner, start, n, term ) ->
-		if n == 1: 
-			term( start ) >> out
-		else: 
-			combiner( term( start ), accumulate( combiner, start - 1, n - 1, term ) ) >> out
-	summation_using_accumulate = ( n, term ) ->
-		accumulate( ( x, y ) -> x + y, n, n, term )
-	product_using_accumulate = ( n, term ) ->
-		accumulate( ( x, y ) -> x*y, n, n, term )
-	double = f ->
-		x -> f( f( x ) )
-	repeated = ( f, n ) ->
-		if n == 1: f >> out 
-		else:
-			inner = repeated( f, n - 1 )
-			x -> f( inner( x ) ) >> out
-	compose1 = ( f, g ) ->
-		x -> f( g( x ) )
-	module church_numerals = {
-		zero = f -> x -> x
-		one = f -> x -> f( x )
-		two = f -> x -> f( f( x ) )
-		church_to_int = c -> c( x -> x + 1, 0 )
-		add_church = ( m, n ) -> f -> m( n( f ) )
-		mul_church = ( m, n ) -> f -> repeated( m, church_to_int( n ) )
-	}
+  square = x -> x * x
+  product = ( n, term ) ->
+    (if n == 1: term( n ) else: term( n ) * product( n - 1, term )) >> out
+  factorial = n -> product( n, x -> x )
+  accumulate = ( combiner, start, n, term ) ->
+    if n == 1: 
+      term( start ) >> out
+    else: 
+      combiner( term( start ), accumulate( combiner, start - 1, n - 1, term ) ) >> out
+  summation_using_accumulate = ( n, term ) ->
+    accumulate( ( x, y ) -> x + y, n, n, term )
+  product_using_accumulate = ( n, term ) ->
+    accumulate( ( x, y ) -> x*y, n, n, term )
+  double = f ->
+    x -> f( f( x ) )
+  repeated = ( f, n ) ->
+    if n == 1: f >> out 
+    else:
+      inner = repeated( f, n - 1 )
+      x -> f( inner( x ) ) >> out
+  compose1 = ( f, g ) ->
+    x -> f( g( x ) )
+  module church_numerals = {
+    zero = f -> x -> x
+    one = f -> x -> f( x )
+    two = f -> x -> f( f( x ) )
+    church_to_int = c -> c( x -> x + 1, 0 )
+    add_church = ( m, n ) -> f -> m( n( f ) )
+    mul_church = ( m, n ) -> f -> repeated( m, church_to_int( n ) )
+  }
 }
 
 week_three = module {
-	Interval = class: { low :: Number, high :: Number }
-	str_interval = ( x ) ->
-		format.[ int, ' to ', int ]( lower_bound( x ), upper_bound( x ) )
-	add_interval = ( x, y ) ->
-		low = lower_bound( x ) + lower_bound( y )
-		high = upper_bound( x ) + upper_bound( y )
-		interval( low, high ) >> out
-	mul_interval = ( x, y ) ->
-		p1 = lower_bound( x )*lower_bound( y )
-		p2 = lower_bound( x )*upper_bound( y )
-		p3 = upper_bound( x )*lower_bound( y )
-		p4 = upper_bound( x )*upper_bound( y )
-		interval( min( p1, p2, p3, p4 ), max( p1, p2, p3, p4 ) ) >> out
-	interval = ( a, b ) -> Interval( a, b )
-	lower_bound = ( x :: Interval ) -> x.low
-	upper_bound = ( x :: Interval ) -> x.high
-	div_interval = ( x, y ) ->
-		assert( upper_bound( y ) != lower_bound( y ) )
-		reciprocal_y = interval( 1/upper_bound( y ), 1/lower_bound( y ) )
-		mul_interval( x, reciprocal_y ) >> out
-	sub_interval = ( x, y ) ->
-		add_interval( x, interval( -upper_bound( y ), -lower_bound( y ) ) )
-	mul_interval_fast = ( x, y ) ->
-		match [ sign( lower_bound( x ) ), sign( upper_bound( x ) ),
-						sign( lower_bound( y ) ), sign( lower_bound( y ) )]:
-			[^neg, ^neg, ^neg, ^neg] => interval( upper_bound( x )*upper_bound( y ),
-																				lower_bound( x )*lower_bound( y ) ) >> out
-			[^pos, ^pos, ^pos, ^pos] => interval( lower_bound( x )*lower_bound( y ),
-																				upper_bound( x )*upper_bound( y ) ) >> out
-			[^neg, ^neg, ^neg, ^pos] => interval( lower_bound( x )*upper_bound( y ),
-																				lower_bound( x )*lower_bound( y ) ) >> out
-			[^neg, ^pos, ^neg, ^neg] => interval( upper_bound( x )*lower_bound( y ),
-																				lower_bound( x )*lower_bound( y ) ) >> out
-			[^neg, ^neg, ^pos, ^pos] => interval( lower_bound( x )*upper_bound( y ),
-																				upper_bound( x )*lower_bound( y ) ) >> out
-			[^pos, ^pos, ^neg, ^neg] => interval( upper_bound( x )*lower_bound( y ),
-																				lower_bound( x )*upper_bound( y ) ) >> out
-			[^neg, ^pos, ^pos, ^pos] => interval( lower_bound( x )*upper_bound( y ),
-																				upper_bound( x )*lower_bound( y ) ) >> out
-			[^pos, ^pos, ^neg, ^pos] => interval( upper_bound( x )*lower_bound( y ),
-																				upper_bound( x )*upper_bound( y ) ) >> out
-			[^neg, ^pos, ^neg, ^pos] => interval( min( upper_bound( x )*lower_bound( y ),
-																						 lower_bound( x )*upper_bound( y ) ),
-																				max( upper_bound( x )*upper_bound( y ),
-																						 lower_bound( x )*lower_bound( y ) ) ) >> out
-	make_center_width = ( c, w ) -> interval( c - w, c + w )
-	center = x -> (upper_bound( x ) + lower_bound( x )) >> 2
-	width = x -> (upper_bound( x ) - lower_bound( x )) >> 2
-	make_center_percent = (c, p) -> make_center_width( c, c*2*p/100 )
-	percent = x -> (100 * width( x ) / center( x )) >> 2
+  Interval = class: { low :: Number, high :: Number }
+  str_interval = ( x ) ->
+    format.[ int, ' to ', int ]( lower_bound( x ), upper_bound( x ) )
+  add_interval = ( x, y ) ->
+    low = lower_bound( x ) + lower_bound( y )
+    high = upper_bound( x ) + upper_bound( y )
+    interval( low, high ) >> out
+  mul_interval = ( x, y ) ->
+    p1 = lower_bound( x )*lower_bound( y )
+    p2 = lower_bound( x )*upper_bound( y )
+    p3 = upper_bound( x )*lower_bound( y )
+    p4 = upper_bound( x )*upper_bound( y )
+    interval( min( p1, p2, p3, p4 ), max( p1, p2, p3, p4 ) ) >> out
+  interval = ( a, b ) -> Interval( a, b )
+  lower_bound = ( x :: Interval ) -> x.low
+  upper_bound = ( x :: Interval ) -> x.high
+  div_interval = ( x, y ) ->
+    assert( upper_bound( y ) != lower_bound( y ) )
+    reciprocal_y = interval( 1/upper_bound( y ), 1/lower_bound( y ) )
+    mul_interval( x, reciprocal_y ) >> out
+  sub_interval = ( x, y ) ->
+    add_interval( x, interval( -upper_bound( y ), -lower_bound( y ) ) )
+  mul_interval_fast = ( x, y ) ->
+    match [ sign( lower_bound( x ) ), sign( upper_bound( x ) ),
+            sign( lower_bound( y ) ), sign( lower_bound( y ) )]:
+      [^neg, ^neg, ^neg, ^neg] => interval( upper_bound( x )*upper_bound( y ),
+                                        lower_bound( x )*lower_bound( y ) ) >> out
+      [^pos, ^pos, ^pos, ^pos] => interval( lower_bound( x )*lower_bound( y ),
+                                        upper_bound( x )*upper_bound( y ) ) >> out
+      [^neg, ^neg, ^neg, ^pos] => interval( lower_bound( x )*upper_bound( y ),
+                                        lower_bound( x )*lower_bound( y ) ) >> out
+      [^neg, ^pos, ^neg, ^neg] => interval( upper_bound( x )*lower_bound( y ),
+                                        lower_bound( x )*lower_bound( y ) ) >> out
+      [^neg, ^neg, ^pos, ^pos] => interval( lower_bound( x )*upper_bound( y ),
+                                        upper_bound( x )*lower_bound( y ) ) >> out
+      [^pos, ^pos, ^neg, ^neg] => interval( upper_bound( x )*lower_bound( y ),
+                                        lower_bound( x )*upper_bound( y ) ) >> out
+      [^neg, ^pos, ^pos, ^pos] => interval( lower_bound( x )*upper_bound( y ),
+                                        upper_bound( x )*lower_bound( y ) ) >> out
+      [^pos, ^pos, ^neg, ^pos] => interval( upper_bound( x )*lower_bound( y ),
+                                        upper_bound( x )*upper_bound( y ) ) >> out
+      [^neg, ^pos, ^neg, ^pos] => interval( min( upper_bound( x )*lower_bound( y ),
+                                             lower_bound( x )*upper_bound( y ) ),
+                                        max( upper_bound( x )*upper_bound( y ),
+                                             lower_bound( x )*lower_bound( y ) ) ) >> out
+  make_center_width = ( c, w ) -> interval( c - w, c + w )
+  center = x -> (upper_bound( x ) + lower_bound( x )) >> 2
+  width = x -> (upper_bound( x ) - lower_bound( x )) >> 2
+  make_center_percent = (c, p) -> make_center_width( c, c*2*p/100 )
+  percent = x -> (100 * width( x ) / center( x )) >> 2
 }

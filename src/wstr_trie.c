@@ -22,9 +22,7 @@ wstr_trie * wstr_trie_enter ( wstr_trie * node, wstr * str ) {
   }
 
 wstr_trie * wstr_trie_enter_next ( wstr_trie * node, char cc ) {
-  printf ( "enter next %c\n", cc );
   for (int i = 0; i < (sizeof ( char ) * 8) / WSTR_TRIE_SHIFT; i++) {
-    printf ( "index = %d\n", cc & WSTR_TRIE_MASK );
     if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
       node->next[cc & WSTR_TRIE_MASK] = (wstr_trie *) calloc ( sizeof ( wstr_trie ), 1 );
       if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
