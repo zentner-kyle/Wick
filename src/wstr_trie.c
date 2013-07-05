@@ -23,7 +23,7 @@ wstr_trie * wstr_trie_enter ( wstr_trie * node, wstr * str ) {
 
 wstr_trie * wstr_trie_enter_next ( wstr_trie * node, char cc ) {
   printf ( "enter next %c\n", cc );
-  for (int i = 0; i <= (sizeof ( char ) * 8) / WSTR_TRIE_SHIFT; i++) {
+  for (int i = 0; i < (sizeof ( char ) * 8) / WSTR_TRIE_SHIFT; i++) {
     printf ( "index = %d\n", cc & WSTR_TRIE_MASK );
     if ( ! node->next[cc & WSTR_TRIE_MASK] ) {
       node->next[cc & WSTR_TRIE_MASK] = (wstr_trie *) calloc ( sizeof ( wstr_trie ), 1 );
@@ -69,7 +69,7 @@ wstr_trie * wstr_trie_get_longest ( wstr_trie * node, wstr * str ) {
   }
 
 wstr_trie * wstr_trie_new ( void ) {
-  wstr_trie * self = ( wstr_trie * ) calloc ( sizeof ( wstr_trie * ), 1 );
+  wstr_trie * self = ( wstr_trie * ) calloc ( sizeof ( wstr_trie ), 1 );
   if ( self ) {
     self->type = wtype_wstr_trie;
     }
@@ -83,4 +83,30 @@ void wstr_trie_free ( wstr_trie * self ) {
       }
     }
   free ( self );
+  }
+
+#include <wtoken.h>
+
+void wstr_trie_print_recursive ( wstr_trie * node, int indent ) {
+  for (int i = 0; i < indent; i++) {
+    printf ( "  " );
+    }
+  printf (".val = %p\n", node->val );
+  for (int i = 0; i < indent; i++) {
+    printf ( "  " );
+    }
+  for (int i = 0; i < WSTR_TRIE_BRANCH; i++) {
+    if ( ! node->next[i] ) {
+      printf ( "." );
+      }
+    else {
+      printf ("\n");
+      wstr_trie_print_recursive ( node->next[i], indent + 1 );
+      }
+    }
+  }
+
+void wstr_trie_print ( wstr_trie * node ) {
+  wstr_trie_print_recursive ( node, 0 );
+  printf ( "\n" );
   }

@@ -28,6 +28,8 @@ wstr_trie * wstr_trie_get_next ( wstr_trie * node, char c );
 
 wstr_trie * wstr_trie_new ( void );
 
+void wstr_trie_print ( wstr_trie * node );
+
 void wstr_trie_free ( wstr_trie * );
 
 #endif /* end of include guard: WSTR_TRIE_H */

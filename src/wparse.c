@@ -4,6 +4,7 @@
 #include <werror.h>
 #include <ctype.h>
 #include <wutf8.h>
+#include <assert.h>
 
 wdefine_composite ( wparser );
 
@@ -94,24 +95,41 @@ werror * wparser_lex_indent ( wparser * restrict self ) {
 werror * lex_op_from_trie ( wparser * self ) {
   printf ( "In lex op from trie.\n" );
   wstr_trie * node = self->token_table;
-  wstr_trie * prev_node = node;
+  wstr_trie * prev_node = NULL;
   wtoken * token = NULL;
   const char * c = self->text.start;
+  printf ( "c = '%s'\n", c );
   const char * last;
-  while ( c != self->text.past_end && node != prev_node ) {
+
+  while ( c != self->text.past_end ) {
     prev_node = node;
     node = wstr_trie_get_next ( node, *c );
-    ++c;
-    if ( node->val ) {
-      last = c;
-      token = wobj_cast ( wtoken, node->val );
-      if ( ! token ) {
-        return &wcast_error;
+    if ( node != prev_node ) {
+      printf ("found matching char\n");
+      if ( node->val ) {
+        last = c;
+        token = wobj_cast ( wtoken, node->val );
+        if ( ! token ) {
+          return &wcast_error;
+          }
         }
+      ++c;
+      }
+    else
+      {
+      printf ( "could not find match for '%c'\n", *c );
+      break;
       }
     }
+
+  /*while ( c != self->text.past_end && node != prev_node ) {*/
+    /*prev_node = node;*/
+    /*node = wstr_trie_get_next ( node, *c );*/
+    /*++c;*/
+      /*}*/
+    /*}*/
   if ( token ) {
-    self->text.start = last;
+    self->text.start = last + 1;
     wparser_push_token ( self, token );
     return w_ok;
     }
@@ -239,6 +257,7 @@ werror * wstr_trie_insert_token ( wstr_trie * node, wstr * str, wtoken * token )
     return &wick_out_of_memory;
     }
   node->val = wobj_of ( token );
+  printf ( "val for '%s' is now '%s'\n", str->start, wobj_cast ( wtoken, node->val )->text->start );
   return w_ok;
   }
 
@@ -252,11 +271,20 @@ werror * wparser_table_init ( wparser * self ) {
   } table[] = {
       { "=", family_operator, 1, 1 },
       { "+", family_operator, 2, 2 },
+      { "-", family_operator, 2, 2 },
+      { "*", family_operator, 3, 3 },
+      { "/", family_operator, 3, 3 },
+      { "%", family_operator, 3, 3 },
+      { "<-", family_operator, 1, 1 },
+      { "<<", family_operator, 1, 1 },
+      { "(", family_operator, 0, 1 },
+      { ")", family_operator, 1, 0 },
       { "", 0, 0, 0 },
     };
   wstr * str;
   int i = 0;
   while ( table[i].family != family_stop ) {
+    wstr_trie_print ( self->token_table );
     str = wstr_new ( table[i].text, 0);
     printf ( "adding token '%s'\n", table[i].text );
     werror * e = wstr_trie_insert_token (
@@ -271,7 +299,7 @@ werror * wparser_table_init ( wparser * self ) {
   return w_ok;
   } 
 
-werror * lex_quote ( wparser * self ) {
+werror * wparser_lex_quote ( wparser * self ) {
   const char * start = self->text.start;
   wstr_trie * node = self->token_table;
   wtoken * token = NULL;
@@ -328,7 +356,7 @@ werror * lex_quote ( wparser * self ) {
   return w_ok;
   }
 
-werror * lex_number ( wparser * self ) {
+werror * wparser_lex_number ( wparser * self ) {
   const char * start = self->text.start;
   wstr_trie * node = self->token_table;
   wtoken * token = NULL;
@@ -358,10 +386,10 @@ werror * lex_number ( wparser * self ) {
 
 werror * wparser_lex_literal ( wparser * self ) {
   if ( *self->text.start == '\'' || *self->text.start == '"' || *self->text.start == '`') {
-    return lex_quote ( self );
+    return wparser_lex_quote ( self );
     }
   else if ( isdigit ( *self->text.start ) ) {
-    return lex_number ( self );
+    return wparser_lex_number ( self );
     }
   return &wparse_inactive;
   }
@@ -427,6 +455,16 @@ wparser * wparser_new ( wstr * text ) {
     }
   else {
     wparser_table_init ( p );
+    wstr * str = wstr_new ( "=", 0 );
+    wstr_trie * node = wstr_trie_get_longest ( p->token_table, str );
+    assert ( node );
+    printf ("Here!\n");
+    fflush (stdout);
+    printf ("node = %p\n", node);
+    printf ("node->val = %p\n", node->val);
+    wstr_trie_print ( node );
+    assert ( wobj_cast ( wtoken, node->val ) );
+    assert ( strcmp ( wobj_cast ( wtoken, node->val )->text->start, "=" ) == 0 );
     wparser_push_token ( p, &new_line );
     }
   return p;
