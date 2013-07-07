@@ -72,6 +72,11 @@ warray_elem_t * method ( index ) ( warray_struct * self, long index ) {
   return ( warray_elem_t * ) warray_index ( &self->array, index );
   }
 
+void method ( remove ) ( warray_struct * self, long index ) {
+  warray_remove ( &self->array, index );
+  }
+
+
 warray_elem_t method ( get ) ( warray_struct * self, long index ) {
   return back_cast ( warray_get ( &self->array, index ) );
   }
@@ -106,6 +111,19 @@ bool method ( good ) ( warray_iter_struct * self ) {
 warray_elem_t method ( deref ) ( warray_iter_struct * self ) {
   return back_cast ( warray_deref ( &self->iter ) );
   }
+
+warray_elem_t * method ( at ) ( warray_iter_struct * self, long rel_idx ) {
+  return ( warray_elem_t * )  warray_at ( &self->iter, rel_idx );
+  }
+
+bool method ( good_at ) ( warray_iter_struct * self, long rel_idx ) {
+  return warray_good_at ( &self->iter, rel_idx );
+  }
+
+void method ( remove_at ) ( warray_iter_struct * self, long rel_idx ) {
+  warray_remove_at ( &self->iter, rel_idx );
+  }
+
 
 
 

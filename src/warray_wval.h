@@ -57,6 +57,7 @@ wval warray_pop_front ( warray * self, wcall * error );
 long warray_length ( warray * self );
 bool warray_good_index ( warray * self, long index );
 wval * warray_index ( warray * self, long index );
+void warray_remove ( warray * self, long index );
 wval warray_get ( warray * self, long index );
 wval warray_set ( warray * self, long index, wval val );
 
@@ -68,6 +69,9 @@ void warray_next ( warray_iter * self );
 
 bool warray_good ( warray_iter * self );
 wval warray_deref ( warray_iter * self );
+wval * warray_at ( warray_iter * self, long rel_idx );
+bool warray_good_at ( warray_iter * self, long rel_idx );
+void warray_remove_at ( warray_iter * self, long rel_idx );
 
 
 long warray_index_of ( warray * self, wval to_find );

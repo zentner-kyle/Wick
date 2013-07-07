@@ -239,6 +239,58 @@ wval * warray_index ( warray * self, long index ) {
     }
   }
 
+void warray_remove ( warray * self, long index ) {
+  if ( index < 0 ) {
+    index = warray_length ( self ) + index;
+    }
+  if ( warray_looped ( self ) ) {
+    long end_size = self->space - self->start;
+    if ( index < end_size ) {
+      /* Index is in the loop-back end segment. */
+      void * target = ( void * ) ( self->data + self->start + 1);
+      void * source = ( void * ) ( self->data + self->start );
+      memmove ( target, source, sizeof ( wval ) * index );
+      self->start += 1;
+      if ( self->start == self->space ) {
+        self->start = 0;
+        }
+      }
+    else if ( index - end_size < self->past_end ) {
+      /* Index is in the normal segment. */
+      long sindex = index - end_size;
+      void * target = ( void * ) ( self->data + sindex );
+      void * source = ( void * ) ( self->data + sindex + 1 );
+      size_t size = self->past_end - sindex - 1;
+      memmove ( target, source, sizeof ( wval ) * size );
+      self->past_end -= 1;
+      if ( self->past_end == 0 ) {
+        self->past_end = self->space;
+        }
+      }
+    else {
+      /* Index is out of bounds ( between the segments ). */
+      }
+    }
+  else {
+    if ( index + self->start < self->past_end ) {
+      /* Index is in bounds. */
+      size_t sindex = self->start + index;
+      void * target = ( void * ) ( self->data + sindex );
+      void * source = ( void * ) ( self->data + sindex + 1 );
+      size_t size = self->past_end - sindex - 1;
+      memmove ( target, source, sizeof ( wval ) * size );
+      self->past_end -= 1;
+      if ( self->start == self->past_end ) {
+        self->past_end = 0;
+        self->start = 0;
+        }
+      }
+    else {
+      /* Index is out of bounds. */
+      }
+    }
+  }
+
 wval warray_get ( warray * self, long index ) {
   return *warray_index ( self, index );
   }
@@ -263,22 +315,10 @@ warray_iter warray_end ( warray * parent ) {
 
 void warray_next ( warray_iter * self ) {
   self->index += 1;
-  /*if ( warray_good_index ( self->parent, self->index + 1 ) ) {*/
-    /*return true;*/
-    /*}*/
-  /*else {*/
-    /*return false;*/
-    /*}*/
   }
 
 void warray_prev ( warray_iter * self ) {
   self->index -= 1;
-  /*if ( warray_good_index ( self->parent, self->index - 1 ) ) {*/
-    /*return true;*/
-    /*}*/
-  /*else {*/
-    /*return false;*/
-    /*}*/
   }
 
 
@@ -288,6 +328,25 @@ bool warray_good ( warray_iter * self ) {
 
 wval warray_deref ( warray_iter * self ) {
   return warray_get ( self->parent, self->index );
+  }
+
+wval * warray_at ( warray_iter * self, long rel_idx ) {
+  return warray_index ( self->parent, self->index + rel_idx );
+  }
+
+bool warray_good_at ( warray_iter * self, long rel_idx ) {
+  if ( self->index < 0 ) {
+    return rel_idx + self->index < 0 &&
+           rel_idx + self->index >= - warray_length ( self->parent );
+    }
+  else {
+    return rel_idx + self->index >= 0 &&
+           rel_idx + self->index < warray_length ( self->parent );
+    }
+  }
+
+void warray_remove_at ( warray_iter * self, long rel_idx ) {
+  return warray_remove ( self->parent, self->index + rel_idx );
   }
 
 

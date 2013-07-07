@@ -3,12 +3,13 @@
 #include <wtoken.h>
 #include <wstr_trie.h>
 #include <werror.h>
+#include <wobj.h>
 
 #define warray_elem_t wcall_ptr
 #define warray_elem_kind pointer
 #include <warray.h>
 
-#define warray_elem_t wtoken_ptr
+#define warray_elem_t wobj_ptr
 #define warray_elem_kind pointer
 #include <warray.h>
 
@@ -18,7 +19,7 @@ def_struct ( wparser ) {
   wstr text;
   wcall * handle_error;
   wstr_trie * token_table;
-  warray_wtoken_ptr * tokens;
+  warray_wobj_ptr * tokens;
   bool stop;
   };
 

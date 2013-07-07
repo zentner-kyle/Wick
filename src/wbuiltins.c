@@ -9,6 +9,7 @@
 #include <wparse.h>
 #include <wstr_trie.h>
 #include <werror.h>
+#include <wast.h>
 
 bool wbuiltins_initialized = false;
 
@@ -26,6 +27,12 @@ wdefine_base ( unsigned );
 wdefine_base ( unsigned_long );
 wdefine_base ( unsigned_short );
 wdefine_base ( wval );
+
+wdefine_composite ( wobj );
+wdefine_composite ( wast_unop );
+wdefine_composite ( wast_binop );
+wdefine_composite ( wast_list );
+
 
 
 void wbuiltins_init ( ) {
@@ -55,6 +62,12 @@ void wbuiltins_init ( ) {
   winit_composite ( wcall );
   winit_composite ( wstr_trie );
   winit_composite ( werror );
+  winit_composite ( wobj );
+
+  winit_composite ( wast_unop );
+  winit_composite ( wast_binop );
+  winit_composite ( wast_list );
+
   }
 
 #undef init_builtin

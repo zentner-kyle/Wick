@@ -64,6 +64,7 @@ warray_elem_t method ( pop_front ) ( warray_struct * self, wcall * error );
 long method ( length ) ( warray_struct * self );
 bool method ( good_index ) ( warray_struct * self, long index );
 warray_elem_t * method ( index ) ( warray_struct * self, long index );
+void method ( remove ) ( warray_struct * self, long index );
 warray_elem_t method ( get ) ( warray_struct * self, long index );
 warray_elem_t method ( set ) ( warray_struct * self, long index, warray_elem_t val );
 
@@ -75,6 +76,9 @@ void method ( next ) ( warray_iter_struct * self );
 
 bool method ( good ) ( warray_iter_struct * self );
 warray_elem_t method ( deref ) ( warray_iter_struct * self );
+warray_elem_t * method ( at ) ( warray_iter_struct * self, long rel_index );
+bool method ( good_at ) ( warray_iter_struct * self, long rel_index );
+void method ( remove_at ) ( warray_iter_struct * self, long rel_index );
 
 
 long method ( index_of ) ( warray_struct * self, warray_elem_t to_find );

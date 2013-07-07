@@ -6,6 +6,8 @@ def_struct ( wobj ) {
   wtype * type;
   };
 
+wdeclare_composite ( wobj );
+
 #define wobj_to( target_type, store_ptr, expr ) \
   do { \
     wobj * macro_the_expr = (expr); \

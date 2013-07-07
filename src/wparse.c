@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include <wutf8.h>
 #include <assert.h>
+#include <wobj.h>
+#include <wast.h>
 
 wdefine_composite ( wparser );
 
@@ -16,21 +18,23 @@ bool wparser_push_token ( wparser * self, wtoken * token ) {
   printf ( "pushing token '" );
   wstr_print ( *token->text );
   printf ( "'\n" );
-  warray_wtoken_ptr_push_back ( self->tokens, token, self->handle_error );
+  warray_wobj_ptr_push_back ( self->tokens, wobj_of ( token ), self->handle_error );
   return ! self->stop;
   }
 
-const int family_stop       = 0;
-const int family_identifier = 1;
-const int family_literal    = 2;
-const int family_binop      = 3;
-const int family_unop       = 4;
-const int family_op         = 5;
-const int family_left_op    = 6;
-const int family_right_op   = 7;
-const int family_comment    = 8;
-const int family_whitespace = 9;
-const int family_special    = 10;
+enum token_family {
+  family_stop,
+  family_identifier,
+  family_literal,
+  family_binop,
+  family_preop,
+  family_op,
+  family_left_op,
+  family_right_op,
+  family_comment,
+  family_whitespace,
+  family_special,
+  };
 
 bool is_ident_char ( int32_t c ) {
   if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_')) {
@@ -205,6 +209,7 @@ werror * wparser_lex_from_trie ( wparser * self ) {
 
 wtoken new_line;
 wtoken start_of_file;
+wtoken end_of_file;
 
 werror * wstr_trie_insert_token ( wstr_trie * node, wstr * str, wtoken * token ) {
   node = wstr_trie_enter ( node, str );
@@ -227,13 +232,13 @@ werror * wparser_table_init ( wparser * self ) {
       { "="    , family_binop    , 10 , 10 } , 
       { "+"    , family_op       , 60 , 60 } , 
       { "++"   , family_binop    , 60 , 60 } , 
-      { "<+>"  , family_op       , 60 , 60 } , 
+      { "<+>"  , family_binop    , 60 , 60 } , 
       { "-"    , family_op       , 60 , 60 } , 
       { "--"   , family_binop    , 60 , 60 } , 
-      { "<->"  , family_op       , 60 , 60 } , 
+      { "<->"  , family_binop    , 60 , 60 } , 
       { "*"    , family_op       , 70 , 70 } , 
       { "**"   , family_binop    , 70 , 70 } , 
-      { "<*>"  , family_op       , 70 , 70 } , 
+      { "<*>"  , family_binop    , 70 , 70 } , 
       { "/"    , family_binop    , 70 , 70 } , 
       { "//"   , family_binop    , 70 , 70 } , 
       { "</>"  , family_binop    , 70 , 70 } , 
@@ -268,7 +273,7 @@ werror * wparser_table_init ( wparser * self ) {
       { "\\"   , family_op       , 10 , 10 } , 
       { "\\\\" , family_op       , 10 , 10 } , 
       { "::"   , family_binop    , 20 , 20 } , 
-      { "@"    , family_unop     , 20 , 20 } , 
+      { "@"    , family_op       , 20 , 20 } , 
       { "^"    , family_op       , 40 , 40 } , 
       { "&"    , family_op       , 40 , 40 } , 
       { "|"    , family_op       , 40 , 40 } , 
@@ -395,7 +400,7 @@ werror * wparser_lex ( wparser * self ) {
   while ( ! self->stop && wstr_size ( self->text ) && active ) {
     active = false;
     inner_loop = true;
-    wtoken * last_token = *warray_wtoken_ptr_index ( self->tokens, -1 );
+    wtoken * last_token = wobj_cast ( wtoken, *warray_wobj_ptr_index ( self->tokens, -1 ) );
     if ( *self->text.start == '\n' ) {
       ++self->text.start;
       if ( last_token != &new_line ) {
@@ -421,15 +426,28 @@ werror * wparser_lex ( wparser * self ) {
       }
     active |= wparser_lex_literal ( self ) == w_ok;
     }
+  if ( self->text.start == self->text.past_end ) {
+    wparser_push_token ( self, &end_of_file );
+    }
   return w_ok;
   }
 
 wparser * wparser_new ( wstr * text ) {
   new_line.type = wtype_wtoken;
   new_line.text = wstr_new ( "\n", 0 );
-  new_line.family = family_literal;
+  new_line.family = family_special;
   new_line.lbp = 0;
   new_line.rbp = 0;
+  start_of_file.type = wtype_wtoken;
+  start_of_file.text = wstr_new ( "(start of file)", 0 );
+  start_of_file.family = family_special;
+  start_of_file.lbp = 0;
+  start_of_file.rbp = 0;
+  end_of_file.type = wtype_wtoken;
+  end_of_file.text = wstr_new ( "(end of file)", 0 );
+  end_of_file.family = family_special;
+  end_of_file.lbp = 0;
+  end_of_file.rbp = 0;
   wparser * p = walloc_simple ( wparser, 1 );
   if ( ! p ) {
     return NULL;
@@ -439,34 +457,170 @@ wparser * wparser_new ( wstr * text ) {
   p->text = *text;
   p->handle_error = &null_wcall;
   p->token_table = wstr_trie_new ();
-  p->tokens = warray_wtoken_ptr_new ( &null_wcall );
+  p->tokens = warray_wobj_ptr_new ( &null_wcall );
   p->stop = false;
   if ( ! p->tokens || ! p->token_table ) {
-    warray_wtoken_ptr_delete ( p->tokens );
+    warray_wobj_ptr_delete ( p->tokens );
     wstr_trie_free ( p->token_table );
     free (p);
     return NULL;
     }
   else {
     wparser_table_init ( p );
-    wparser_push_token ( p, &new_line );
+    wparser_push_token ( p, &start_of_file );
     }
   return p;
   }
 
 void wparser_print_tokens ( wparser * self ) {
   printf ( "[ " );
-  warray_wtoken_ptr_iter i = warray_wtoken_ptr_start ( self->tokens );
+  warray_wobj_ptr_iter i = warray_wobj_ptr_start ( self->tokens );
+  while ( warray_wobj_ptr_good ( &i ) ) {
+    wtoken * token = wobj_cast ( wtoken, warray_wobj_ptr_deref ( &i ) );
+    if ( token ) {
+      wstr_print ( *token->text );
+      warray_wobj_ptr_next ( &i );
+      if ( warray_wobj_ptr_good ( &i ) ) {
+        /*printf ( ", " );*/
+        printf ( " " );
+        }
+      }
+    }
+  printf ( " ]" );
+  }
+
+bool is_op ( wtoken * t ) {
+  switch ( t->family ) {
+    case family_op:
+    case family_binop:
+    case family_preop:
+    case family_left_op:
+    case family_right_op:
+    case family_special:
+      return true;
+    default:
+      return false;
+    }
+  }
+
+bool is_expr ( wtoken * t ) {
+  switch ( t->family ) {
+    case family_identifier:
+    case family_literal:
+      return true;
+    default:
+      return false;
+    }
+  }
+
+werror wparser_bad_expr;
+
+void wparser_remove_space_before ( warray_wobj_ptr_iter * i ) {
   while ( true ) {
-    wstr_print ( *warray_wtoken_ptr_deref ( &i )->text );
-    warray_wtoken_ptr_next ( &i );
-    if ( warray_wtoken_ptr_good ( &i ) ) {
-      /*printf ( ", " );*/
-      printf ( " " );
+    wtoken * potential_whitespace = wobj_cast ( wtoken, *warray_wobj_ptr_at ( i, -1 ) );
+    if ( potential_whitespace && potential_whitespace->family == family_whitespace ) {
+      warray_wobj_ptr_remove_at ( i, -1 );
+      warray_wobj_ptr_prev ( i );
       }
     else {
       break;
       }
     }
-  printf ( " ]" );
+  }
+
+void wparser_remove_space_after ( warray_wobj_ptr_iter * i ) {
+  while ( true ) {
+    wtoken * potential_whitespace = wobj_cast ( wtoken, *warray_wobj_ptr_at ( i, 1 ) );
+    if ( potential_whitespace && potential_whitespace->family == family_whitespace ) {
+      warray_wobj_ptr_remove_at ( i, 1 );
+      }
+    else {
+      break;
+      }
+    }
+  }
+
+werror * wparser_fold_ops ( wparser * self ) {
+  warray_wobj_ptr_iter i = warray_wobj_ptr_start ( self->tokens );
+  /*bool just_started = true;*/
+  wobj * accum = NULL;
+  while ( warray_wobj_ptr_good ( &i ) ) {
+    wtoken * token = wobj_cast ( wtoken, warray_wobj_ptr_deref ( &i ) );
+    if ( token ) {
+      switch ( token->family ) {
+        case family_op:
+        case family_binop: 
+          if ( ! accum ) {
+            wast_binop * ast = walloc_simple ( wast_binop, 1 );
+            ast->type = wtype_wast_binop;
+            ast->parent = NULL;
+
+            wparser_remove_space_before ( &i );
+            ast->left = wobj_of ( wobj_cast ( wtoken, *warray_wobj_ptr_at ( &i, -1 ) ) );
+            /* Handle prefix operators here. */
+            if ( ! ast->left ) {
+              /* Left side missing. */
+              return &wparser_bad_expr;
+              }
+            warray_wobj_ptr_remove_at ( &i, -1 );
+            warray_wobj_ptr_prev ( &i );
+
+            wparser_remove_space_after ( &i );
+            ast->right = wobj_of ( wobj_cast ( wtoken, *warray_wobj_ptr_at ( &i, 1 ) ) );
+            /* Handle prefix operators here. */
+            if ( ! ast->right ) {
+              /* Right side missing. */
+              return &wparser_bad_expr;
+              }
+            warray_wobj_ptr_remove_at ( &i, 1 );
+            *warray_wobj_ptr_at ( &i, 0 ) = wobj_of ( ast );
+            accum = wobj_of ( ast );
+
+            }
+          else {
+            /*bool up = false;*/
+            wast_binop * ast = walloc_simple ( wast_binop, 1 );
+            ast->type = wtype_wast_binop;
+            while ( wobj_cast ( wast_binop, accum ) &&
+                    wobj_cast ( wast_binop, accum )->op->rbp >= token->lbp ) {
+              /*up = true;*/
+              if ( wobj_cast ( wast_binop, accum )->parent ) {
+                accum = wobj_cast ( wast_binop, accum )->parent;
+                }
+              else {
+                /* TODO ( kzentner ) */
+                assert ( 0 );
+                /* This ast node is the new root. */
+                }
+              }
+            ast->left = wobj_cast ( wast_binop, accum )->right;
+            ast->parent = wobj_of ( accum );
+            wobj_cast ( wast_binop, accum )->right = wobj_of ( ast );
+            accum = wobj_of ( ast );
+
+            /*if ( up ) {*/
+              /*}*/
+
+            /*}*/
+          /*if ( just_started ) {*/
+            /*return &wparser_bad_expr;*/
+            /*}*/
+          /*else {*/
+            // Not right.
+            // See parse_experiments7.py
+            /*wast_binop * ast = walloc_simple ( wast_binop, 1 );*/
+            /*ast->type = wtype_wast_binop;*/
+            /*ast->op = token;*/
+            /*ast->left = *warray_wobj_ptr_at ( &i, -1 );*/
+            /*ast->right = *warray_wobj_ptr_at ( &i, 1 );*/
+
+            /*warray_wobj_ptr_remove_at ( &i,  1 );*/
+            /*warray_wobj_ptr_remove_at ( &i, -1 );*/
+            }
+          break;
+        }
+      }
+    warray_wobj_ptr_next ( &i );
+    }
+  return w_ok;
   }
