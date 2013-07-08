@@ -29,6 +29,7 @@ wdefine_base ( unsigned_short );
 wdefine_base ( wval );
 
 wdefine_composite ( wobj );
+wdefine_composite ( wast );
 wdefine_composite ( wast_unop );
 wdefine_composite ( wast_binop );
 wdefine_composite ( wast_list );
@@ -64,6 +65,7 @@ void wbuiltins_init ( ) {
   winit_composite ( werror );
   winit_composite ( wobj );
 
+  winit_composite ( wast );
   winit_composite ( wast_unop );
   winit_composite ( wast_binop );
   winit_composite ( wast_list );

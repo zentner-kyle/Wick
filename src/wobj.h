@@ -1,6 +1,7 @@
 #ifndef WOBJ_H
 #define WOBJ_H
 #include <wmacros.h>
+#include <wtype_h.h>
 
 def_struct ( wobj ) {
   wtype * type;

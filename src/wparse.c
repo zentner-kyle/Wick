@@ -10,6 +10,11 @@
 
 wdefine_composite ( wparser );
 
+
+werror * wparser_update ( wparser * self, wtoken * t );
+
+
+
 void wparser_error ( wparser * self, werror * error ) {
   self->stop = true;
   }
@@ -19,6 +24,9 @@ bool wparser_push_token ( wparser * self, wtoken * token ) {
   wstr_print ( *token->text );
   printf ( "'\n" );
   warray_wobj_ptr_push_back ( self->tokens, wobj_of ( token ), self->handle_error );
+  /*printf ( "Before update: \n" );*/
+  /*wast_print ( ( wast * ) self->root );*/
+  /*wparser_update ( self, token );*/
   return ! self->stop;
   }
 
@@ -210,6 +218,7 @@ werror * wparser_lex_from_trie ( wparser * self ) {
 wtoken new_line;
 wtoken start_of_file;
 wtoken end_of_file;
+wtoken root;
 
 werror * wstr_trie_insert_token ( wstr_trie * node, wstr * str, wtoken * token ) {
   node = wstr_trie_enter ( node, str );
@@ -448,6 +457,11 @@ wparser * wparser_new ( wstr * text ) {
   end_of_file.family = family_special;
   end_of_file.lbp = 0;
   end_of_file.rbp = 0;
+  root.type = wtype_wtoken;
+  root.text = wstr_new ( "(root)", 0 );
+  root.family = family_special;
+  root.lbp = 0;
+  root.rbp = 0;
   wparser * p = walloc_simple ( wparser, 1 );
   if ( ! p ) {
     return NULL;
@@ -469,24 +483,10 @@ wparser * wparser_new ( wstr * text ) {
     wparser_table_init ( p );
     wparser_push_token ( p, &start_of_file );
     }
+  p->root = wast_list_new ( &root );
+  p->accum = ( wast * ) p->root;
+  p->state = wparser_expr_complete;
   return p;
-  }
-
-void wparser_print_tokens ( wparser * self ) {
-  printf ( "[ " );
-  warray_wobj_ptr_iter i = warray_wobj_ptr_start ( self->tokens );
-  while ( warray_wobj_ptr_good ( &i ) ) {
-    wtoken * token = wobj_cast ( wtoken, warray_wobj_ptr_deref ( &i ) );
-    if ( token ) {
-      wstr_print ( *token->text );
-      warray_wobj_ptr_next ( &i );
-      if ( warray_wobj_ptr_good ( &i ) ) {
-        /*printf ( ", " );*/
-        printf ( " " );
-        }
-      }
-    }
-  printf ( " ]" );
   }
 
 bool is_op ( wtoken * t ) {
@@ -514,6 +514,7 @@ bool is_expr ( wtoken * t ) {
   }
 
 werror wparser_bad_expr;
+werror wparser_internal_error;
 
 void wparser_remove_space_before ( warray_wobj_ptr_iter * i ) {
   while ( true ) {
@@ -537,49 +538,6 @@ void wparser_remove_space_after ( warray_wobj_ptr_iter * i ) {
     else {
       break;
       }
-    }
-  }
-
-wast * wast_parent_exprlist ( wast * ast ) {
-  while ( ! wobj_cast ( wast_list, ast ) ) {
-    ast = ( wast * ) ast->parent;
-    }
-  return ast;
-  }
-
-wobj * wast_remove_rightmost ( wast * w ) {
-  if ( wobj_cast ( wast_unop, w ) ) {
-    wobj * c = wobj_cast ( wast_unop, w )->child;
-    wobj_cast ( wast_unop, w )->child = NULL;
-    return c;
-    }
-  else if ( wobj_cast ( wast_binop, w ) ) {
-    wobj * c = wobj_cast ( wast_binop, w )->right;
-    wobj_cast ( wast_binop, w )->right = NULL;
-    return c;
-    }
-  else if ( wobj_cast ( wast_list, w ) ) {
-    return warray_wobj_ptr_pop_back ( wobj_cast ( wast_list, w )->children, &null_wcall );
-    }
-  else {
-    assert ( 0 );
-    }
-  }
-
-void wast_add_rightmost ( wast * w, wobj * o ) {
-  if ( wobj_cast ( wast_unop, w ) ) {
-    wobj_cast ( wast_unop, w )->child = o;
-    }
-  else if ( wobj_cast ( wast_binop, w ) ) {
-    wobj_cast ( wast_binop, w )->right = o;
-    }
-  else if ( wobj_cast ( wast_list, w ) ) {
-    warray_wobj_ptr_push_back ( wobj_cast ( wast_list, w )->children,
-                                o,
-                                &null_wcall );
-    }
-  else {
-    assert ( 0 );
     }
   }
 
@@ -610,6 +568,10 @@ werror * wparser_update_atom ( wparser * self, wtoken * t ) {
   }
 
 werror * wparser_update_whitespace ( wparser * self, wtoken * t ) {
+  return w_ok;
+  }
+
+werror * wparser_update_special ( wparser * self, wtoken * t ) {
   return w_ok;
   }
 
@@ -678,6 +640,8 @@ werror * wparser_update ( wparser * self, wtoken * t ) {
       return wparser_update_right_op ( self, t );
     case family_whitespace:
       return wparser_update_whitespace ( self, t );
+    case family_special:
+      return wparser_update_special ( self, t );
     default:
       assert ( 0 );
       return w_ok;

@@ -5,6 +5,7 @@
 
 int main ( int argc, char *argv[] ) {
   printf ( "Starting Wick VM.\n" );
+  wbuiltins_init ( );
   printf ( "src/test.wasm:\n%s\n", wstr_from_filename ( wstr_lit ( "src/test.wasm" ) ).start );
   opbunch * code = wbytecode_from_filename ( wstr_lit ( "src/test.wasm" ) );
   wexec_code ( code );
@@ -14,6 +15,6 @@ int main ( int argc, char *argv[] ) {
   /*wstr to_parse = wstr_lit ( "test\n" );*/
   wparser * parser = wparser_new ( &to_parse );
   wparser_lex ( parser );
-  wparser_print_tokens ( parser );
+  wtokens_print ( parser->tokens );
   return 0;
   }

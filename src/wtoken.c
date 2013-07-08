@@ -4,6 +4,8 @@
 #include <wstr.h>
 #include <wmacros.h>
 #include <walloc.h>
+#include <wobj.h>
+/*#include <wast.h>*/
 
 whash whash_wtoken ( wval token ) {
   wtoken * self = ( wtoken * ) token.pointer;
@@ -48,3 +50,20 @@ wtoken * wtoken_new_op ( int family, wstr * text, int lbp, int rbp ) {
   }
 
 wdefine_composite ( wtoken );
+
+void wtokens_print ( warray_wobj_ptr * self ) {
+  printf ( "[ " );
+  warray_wobj_ptr_iter i = warray_wobj_ptr_start ( self );
+  while ( warray_wobj_ptr_good ( &i ) ) {
+    wtoken * token = wobj_cast ( wtoken, warray_wobj_ptr_deref ( &i ) );
+    if ( token ) {
+      wstr_print ( *token->text );
+      warray_wobj_ptr_next ( &i );
+      if ( warray_wobj_ptr_good ( &i ) ) {
+        /*printf ( ", " );*/
+        printf ( " " );
+        }
+      }
+    }
+  printf ( " ]" );
+  }

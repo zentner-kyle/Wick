@@ -18,8 +18,10 @@ def build(bld):
     
     wick_sources = [
         'walloc.c',
+        'warray_wobj.c',
         'warray_wrappers.c',
         'warray_wval.c',
+        'wast.c',
         'wbits.c',
         'wbuiltins.c',
         'wcall.c',

@@ -156,9 +156,10 @@
   join_token ( join_token ( wtype_, base_type ), _ptr )->ptr_of = join_token ( join_token ( wtype_, base_type ), _ptr_ptr );
 
 #define wobj_cast( target_type, value ) \
-    ( ( value )->type == w_type_to_wtype ( join_token ( target_type, _ptr ) ) ? \
+    ( ( value )->type == w_type_to_wtype ( target_type ) ? \
       ( ( join_token ( target_type, _ptr ) ) ( value ) ) : \
       NULL )
+
 
 #define wobj_of( obj ) \
     ( &( ( obj )->type ) == ( wtype ** ) ( obj ) ? ( wobj * ) ( obj ) : NULL )

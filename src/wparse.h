@@ -10,10 +10,6 @@
 #define warray_elem_kind pointer
 #include <warray.h>
 
-//#define warray_elem_t wobj_ptr
-//#define warray_elem_kind pointer
-//#include <warray.h>
-
 enum wparser_state {
   wparser_expr_complete,
   wparser_op_pending
