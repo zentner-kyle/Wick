@@ -4,14 +4,20 @@
 #include <wstr_trie.h>
 #include <werror.h>
 #include <wobj.h>
+#include <wast.h>
 
 #define warray_elem_t wcall_ptr
 #define warray_elem_kind pointer
 #include <warray.h>
 
-#define warray_elem_t wobj_ptr
-#define warray_elem_kind pointer
-#include <warray.h>
+//#define warray_elem_t wobj_ptr
+//#define warray_elem_kind pointer
+//#include <warray.h>
+
+enum wparser_state {
+  wparser_expr_complete,
+  wparser_op_pending
+  };
 
 def_struct ( wparser ) {
   wtype * type;
@@ -20,7 +26,10 @@ def_struct ( wparser ) {
   wcall * handle_error;
   wstr_trie * token_table;
   warray_wobj_ptr * tokens;
+  wast * accum;
+  wast_list * root;
   bool stop;
+  enum wparser_state state;
   };
 
 wdeclare_composite ( wparser );
