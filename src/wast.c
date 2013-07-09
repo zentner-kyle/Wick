@@ -54,24 +54,65 @@ wast_list * wast_list_new ( wtoken * op ) {
   return w;
   }
 
+void wprint_indent ( int indent ) {
+  for ( int i = 0; i < indent; i++ ) {
+    printf ( "  " );
+    }
+  }
+
 void wast_print_inner ( wast * w, int indent ) {
+  wprint_indent ( indent );
   if ( ! w ) {
+    printf ( "(null)\n" );
     return;
     }
   if ( wobj_cast ( wast_unop, w ) ) {
     wstr_println ( *w->op->text );
-    wast_print_inner ( wobj_cast ( wast, wobj_cast ( wast_unop, w )->child ), indent + 1 );
+    wast_unop * wu = wobj_cast ( wast_unop, w );
+    if ( wobj_cast ( wtoken, wu->child ) ) {
+      wprint_indent ( indent + 1 );
+      wstr_println ( *wobj_cast ( wtoken, wu->child )->text );
+      }
+    else {
+      wast_print_inner ( ( wast * ) wu->child, indent + 1 );
+      }
     }
   else if ( wobj_cast ( wast_binop, w ) ) {
+    wast_binop * wb = wobj_cast ( wast_binop, w );
     wstr_println ( *w->op->text );
-    wast_print_inner ( wobj_cast ( wast, wobj_cast ( wast_binop, w )->left ), indent + 1 );
-    wast_print_inner ( wobj_cast ( wast, wobj_cast ( wast_binop, w )->right ), indent + 1 );
+    if ( wobj_cast ( wtoken, wb->left ) ) {
+      wprint_indent ( indent + 1 );
+      wstr_println ( *wobj_cast ( wtoken, wb->left )->text );
+      }
+    else {
+      wast_print_inner ( ( wast * ) wb->left, indent + 1 );
+      }
+    if ( wobj_cast ( wtoken, wb->right ) ) {
+      wprint_indent ( indent + 1 );
+      wstr_println ( *wobj_cast ( wtoken, wb->right )->text );
+      }
+    else {
+      wast_print_inner ( ( wast * ) wb->right, indent + 1 );
+      }
     }
   else if ( wobj_cast ( wast_list, w ) ) {
-    printf ( "wast_list!\n" );
-    fflush ( stdout );
     wstr_println ( *w->op->text );
-    wtokens_print ( wobj_cast ( wast_list, w )->children );
+    printf ( "  [\n" );
+    warray_wobj_ptr_iter i = warray_wobj_ptr_start ( (( wast_list * ) w)->children );
+    while ( warray_wobj_ptr_good ( &i ) ) {
+      wtoken * token = wobj_cast ( wtoken, warray_wobj_ptr_deref ( &i ) );
+      if ( token ) {
+        wprint_indent ( indent + 1);
+        wstr_println ( *token->text );
+        }
+      else {
+        wast_print_inner ( ( wast * ) warray_wobj_ptr_deref ( &i ), indent + 1 );
+        }
+      warray_wobj_ptr_next ( &i );
+      }
+    printf ( "  " );
+    wprint_indent ( indent );
+    printf ( "]" );
     }
   else {
     printf ( "type = " );
@@ -84,4 +125,5 @@ void wast_print_inner ( wast * w, int indent ) {
 
 void wast_print ( wast * w ) {
   wast_print_inner ( w, 0 );
+  printf ( "\n" );
   }

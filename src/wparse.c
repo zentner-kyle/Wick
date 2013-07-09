@@ -24,9 +24,9 @@ bool wparser_push_token ( wparser * self, wtoken * token ) {
   wstr_print ( *token->text );
   printf ( "'\n" );
   warray_wobj_ptr_push_back ( self->tokens, wobj_of ( token ), self->handle_error );
-  /*printf ( "Before update: \n" );*/
-  /*wast_print ( ( wast * ) self->root );*/
-  /*wparser_update ( self, token );*/
+  printf ( "Before update: \n" );
+  wast_print ( ( wast * ) self->root );
+  wparser_update ( self, token );
   return ! self->stop;
   }
 
@@ -235,7 +235,6 @@ werror * wparser_table_init ( wparser * self ) {
     int family;
     int lbp;
     int rbp;
-    wtoken * token;
   } table[] = {
       { ","    , family_special  ,  0 ,  0 } , 
       { "="    , family_binop    , 10 , 10 } , 
@@ -299,7 +298,7 @@ werror * wparser_table_init ( wparser * self ) {
     werror * e = wstr_trie_insert_token (
         self->token_table,
         str,
-        wtoken_new_op ( table[i].family, str, 0, 0 ) );
+        wtoken_new_op ( table[i].family, str, table[i].lbp, table[i].rbp ) );
     ++i;
     if ( e != w_ok ) {
       return e;

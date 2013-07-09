@@ -68,7 +68,7 @@ void warray_delete ( warray * self ) {
 
 
 static bool warray_looped ( warray * self ) {
-  return self->start >= self->past_end;
+  return self->start > self->past_end;
   }
 
 

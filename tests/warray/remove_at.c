@@ -16,18 +16,13 @@ werror * report_error ( wval * ignored ) {
 
 int main ( ) {
   wbuiltins_init ( );
-  warray_int a;
   wcall error_wcall = null_wcall;
   error_wcall.func = report_error;
-  warray_int_init ( &a, &error_wcall );
-  warray_int_iter iter = warray_int_start ( &a );
-  int i = 100;
-  warray_int_push_back ( &a, i, &error_wcall );
-  int i2 = 0;
-  i2 = warray_int_pop_back ( &a, &error_wcall );
-  printf ( "i2 = %d\n", i2 );
-  assert ( i2 == 100 );
-  assert ( ! warray_int_good ( &iter ) );
-  assert ( warray_int_length ( &a ) == 0 );
+  warray_int * a = warray_int_new ( &error_wcall );
+  warray_int_iter i = warray_int_start ( a );
+  warray_int_push_front ( a, 1, &error_wcall );
+  warray_int_remove_at ( &i, 0 );
+  assert ( ! warray_int_good ( &i ) );
+  assert ( warray_int_length ( a ) == 0 );
   return error;
   }
