@@ -600,6 +600,12 @@ werror * wparser_update_binop ( wparser * self, wtoken * t ) {
   }
 
 werror * wparser_update_unop ( wparser * self, wtoken * t ) {
+  wast_unop * w = walloc_simple ( wast_unop, 1 );
+  w->type = wtype_wast_unop;
+  w->op = t;
+  w->child = NULL;
+  wast_add_rightmost ( self->accum, wobj_of ( w ) );
+  self->accum = (wast *) w;
   return w_ok;
   }
 
@@ -616,6 +622,7 @@ werror * wparser_update_op ( wparser * self, wtoken * t ) {
     case wparser_expr_complete:
       return wparser_update_binop ( self, t );
     case wparser_op_pending:
+      printf ("calling wparser_update_unop.\n");
       return wparser_update_unop ( self, t );
     default:
       assert ( false );
