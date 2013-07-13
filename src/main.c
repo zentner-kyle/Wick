@@ -15,6 +15,5 @@ int main ( int argc, char *argv[] ) {
   /*wstr to_parse = wstr_lit ( "test\n" );*/
   wparser * parser = wparser_new ( &to_parse );
   wparser_lex ( parser );
-  wtokens_print ( parser->tokens );
   return 0;
   }

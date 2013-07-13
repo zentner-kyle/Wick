@@ -19,11 +19,10 @@ def_struct ( wparser ) {
   wtype * type;
   wstr all_text;
   wstr text;
-  wcall * handle_error;
   wstr_trie * token_table;
-  warray_wobj_ptr * tokens;
   wast * accum;
   wast_list * root;
+  wtoken * last_token;
   bool stop;
   enum wparser_state state;
   };
@@ -37,4 +36,4 @@ wparser * wparser_new ( wstr * text );
 
 werror * wparser_lex ( wparser * self );
 
-void wparser_print_tokens ( wparser * self );
+//void wparser_print_tokens ( wparser * self );

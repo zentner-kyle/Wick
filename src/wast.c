@@ -10,14 +10,14 @@ wast * wast_parent_exprlist ( wast * ast ) {
   }
 
 wobj * wast_remove_rightmost ( wast * w ) {
-  if ( wobj_cast ( wast_unop, w ) ) {
-    wobj * c = wobj_cast ( wast_unop, w )->child;
-    wobj_cast ( wast_unop, w )->child = NULL;
+  if ( wobj_cast ( wast_prefix, w ) ) {
+    wobj * c = wobj_cast ( wast_prefix, w )->child;
+    wobj_cast ( wast_prefix, w )->child = NULL;
     return c;
     }
-  else if ( wobj_cast ( wast_binop, w ) ) {
-    wobj * c = wobj_cast ( wast_binop, w )->right;
-    wobj_cast ( wast_binop, w )->right = NULL;
+  else if ( wobj_cast ( wast_infix, w ) ) {
+    wobj * c = wobj_cast ( wast_infix, w )->right;
+    wobj_cast ( wast_infix, w )->right = NULL;
     return c;
     }
   else if ( wobj_cast ( wast_list, w ) ) {
@@ -29,11 +29,11 @@ wobj * wast_remove_rightmost ( wast * w ) {
   }
 
 void wast_add_rightmost ( wast * w, wobj * o ) {
-  if ( wobj_cast ( wast_unop, w ) ) {
-    wobj_cast ( wast_unop, w )->child = o;
+  if ( wobj_cast ( wast_prefix, w ) ) {
+    wobj_cast ( wast_prefix, w )->child = o;
     }
-  else if ( wobj_cast ( wast_binop, w ) ) {
-    wobj_cast ( wast_binop, w )->right = o;
+  else if ( wobj_cast ( wast_infix, w ) ) {
+    wobj_cast ( wast_infix, w )->right = o;
     }
   else if ( wobj_cast ( wast_list, w ) ) {
     warray_wobj_ptr_push_back ( wobj_cast ( wast_list, w )->children,
@@ -66,9 +66,9 @@ void wast_print_inner ( wast * w, int indent ) {
     printf ( "(null)\n" );
     return;
     }
-  if ( wobj_cast ( wast_unop, w ) ) {
+  if ( wobj_cast ( wast_prefix, w ) ) {
     wstr_println ( *w->op->text );
-    wast_unop * wu = wobj_cast ( wast_unop, w );
+    wast_prefix * wu = wobj_cast ( wast_prefix, w );
     if ( wobj_cast ( wtoken, wu->child ) ) {
       wprint_indent ( indent + 1 );
       wstr_println ( *wobj_cast ( wtoken, wu->child )->text );
@@ -77,8 +77,8 @@ void wast_print_inner ( wast * w, int indent ) {
       wast_print_inner ( ( wast * ) wu->child, indent + 1 );
       }
     }
-  else if ( wobj_cast ( wast_binop, w ) ) {
-    wast_binop * wb = wobj_cast ( wast_binop, w );
+  else if ( wobj_cast ( wast_infix, w ) ) {
+    wast_infix * wb = wobj_cast ( wast_infix, w );
     wstr_println ( *w->op->text );
     if ( wobj_cast ( wtoken, wb->left ) ) {
       wprint_indent ( indent + 1 );

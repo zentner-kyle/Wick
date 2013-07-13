@@ -23,7 +23,7 @@ bool wparser_push_token ( wparser * self, wtoken * token ) {
   printf ( "pushing token '" );
   wstr_print ( *token->text );
   printf ( "'\n" );
-  warray_wobj_ptr_push_back ( self->tokens, wobj_of ( token ), self->handle_error );
+  self->last_token = token;
   printf ( "Before update: \n" );
   wast_print ( ( wast * ) self->root );
   wparser_update ( self, token );
@@ -34,8 +34,8 @@ enum token_family {
   family_stop,
   family_identifier,
   family_literal,
-  family_binop,
-  family_preop,
+  family_infix,
+  family_prefix,
   family_op,
   family_left_op,
   family_right_op,
@@ -237,50 +237,50 @@ werror * wparser_table_init ( wparser * self ) {
     int rbp;
   } table[] = {
       { ","    , family_special  ,  0 ,  0 } , 
-      { "="    , family_binop    , 10 , 10 } , 
+      { "="    , family_infix    , 10 , 10 } , 
       { "+"    , family_op       , 60 , 60 } , 
-      { "++"   , family_binop    , 60 , 60 } , 
-      { "<+>"  , family_binop    , 60 , 60 } , 
+      { "++"   , family_infix    , 60 , 60 } , 
+      { "<+>"  , family_infix    , 60 , 60 } , 
       { "-"    , family_op       , 60 , 60 } , 
-      { "--"   , family_binop    , 60 , 60 } , 
-      { "<->"  , family_binop    , 60 , 60 } , 
+      { "--"   , family_infix    , 60 , 60 } , 
+      { "<->"  , family_infix    , 60 , 60 } , 
       { "*"    , family_op       , 70 , 70 } , 
-      { "**"   , family_binop    , 70 , 70 } , 
-      { "<*>"  , family_binop    , 70 , 70 } , 
-      { "/"    , family_binop    , 70 , 70 } , 
-      { "//"   , family_binop    , 70 , 70 } , 
-      { "</>"  , family_binop    , 70 , 70 } , 
-      { "%"    , family_binop    , 70 , 70 } , 
-      { "%%"   , family_binop    , 70 , 70 } , 
-      { "<%>"  , family_binop    , 70 , 70 } , 
-      { "<-"   , family_binop    , 10 , 10 } , 
-      { "->"   , family_binop    , 10 , 10 } , 
-      { "<<"   , family_binop    , 60 , 60 } , 
-      { ">>"   , family_binop    , 60 , 60 } , 
-      { "<<<"  , family_binop    , 60 , 60 } , 
-      { ">>>"  , family_binop    , 60 , 60 } , 
-      { "<"    , family_binop    , 50 , 50 } , 
-      { ">"    , family_binop    , 50 , 50 } , 
-      { ">="   , family_binop    , 50 , 50 } , 
-      { "<="   , family_binop    , 50 , 50 } , 
-      { "=>"   , family_binop    , 50 , 50 } , 
-      { "=="   , family_binop    , 50 , 50 } , 
-      { "!="   , family_binop    , 50 , 50 } , 
+      { "**"   , family_infix    , 70 , 70 } , 
+      { "<*>"  , family_infix    , 70 , 70 } , 
+      { "/"    , family_infix    , 70 , 70 } , 
+      { "//"   , family_infix    , 70 , 70 } , 
+      { "</>"  , family_infix    , 70 , 70 } , 
+      { "%"    , family_infix    , 70 , 70 } , 
+      { "%%"   , family_infix    , 70 , 70 } , 
+      { "<%>"  , family_infix    , 70 , 70 } , 
+      { "<-"   , family_infix    , 10 , 10 } , 
+      { "->"   , family_infix    , 10 , 10 } , 
+      { "<<"   , family_infix    , 60 , 60 } , 
+      { ">>"   , family_infix    , 60 , 60 } , 
+      { "<<<"  , family_infix    , 60 , 60 } , 
+      { ">>>"  , family_infix    , 60 , 60 } , 
+      { "<"    , family_infix    , 50 , 50 } , 
+      { ">"    , family_infix    , 50 , 50 } , 
+      { ">="   , family_infix    , 50 , 50 } , 
+      { "<="   , family_infix    , 50 , 50 } , 
+      { "=>"   , family_infix    , 50 , 50 } , 
+      { "=="   , family_infix    , 50 , 50 } , 
+      { "!="   , family_infix    , 50 , 50 } , 
       { "("    , family_left_op  ,  0 ,  0 } , 
       { ")"    , family_right_op ,  0 ,  0 } , 
       { "{"    , family_left_op  ,  0 ,  0 } , 
       { "}"    , family_right_op ,  0 ,  0 } , 
       { "["    , family_left_op  ,  0 ,  0 } , 
       { "]"    , family_right_op ,  0 ,  0 } , 
-      { "and"  , family_binop    , 30 , 30 } , 
-      { "or"   , family_binop    , 30 , 30 } , 
-      { "."    , family_binop    , 90 , 90 } , 
+      { "and"  , family_infix    , 30 , 30 } , 
+      { "or"   , family_infix    , 30 , 30 } , 
+      { "."    , family_infix    , 90 , 90 } , 
       { ";"    , family_op       ,  0 ,  0 } , 
       { "!"    , family_op       , 40 , 40 } , 
       { "!!"   , family_op       , 40 , 40 } , 
       { "\\"   , family_op       , 10 , 10 } , 
       { "\\\\" , family_op       , 10 , 10 } , 
-      { "::"   , family_binop    , 20 , 20 } , 
+      { "::"   , family_infix    , 20 , 20 } , 
       { "@"    , family_op       , 20 , 20 } , 
       { "^"    , family_op       , 40 , 40 } , 
       { "&"    , family_op       , 40 , 40 } , 
@@ -408,16 +408,13 @@ werror * wparser_lex ( wparser * self ) {
   while ( ! self->stop && wstr_size ( self->text ) && active ) {
     active = false;
     inner_loop = true;
-    wtoken * last_token = wobj_cast ( wtoken, *warray_wobj_ptr_index ( self->tokens, -1 ) );
     if ( *self->text.start == '\n' ) {
       ++self->text.start;
-      if ( last_token != &new_line ) {
-        printf ( "newline " );
+      if ( self->last_token != &new_line ) {
         wparser_push_token ( self, &new_line );
-        last_token = &new_line;
         }
       }
-    if ( last_token == &start_of_file || last_token == &new_line ) {
+    if ( self->last_token == &start_of_file || self->last_token == &new_line ) {
       active |= wparser_lex_indent ( self ) == w_ok;
       }
     while (inner_loop) {
@@ -468,12 +465,9 @@ wparser * wparser_new ( wstr * text ) {
   p->type = wtype_wparser;
   p->all_text = *text;
   p->text = *text;
-  p->handle_error = &null_wcall;
   p->token_table = wstr_trie_new ();
-  p->tokens = warray_wobj_ptr_new ( &null_wcall );
   p->stop = false;
-  if ( ! p->tokens || ! p->token_table ) {
-    warray_wobj_ptr_delete ( p->tokens );
+  if ( ! p->token_table ) {
     wstr_trie_free ( p->token_table );
     free (p);
     return NULL;
@@ -491,8 +485,8 @@ wparser * wparser_new ( wstr * text ) {
 bool is_op ( wtoken * t ) {
   switch ( t->family ) {
     case family_op:
-    case family_binop:
-    case family_preop:
+    case family_infix:
+    case family_prefix:
     case family_left_op:
     case family_right_op:
     case family_special:
@@ -548,15 +542,15 @@ werror * wparser_update_atom ( wparser * self, wtoken * t ) {
       break;
       }
     case wparser_op_pending: {
-      wast_unop * unop = wobj_cast ( wast_unop, self->accum );
-      if ( unop ) {
-        unop->child = wobj_of ( t );
+      wast_prefix * prefix = wobj_cast ( wast_prefix, self->accum );
+      if ( prefix ) {
+        prefix->child = wobj_of ( t );
         self->state = wparser_expr_complete;
         break;
         }
-      wast_binop * binop = wobj_cast ( wast_binop, self->accum );
-      if ( binop ) {
-        binop->right = wobj_of ( t );
+      wast_infix * infix = wobj_cast ( wast_infix, self->accum );
+      if ( infix ) {
+        infix->right = wobj_of ( t );
         self->state = wparser_expr_complete;
         break;
         }
@@ -574,12 +568,12 @@ werror * wparser_update_special ( wparser * self, wtoken * t ) {
   return w_ok;
   }
 
-werror * wparser_update_binop ( wparser * self, wtoken * t ) {
+werror * wparser_update_infix ( wparser * self, wtoken * t ) {
   switch ( self->state ) {
     case wparser_expr_complete: {
-      wast_binop * w = walloc_simple ( wast_binop, 1 );
+      wast_infix * w = walloc_simple ( wast_infix, 1 );
       w->op = t;
-      w->type = wtype_wast_binop;
+      w->type = wtype_wast_infix;
       while ( self->accum->op->rbp >= t->lbp ) {
         self->accum = self->accum->parent;
         }
@@ -599,9 +593,9 @@ werror * wparser_update_binop ( wparser * self, wtoken * t ) {
   return w_ok;
   }
 
-werror * wparser_update_unop ( wparser * self, wtoken * t ) {
-  wast_unop * w = walloc_simple ( wast_unop, 1 );
-  w->type = wtype_wast_unop;
+werror * wparser_update_prefix ( wparser * self, wtoken * t ) {
+  wast_prefix * w = walloc_simple ( wast_prefix, 1 );
+  w->type = wtype_wast_prefix;
   w->op = t;
   w->child = NULL;
   wast_add_rightmost ( self->accum, wobj_of ( w ) );
@@ -620,10 +614,9 @@ werror * wparser_update_right_op ( wparser * self, wtoken * t ) {
 werror * wparser_update_op ( wparser * self, wtoken * t ) {
   switch ( self->state ) {
     case wparser_expr_complete:
-      return wparser_update_binop ( self, t );
+      return wparser_update_infix ( self, t );
     case wparser_op_pending:
-      printf ("calling wparser_update_unop.\n");
-      return wparser_update_unop ( self, t );
+      return wparser_update_prefix ( self, t );
     default:
       assert ( false );
     }
@@ -636,10 +629,10 @@ werror * wparser_update ( wparser * self, wtoken * t ) {
       return wparser_update_atom ( self, t );
     case family_op:
       return wparser_update_op ( self, t );
-    case family_binop:
-      return wparser_update_binop ( self, t );
-    case family_preop:
-      return wparser_update_unop ( self, t );
+    case family_infix:
+      return wparser_update_infix ( self, t );
+    case family_prefix:
+      return wparser_update_prefix ( self, t );
     case family_left_op:
       return wparser_update_left_op ( self, t );
     case family_right_op:

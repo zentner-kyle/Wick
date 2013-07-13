@@ -13,7 +13,7 @@ def_struct ( wast ) {
   };
 
 
-def_struct ( wast_unop ) {
+def_struct ( wast_prefix ) {
   wtype * type;
   wast * parent;
   wtoken * op;
@@ -21,7 +21,7 @@ def_struct ( wast_unop ) {
   };
 
 
-def_struct ( wast_binop ) {
+def_struct ( wast_infix ) {
   wtype * type;
   wast * parent;
   wtoken * op;
@@ -38,8 +38,8 @@ def_struct ( wast_list ) {
   };
 
 wdeclare_composite ( wast );
-wdeclare_composite ( wast_unop );
-wdeclare_composite ( wast_binop );
+wdeclare_composite ( wast_prefix );
+wdeclare_composite ( wast_infix );
 wdeclare_composite ( wast_list );
 
 wast * wast_parent_exprlist ( wast * ast );

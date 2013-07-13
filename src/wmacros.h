@@ -160,6 +160,33 @@
       ( ( join_token ( target_type, _ptr ) ) ( value ) ) : \
       NULL )
 
+/*
+ * To be used like this:
+ * wvar_of (wi, wtoken_infix, w) {
+ *   return wi->lbp;
+ *   } wvar_end
+ * else wvar_of (wp, wtoken_prefix, w) {
+ *   return 0;
+ *   } wvar_end
+ * else wvar_of (wp, wtoken_postfix, w) {
+ *   return wp->bp;
+ *   } wvar_end
+ * else wvar_of (wa, wtoken_atom, w) {
+ *   return 0;
+ *   } wvar_end
+ * else {
+ *   return 0;
+ *   }
+ */
+
+#define wvar_of(varname, target_type, value) \
+  if ( wobj_cast ( target_type, value ) ) { \
+      if ( false ) { \
+        value = value; \
+        } \
+      target_type * varname = wobj_cast ( target_type, value );
+
+#define wvar_end }
 
 #define wobj_of( obj ) \
     ( &( ( obj )->type ) == ( wtype ** ) ( obj ) ? ( wobj * ) ( obj ) : NULL )
