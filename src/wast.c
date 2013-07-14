@@ -112,7 +112,7 @@ void wast_print_inner ( wast * w, int indent ) {
       }
     printf ( "  " );
     wprint_indent ( indent );
-    printf ( "]" );
+    printf ( "]\n" );
     }
   else {
     printf ( "type = " );
@@ -125,5 +125,4 @@ void wast_print_inner ( wast * w, int indent ) {
 
 void wast_print ( wast * w ) {
   wast_print_inner ( w, 0 );
-  printf ( "\n" );
   }
