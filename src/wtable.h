@@ -104,6 +104,11 @@ bool method ( init ) (
 
 wtable_val_t method ( lookup ) ( wtable_struct * self, wtable_key_t key );
 
+werror * method ( get ) (
+    wtable_struct * self,
+    wtable_key_t key,
+    wtable_val_t * dst );
+
 wtable_val_t method ( lookup_or_add ) (
     wtable_struct * self,
     wtable_key_t key,

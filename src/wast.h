@@ -16,7 +16,7 @@ def_struct ( wast ) {
 def_struct ( wast_prefix ) {
   wtype * type;
   wast * parent;
-  wtoken * op;
+  wtoken_prefix * op;
   wobj * child;
   };
 
@@ -24,7 +24,7 @@ def_struct ( wast_prefix ) {
 def_struct ( wast_infix ) {
   wtype * type;
   wast * parent;
-  wtoken * op;
+  wtoken_infix * op;
   wobj * left;
   wobj * right;
   };

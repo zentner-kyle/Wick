@@ -34,7 +34,11 @@ wdefine_composite ( wast_prefix );
 wdefine_composite ( wast_infix );
 wdefine_composite ( wast_list );
 
-
+wdefine_composite ( wtoken );
+wdefine_composite ( wtoken_infix );
+wdefine_composite ( wtoken_prefix );
+wdefine_composite ( wtoken_left );
+wdefine_composite ( wtoken_right );
 
 void wbuiltins_init ( ) {
   if ( wbuiltins_initialized ) {
@@ -69,6 +73,12 @@ void wbuiltins_init ( ) {
   winit_composite ( wast_prefix );
   winit_composite ( wast_infix );
   winit_composite ( wast_list );
+
+  winit_composite ( wtoken );
+  winit_composite ( wtoken_infix );
+  winit_composite ( wtoken_prefix );
+  winit_composite ( wtoken_left );
+  winit_composite ( wtoken_right );
 
   }
 

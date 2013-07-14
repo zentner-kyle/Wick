@@ -9,47 +9,98 @@
 
 whash whash_wtoken ( wval token ) {
   wtoken * self = ( wtoken * ) token.pointer;
-  return self->family ^ wstr_hash ( *self->text );
+  return wstr_hash ( *self->text );
   };
 
 int wcompare_wtoken ( wval token_a, wval token_b ) {
   wtoken * self = ( wtoken * ) token_a.pointer;
   wtoken * other = ( wtoken * ) token_b.pointer;
-  if ( self->family == other->family ) {
-    return wstr_compare ( *self->text, *other->text );
-    }
-  else {
-    return self->family - other->family;
-    }
+  return wstr_compare ( *self->text, *other->text );
   };
 
-wtoken * wtoken_new ( int family, wstr * text ) {
+wtoken * wtoken_new ( wstr * text ) {
   if ( ! text ) {
     return NULL;
     }
   wtoken * t = walloc_simple ( wtoken , 1 );
+  if ( ! t ) {
+    free ( text );
+    return NULL;
+    }
   t->type = wtype_wtoken;
-  t->family = family;
   t->text = text;
-  t->lbp = 0;
-  t->rbp = 0;
   return t;
   }
 
-wtoken * wtoken_new_op ( int family, wstr * text, int lbp, int rbp ) {
+wtoken_left * wtoken_left_new ( wstr * text ) {
   if ( ! text ) {
     return NULL;
     }
-  wtoken * t = walloc_simple ( wtoken , 1 );
+  wtoken_left * t = walloc_simple ( wtoken_left , 1 );
+  if ( ! t ) {
+    free ( text );
+    return NULL;
+    }
   t->type = wtype_wtoken;
-  t->family = family;
+  t->text = text;
+  t->right = NULL;
+  return t;
+  }
+
+wtoken_right * wtoken_right_new ( wstr * text ) {
+  if ( ! text ) {
+    return NULL;
+    }
+  wtoken_right * t = walloc_simple ( wtoken_right , 1 );
+  if ( ! t ) {
+    free ( text );
+    return NULL;
+    }
+  t->type = wtype_wtoken;
+  t->text = text;
+  t->left = NULL;
+  return t;
+  }
+
+werror * wtoken_init ( wtoken * self, wstr * text ) {
+  if ( ! text ) {
+    return &wick_out_of_memory;
+    }
+  self->type = wtype_wtoken;
+  self->text = text;
+  return w_ok;
+  }
+
+wtoken_prefix * wtoken_prefix_new ( wstr * text, int rbp ) {
+  if ( ! text ) {
+    return NULL;
+    }
+  wtoken_prefix * t = walloc_simple ( wtoken_prefix , 1 );
+  if ( ! t ) {
+    free ( text );
+    return NULL;
+    }
+  t->type = wtype_wtoken;
+  t->text = text;
+  t->rbp = rbp;
+  return t;
+  }
+
+wtoken_infix * wtoken_infix_new ( wstr * text, int lbp, int rbp ) {
+  if ( ! text ) {
+    return NULL;
+    }
+  wtoken_infix * t = walloc_simple ( wtoken_infix , 1 );
+  if ( ! t ) {
+    free ( text );
+    return NULL;
+    }
+  t->type = wtype_wtoken;
   t->text = text;
   t->lbp = lbp;
   t->rbp = rbp;
   return t;
   }
-
-wdefine_composite ( wtoken );
 
 void wtokens_print ( warray_wobj_ptr * self ) {
   printf ( "[ " );

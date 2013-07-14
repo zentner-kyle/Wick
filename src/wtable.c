@@ -48,6 +48,15 @@ wtable_val_t method ( lookup ) ( wtable_struct * self, wtable_key_t key ) {
       ) );
   }
 
+werror * method ( get ) ( wtable_struct * self, wtable_key_t key, wtable_val_t * dst ) {
+  return wtable_get_hash (
+      wtable_struct_to_table ( self ),
+      wtable_cast_key ( key ),
+      ( wval * ) dst,
+      wtable_key_hash ( wtable_cast_key ( key ) )
+      );
+  }
+
 wtable_val_t method ( lookup_or_add ) (
     wtable_struct * self,
     wtable_key_t key,

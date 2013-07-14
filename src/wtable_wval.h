@@ -7,6 +7,9 @@
 #include <wtype_h.h>
 #include <whash.h>
 #include <wval.h>
+#include <werror.h>
+
+extern werror wtable_not_found;
 
 def_struct ( wtable_elem_interface ) {
   whash_func_t * hash;
@@ -54,6 +57,10 @@ bool wtable_init (
 
 wval wtable_lookup ( wtable * self, wval key );
 wval wtable_lookup_hash ( wtable * self, wval key, whash hash );
+
+werror * wtable_gt ( wtable * self, wval key, wval * dst );
+werror * wtable_get_hash ( wtable * self, wval key, wval * dst, whash hash );
+
 
 wval wtable_lookup_or_add (
     wtable * self,

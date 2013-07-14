@@ -7,6 +7,8 @@
 #include <wval.h>
 #include <wtype.h>
 
+werror wtable_not_found;
+
 bool wtable_needs_grow ( wtable * self );
 
 bool wtable_needs_shrink ( wtable * self );
@@ -143,6 +145,27 @@ wval wtable_lookup_hash ( wtable * self, wval key, whash hash ) {
   #undef RETURN_NULL
   }
 
+werror * wtable_get ( wtable * self, wval key, wval * dst ) {
+  return wtable_get_hash ( self, key, dst, self->interface->hash ( key ) );
+  }
+werror * wtable_get_hash ( wtable * self, wval key, wval * dst, whash hash ) {
+  #define SET_DST( bucket ) \
+    *dst = bucket->value; \
+    return w_ok;
+  #define RETURN_ERROR( bucket ) \
+    return &wtable_not_found;
+  SELECT_BUCKET ( self,
+                  key,
+                  hash,
+                  self->data,
+                  SET_DST,
+                  SET_DST,
+                  RETURN_ERROR,
+                  RETURN_ERROR );
+  #undef SET_DST
+  #undef RETURN_ERROR
+  }
+
 wval wtable_lookup_or_add (
     wtable * self,
     wval key,
@@ -170,7 +193,7 @@ wval wtable_lookup_or_add_hash (
     ( bucket )->key = key; \
     wcall_push ( on_missing, self->key_type->ptr_of, (wval) { .pointer = ( wobj * ) &( bucket )->key } ); \
     wcall_push ( on_missing, self->val_type->ptr_of, (wval) { .pointer = ( wobj * ) &( bucket )->value } ); \
-    if (winvoke ( on_missing ) != w_ok ) { \
+    if ( winvoke ( on_missing ) != w_ok ) { \
       wval macro_value = ( bucket )->value; \
       ( bucket )->hash = 0; \
       return macro_value; \

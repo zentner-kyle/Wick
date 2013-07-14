@@ -8,7 +8,7 @@
 
 extern werror invalid_utf8;
 
-werror * wutf8_get ( int32_t * dst, const char ** c, const char * past_end );
+werror * wutf8_get ( uint32_t * dst, const char ** c, const char * past_end );
 
 bool wutf8_valid ( wstr * str );
 

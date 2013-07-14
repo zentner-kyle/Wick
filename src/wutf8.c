@@ -24,7 +24,7 @@ const int8_t utf8_length[256] = {
 
 werror invalid_utf8;
 
-werror * wutf8_get ( int32_t * dst, const char ** c, const char * past_end ) {
+werror * wutf8_get ( uint32_t * dst, const char ** c, const char * past_end ) {
   const uint8_t * b = ( uint8_t * ) *c;
   int length = utf8_length[*b];
   if ( *c + length > past_end ) {

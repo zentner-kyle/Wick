@@ -168,12 +168,6 @@
  * else wvar_of (wp, wtoken_prefix, w) {
  *   return 0;
  *   } wvar_end
- * else wvar_of (wp, wtoken_postfix, w) {
- *   return wp->bp;
- *   } wvar_end
- * else wvar_of (wa, wtoken_atom, w) {
- *   return 0;
- *   } wvar_end
  * else {
  *   return 0;
  *   }
@@ -190,5 +184,13 @@
 
 #define wobj_of( obj ) \
     ( &( ( obj )->type ) == ( wtype ** ) ( obj ) ? ( wobj * ) ( obj ) : NULL )
+
+#define werr( var, expr ) \
+  if ( ( var ) != w_ok ) { \
+    ( expr ); \
+    } \
+  else { \
+    ( var ) = ( expr ); \
+    }
 
 #endif /* end of include guard: WMACROS_H */
