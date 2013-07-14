@@ -41,7 +41,7 @@ wtoken_left * wtoken_left_new ( wstr * text ) {
     free ( text );
     return NULL;
     }
-  t->type = wtype_wtoken;
+  t->type = wtype_wtoken_left;
   t->text = text;
   t->right = NULL;
   return t;
@@ -56,7 +56,7 @@ wtoken_right * wtoken_right_new ( wstr * text ) {
     free ( text );
     return NULL;
     }
-  t->type = wtype_wtoken;
+  t->type = wtype_wtoken_right;
   t->text = text;
   t->left = NULL;
   return t;
@@ -80,7 +80,7 @@ wtoken_prefix * wtoken_prefix_new ( wstr * text, int rbp ) {
     free ( text );
     return NULL;
     }
-  t->type = wtype_wtoken;
+  t->type = wtype_wtoken_prefix;
   t->text = text;
   t->rbp = rbp;
   return t;
@@ -95,7 +95,7 @@ wtoken_infix * wtoken_infix_new ( wstr * text, int lbp, int rbp ) {
     free ( text );
     return NULL;
     }
-  t->type = wtype_wtoken;
+  t->type = wtype_wtoken_infix;
   t->text = text;
   t->lbp = lbp;
   t->rbp = rbp;

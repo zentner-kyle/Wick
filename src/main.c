@@ -15,5 +15,7 @@ int main ( int argc, char *argv[] ) {
   /*wstr to_parse = wstr_lit ( "test\n" );*/
   wparser * parser = wparser_new ( &to_parse );
   wparser_lex ( parser );
+  printf ( "Final ast:\n" );
+  wast_print ( ( wast * ) parser->root );
   return 0;
   }

@@ -115,10 +115,7 @@ werror * lex_from_trie ( wparser * self, wstr_trie * node ) {
     if ( node != prev_node ) {
       if ( node->val ) {
         last = c;
-        token = wobj_cast ( wtoken, node->val );
-        if ( ! token ) {
-          return &wcast_error;
-          }
+        token = ( wtoken * ) node->val;
         }
       ++c;
       }
@@ -137,37 +134,47 @@ werror * lex_from_trie ( wparser * self, wstr_trie * node ) {
   }
 
 werror * lex_op_from_trie ( wparser * self ) {
+  printf ( "in lex_op_from_trie\n" );
   switch ( self->state ) {
-    case wparser_expr_start: {
+    case wparser_op_pending: {
+      printf ("lexing from prefix trie!\n");
       return lex_from_trie ( self, self->prefix_table );
       }
-    case wparser_op_pending: {
+    case wparser_expr_start: {
+      printf ("lexing from infix trie!\n");
       return lex_from_trie ( self, self->infix_table );
       }
     default:
+      printf ( "inconsistent state!\n" );
       assert ( false );
       return w_ok;
     }
   }
 
 werror * lex_identifier ( wparser * self ) {
+  printf ( "in lex_identifier\n" );
   werror * e = w_ok;
   wtoken * token;
   wstr str = wstr_empty ();
   str.start = self->text.start;
   str.past_end = str.start;
+  const char * c;
   uint32_t uc;
   if ( wutf8_get ( &uc, &str.past_end, self->text.past_end ) != w_ok ) {
     return &invalid_utf8;
     }
   if ( ! is_ident_char ( uc ) ) {
+    printf ( "was not identifier, started with '%c'\n", (char) uc );
     return &wparse_inactive;
     }
   while ( str.past_end != self->text.past_end && is_ident_char ( uc ) ) {
+    c = str.past_end;
     if ( wutf8_get ( &uc, &str.past_end, self->text.past_end ) != w_ok ) {
       return &invalid_utf8;
       }
     }
+  str.past_end = c;
+    
   werr ( e, wparser_unique_wtoken ( &str, &token, self->identifier_table ) );
   if ( e == w_ok ) {
     printf ( "identifier " );
@@ -405,6 +412,7 @@ werror * wparser_lex ( wparser * self ) {
       active |= wparser_lex_indent ( self ) == w_ok;
       }
     while (inner_loop) {
+      printf ("inner loop\n");
       inner_loop = wparser_lex_from_trie ( self ) == w_ok;
       active |= inner_loop;
       if ( *self->text.start == ' ' || *self->text.start == '\t' ) {
@@ -421,6 +429,7 @@ werror * wparser_lex ( wparser * self ) {
   if ( self->text.start == self->text.past_end ) {
     wparser_push_token ( self, &end_of_file );
     }
+  printf ("returning from lex.\n");
   return w_ok;
   }
 
@@ -458,13 +467,13 @@ wparser * wparser_new ( wstr * text ) {
     free (p);
     return NULL;
     }
-  else {
-    wparser_table_init ( p );
-    wparser_push_token ( p, &start_of_file );
-    }
   p->root = wast_list_new ( &root );
   p->accum = ( wast * ) p->root;
+  printf ("Set root.\n");
   p->state = wparser_expr_start;
+
+  wparser_table_init ( p );
+  wparser_push_token ( p, &start_of_file );
   return p;
   }
 
@@ -472,9 +481,12 @@ werror wparser_bad_expr;
 werror wparser_internal_error;
 
 werror * wparser_update_atom ( wparser * self, wtoken * t ) {
+  printf ( "in wparser_update_atom\n" );
   switch ( self->state ) {
     case wparser_expr_start: {
+      printf ( "wparser_expr_start\n" );
       self->accum = wast_parent_exprlist ( self->accum );
+      printf ("self->accum = %p\n", self->accum);
       wast_add_rightmost ( self->accum, wobj_of ( t ) );
       break;
       }
@@ -518,6 +530,7 @@ int wparser_get_rbp ( wtoken * t ) {
   }
 
 werror * wparser_update_infix ( wparser * self, wtoken_infix * t ) {
+  printf ("updating infix.\n");
   switch ( self->state ) {
     case wparser_expr_start: {
       wast_infix * w = walloc_simple ( wast_infix, 1 );
@@ -531,11 +544,15 @@ werror * wparser_update_infix ( wparser * self, wtoken_infix * t ) {
       w->right = NULL;
       wast_add_rightmost ( self->accum, wobj_of ( w ) );
       self->accum = ( wast * ) w;
+      printf ("now accum = \n");
+      wast_print ( self->accum );
+
       self->state = wparser_op_pending;
       break;
       }
-    case wparser_op_pending:
+    case wparser_op_pending: {
       return &wparser_bad_expr;
+      }
     default:
       assert ( false );
     }
@@ -547,6 +564,7 @@ werror * wparser_update_prefix ( wparser * self, wtoken_prefix * t ) {
   w->type = wtype_wast_prefix;
   w->op = t;
   w->child = NULL;
+  w->parent = self->accum;
   wast_add_rightmost ( self->accum, wobj_of ( w ) );
   self->accum = (wast *) w;
   return w_ok;
@@ -561,6 +579,9 @@ werror * wparser_update_right ( wparser * self, wtoken_right * t ) {
   }
 
 werror * wparser_update ( wparser * self, wtoken * t ) {
+  printf ("accum = \n");
+  wast_print ( self->accum );
+
   wvar_of ( wi, wtoken_infix, t ) {
     return wparser_update_infix ( self, wi );
     } wvar_end
@@ -574,6 +595,9 @@ werror * wparser_update ( wparser * self, wtoken * t ) {
     return wparser_update_right ( self, wr );
     } wvar_end
   else {
+    printf ("did not recognize token as any type.\n");
+    printf ("type = ");
+    wstr_println ( t->type->name );
     if ( *t->text->start == ' ' || *t->text->start == '\t' ) {
       /* Ignore spaces. */
       return w_ok;
