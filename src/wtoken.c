@@ -71,6 +71,27 @@ werror * wtoken_init ( wtoken * self, wstr * text ) {
   return w_ok;
   }
 
+werror * wtoken_left_init ( wtoken_left * self, wstr * text, int lbp ) {
+  if ( ! text ) {
+    return &wick_out_of_memory;
+    }
+  self->type = wtype_wtoken_left;
+  self->text = text;
+  self->lbp = lbp;
+  self->right = NULL;
+  return w_ok;
+  }
+
+werror * wtoken_right_init ( wtoken_right * self, wstr * text ) {
+  if ( ! text ) {
+    return &wick_out_of_memory;
+    }
+  self->type = wtype_wtoken_right;
+  self->text = text;
+  self->left = NULL;
+  return w_ok;
+  }
+
 wtoken_prefix * wtoken_prefix_new ( wstr * text, int rbp ) {
   if ( ! text ) {
     return NULL;

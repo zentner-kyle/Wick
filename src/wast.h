@@ -34,6 +34,7 @@ def_struct ( wast_list ) {
   wtype * type;
   wast * parent;
   wtoken * op;
+  wobj * primary;
   warray_wobj_ptr * children;
   };
 

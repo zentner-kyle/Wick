@@ -6,13 +6,6 @@
 #include <wobj.h>
 #include <wast.h>
 
-//#define wtable_key_t wstr_ptr
-//#define wtable_key_kind pointer
-
-//#define wtable_val_t wobj_ptr
-//#define wtable_val_kind pointer
-//#include <wtable.h>
-
 #define wtable_key_t wstr_ptr
 #define wtable_key_kind pointer
 
@@ -43,11 +36,6 @@ def_struct ( wparser ) {
 
 wdeclare_composite ( wparser );
 
-void wparser_error ( wparser * self, werror * error );
-bool wparser_push_token ( wparser * self, wtoken * token );
-
 wparser * wparser_new ( wstr * text );
 
-werror * wparser_lex ( wparser * self );
-
-//void wparser_print_tokens ( wparser * self );
+werror * wparser_parse ( wparser * self );
