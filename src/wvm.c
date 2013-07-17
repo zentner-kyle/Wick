@@ -202,7 +202,10 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
   int left_in_opcode = 4;
   wstr success = wstr_lit ( "success" );
   werror parse_error = { wtype_werror, & success };
-  warray_opbunch * uncollapsed_code = warray_opbunch_new ( &null_wcall );
+  warray_opbunch * uncollapsed_code = warray_opbunch_new ( );
+  if ( ! uncollapsed_code ) {
+    return NULL;
+    }
   while ( wstr_size ( file_remaining ) != 0 ) {
     get_next_line ( file_remaining, &line, &file_remaining );
     wstr name;
@@ -226,7 +229,8 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
       }
     skip_wspace ( &line );
     assert ( wstr_size ( line ) == 0 || line.start[ 0 ] == '#' );
-    warray_opbunch_push_back ( uncollapsed_code, opcode, &null_wcall );
+    warray_opbunch_push_back ( uncollapsed_code, opcode );
+    fflush (stdout);
     }
   ++total_size;
   opbunch * code = malloc ( sizeof ( opbunch ) * total_size );
@@ -234,7 +238,7 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
   opbunch opcode;
   uint8_t used_in_opcode = 0;
   while ( ! warray_opbunch_empty ( uncollapsed_code ) ) {
-    opcode = warray_opbunch_pop_front ( uncollapsed_code, &null_wcall );
+    warray_opbunch_pop_front ( uncollapsed_code, &opcode );
     uint8_t size = wopcode_args[opcode & 0xff] + 1;
     if ( used_in_opcode + size > sizeof ( opbunch ) ) {
       while ( used_in_opcode < sizeof ( opbunch ) ) {

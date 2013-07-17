@@ -6,21 +6,21 @@
 
 #define back_cast( val ) ( ( warray_elem_t ) ( val ).warray_elem_kind )
 
-bool method( init ) ( warray_struct * self, wcall * error ) {
-  return warray_init ( &self->array, warray_elem_wtype, error );
+werror * method( init ) ( warray_struct * self ) {
+  return warray_init ( &self->array, warray_elem_wtype );
   }
 
-bool method( init_to_size ) ( warray_struct * self, long num_elems, wcall * error ) {
-  return warray_init_to_size ( &self->array, warray_elem_wtype, num_elems, error );
+werror * method( init_to_size ) ( warray_struct * self, long num_elems ) {
+  return warray_init_to_size ( &self->array, warray_elem_wtype, num_elems );
   }
 
 
-warray_struct * method ( new ) ( wcall * error ) {
-  return ( warray_struct * ) warray_new ( warray_elem_wtype, error );
+warray_struct * method ( new ) ( void ) {
+  return ( warray_struct * ) warray_new ( warray_elem_wtype );
   }
 
-warray_struct * method ( new_to_size ) ( long num_elems, wcall * error ) {
-  return ( warray_struct * ) warray_new_to_size ( warray_elem_wtype, num_elems, error );
+warray_struct * method ( new_to_size ) ( long num_elems ) {
+  return ( warray_struct * ) warray_new_to_size ( warray_elem_wtype, num_elems );
   }
 
 
@@ -42,21 +42,31 @@ bool method ( full ) ( warray_struct * self ) {
   }
 
 
-void method ( push_back ) ( warray_struct * self, warray_elem_t elem, wcall * error ) {
-  warray_push_back ( &self->array, warray_cast_elem ( elem ), error );
+werror * method ( push_back ) ( warray_struct * self, warray_elem_t elem ) {
+  return warray_push_back ( &self->array, warray_cast_elem ( elem ) );
   }
 
-void method ( push_front ) ( warray_struct * self, warray_elem_t elem, wcall * error ) {
-  warray_push_front ( &self->array, warray_cast_elem ( elem ), error );
+werror * method ( push_front ) ( warray_struct * self, warray_elem_t elem ) {
+  return warray_push_front ( &self->array, warray_cast_elem ( elem ) );
   }
 
 
-warray_elem_t method ( pop_back ) ( warray_struct * self, wcall * error ) {
-  return back_cast ( warray_pop_back ( &self->array, error ) );
+werror * method ( pop_back ) ( warray_struct * self, warray_elem_t * elem ) {
+  wval elem_val;
+  werror * error = warray_pop_back ( &self->array, &elem_val );
+  if ( error == w_ok ) {
+    *elem = back_cast ( elem_val );
+    }
+  return error;
   }
 
-warray_elem_t method ( pop_front ) ( warray_struct * self, wcall * error ) {
-  return back_cast ( warray_pop_front ( &self->array, error ) );
+werror * method ( pop_front ) ( warray_struct * self, warray_elem_t * elem ) {
+  wval elem_val;
+  werror * error = warray_pop_front ( &self->array, &elem_val );
+  if ( error == w_ok ) {
+    *elem = back_cast ( elem_val );
+    }
+  return error;
   }
 
 
@@ -68,21 +78,35 @@ bool method ( good_index ) ( warray_struct * self, long index ) {
   return warray_good_index ( &self->array, index );
   }
 
-warray_elem_t * method ( index ) ( warray_struct * self, long index ) {
-  return ( warray_elem_t * ) warray_index ( &self->array, index );
+werror * method ( index ) (
+    warray_struct * self,
+    long index,
+    warray_elem_t ** elem
+    ) {
+  wval * elem_val_ptr;
+  werror * error = warray_index ( &self->array, index, &elem_val_ptr );
+  if ( error == w_ok ) {
+    *elem = ( warray_elem_t * ) elem_val_ptr;
+    }
+  return error;
   }
 
-void method ( remove ) ( warray_struct * self, long index ) {
-  warray_remove ( &self->array, index );
+werror * method ( remove ) ( warray_struct * self, long index ) {
+  return warray_remove ( &self->array, index );
   }
 
 
-warray_elem_t method ( get ) ( warray_struct * self, long index ) {
-  return back_cast ( warray_get ( &self->array, index ) );
+werror * method ( get ) ( warray_struct * self, long index, warray_elem_t * elem ) {
+  wval elem_val;
+  werror * error = warray_get ( &self->array, index, &elem_val );
+  if ( error == w_ok ) {
+    *elem = back_cast ( elem_val );
+    }
+  return error;
   }
 
-warray_elem_t method ( set ) ( warray_struct * self, long index, warray_elem_t val ) {
-  return back_cast ( warray_set ( &self->array, index, warray_cast_elem ( val ) ) );
+werror * method ( set ) ( warray_struct * self, long index, warray_elem_t val ) {
+  return warray_set ( &self->array, index, warray_cast_elem ( val ) );
   }
 
 
@@ -120,8 +144,8 @@ bool method ( good_at ) ( warray_iter_struct * self, long rel_idx ) {
   return warray_good_at ( &self->iter, rel_idx );
   }
 
-void method ( remove_at ) ( warray_iter_struct * self, long rel_idx ) {
-  warray_remove_at ( &self->iter, rel_idx );
+werror * method ( remove_at ) ( warray_iter_struct * self, long rel_idx ) {
+  return warray_remove_at ( &self->iter, rel_idx );
   }
 
 

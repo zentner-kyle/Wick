@@ -3,24 +3,25 @@
 #include <stdio.h>
 #include <wtype.h>
 #include <wbits.h>
-#include <walloc.h>
 #include <wmacros.h>
+#include <werror.h>
+#include <walloc.h>
 
 #include <warray_wval.h>
 
 wdefine_base ( warray );
 
 const static long warray_default_size = 8;
+werror warray_no_elem;
 
-bool warray_init ( warray * self, wtype * warray_elem_type, wcall * error ) {
-  return warray_init_to_size ( self, warray_elem_type, warray_default_size, error );
+werror * warray_init ( warray * self, wtype * warray_elem_type ) {
+  return warray_init_to_size ( self, warray_elem_type, warray_default_size );
   }
 
-bool warray_init_to_size (
+werror * warray_init_to_size (
     warray * self,
     wtype * warray_elem_type,
-    long num_elements,
-    wcall * error
+    long num_elements
     ) {
   self->warray_elem_type = warray_elem_type;
   self->space = num_elements;
@@ -30,28 +31,26 @@ bool warray_init_to_size (
   self->data = malloc ( sizeof ( wval ) * self->space );
 
   if ( ! self->data ) {
-    winvoke ( error );
-    return false;
+    return &wick_out_of_memory;
     }
   else {
-    return true;
+    return w_ok;
     }
   }
 
 
-warray * warray_new ( wtype * warray_elem_type, wcall * error ) {
-  return warray_new_to_size ( warray_elem_type, warray_default_size, error );
+warray * warray_new ( wtype * warray_elem_type ) {
+  return warray_new_to_size ( warray_elem_type, warray_default_size );
   }
 
-warray * warray_new_to_size ( wtype * warray_elem_type, long num_elements, wcall * error ) {
+warray * warray_new_to_size ( wtype * warray_elem_type, long num_elements ) {
   warray * self = ( warray * ) malloc ( sizeof ( warray ) );
   if ( ! self ) {
-    winvoke ( error );
     return NULL;
     }
-  if ( ! warray_init_to_size ( self, warray_elem_type, num_elements, &null_wcall ) ) {
+  if ( warray_init_to_size ( self, warray_elem_type, num_elements ) != w_ok ) {
       free ( self );
-      self = NULL;
+      return NULL;
     }
   return self;
   }
@@ -72,11 +71,10 @@ static bool warray_looped ( warray * self ) {
   }
 
 
-bool warray_grow ( warray * self, wcall * error ) {
+bool warray_grow ( warray * self ) {
   long new_size = round_up_power_2 ( self->space + 1 );
   wval * new_data = walloc_simple ( wval, new_size );
   if ( ! new_data ) {
-    winvoke ( error );
     return false;
     }
   if ( warray_looped ( self ) ) {
@@ -109,10 +107,10 @@ bool warray_full ( warray * self ) {
   return ( self->past_end != 0 && self->start == self->past_end ) || ( self->start == 0 && self->past_end == self->space );
   }
 
-void warray_push_back ( warray * self, wval elem, wcall * error ) {
+werror * warray_push_back ( warray * self, wval elem ) {
   if ( warray_full ( self ) ) {
-    if ( ! warray_grow ( self, error ) ) {
-      return;
+    if ( ! warray_grow ( self ) ) {
+      return &wick_out_of_memory;
       }
     }
   if ( self->past_end == self->space ) {
@@ -123,11 +121,12 @@ void warray_push_back ( warray * self, wval elem, wcall * error ) {
   else {
     self->data[self->past_end++] = elem;
     }
+  return w_ok;
   }
 
-void warray_push_front ( warray * self, wval elem, wcall * error ) {
+werror * warray_push_front ( warray * self, wval elem ) {
   if ( warray_full ( self ) ) {
-    warray_grow ( self, error );
+    warray_grow ( self );
     }
   if ( ! warray_full ( self ) ) {
      
@@ -144,14 +143,18 @@ void warray_push_front ( warray * self, wval elem, wcall * error ) {
       }
     self->data[self->start] = elem;
     }
+  else {
+    return &wick_out_of_memory;
+    }
+  return w_ok;
   }
 
-wval warray_pop_back ( warray * self, wcall * error ) {
+werror * warray_pop_back ( warray * self, wval * elem ) {
   if ( warray_empty ( self ) ) {
-    winvoke ( error );
+    return &warray_no_elem;
     }
 
-  wval to_return = self->data[--self->past_end];
+  *elem = self->data[--self->past_end];
 
   if ( self->past_end == 1 && self->start != 0 ) {
     /*
@@ -168,15 +171,15 @@ wval warray_pop_back ( warray * self, wcall * error ) {
       self->start = 0;
       }
     }
-  return to_return;
+  return w_ok;
   }
 
-wval warray_pop_front ( warray * self, wcall * error ) {
+werror * warray_pop_front ( warray * self, wval * elem ) {
   if ( warray_empty ( self ) ) {
-    winvoke ( error );
+    return &warray_no_elem;
     }
 
-  wval to_return = self->data[self->start++];
+  *elem = self->data[self->start++];
 
   if ( self->start == self->space && self->past_end != self->space ) {
     /*
@@ -189,7 +192,7 @@ wval warray_pop_front ( warray * self, wcall * error ) {
     /* Array is empitied. */
     self->past_end = 0;
     }
-  return to_return;
+  return w_ok;
   }
 
 
@@ -208,7 +211,7 @@ bool warray_good_index ( warray * self, long index ) {
   return index < warray_length ( self ) && index >= -warray_length ( self );
   }
 
-wval * warray_index ( warray * self, long index ) {
+werror * warray_index ( warray * self, long index, wval ** elem ) {
   if ( index < 0 ) {
     index = warray_length ( self ) + index;
     }
@@ -216,30 +219,31 @@ wval * warray_index ( warray * self, long index ) {
     long end_size = self->space - self->start;
     if ( index < end_size ) {
       /* Index is in the loop-back end segment. */
-      return self->data + self->start + index;
+      *elem = self->data + self->start + index;
       }
     else if ( index - end_size < self->past_end ) {
       /* Index is in the normal segment. */
-      return self->data + (index - end_size );
+      *elem = self->data + (index - end_size );
       }
     else {
       /* Index is out of bounds ( between the segments ). */
-      return NULL;
+      return &warray_no_elem;
       }
     }
   else {
     if ( index + self->start < self->past_end ) {
       /* Index is in bounds. */
-      return self->data + self->start + index;
+      *elem = self->data + self->start + index;
       }
     else {
       /* Index is out of bounds. */
-      return NULL;
+      return &warray_no_elem;
       }
     }
+  return w_ok;
   }
 
-void warray_remove ( warray * self, long index ) {
+werror * warray_remove ( warray * self, long index ) {
   if ( index < 0 ) {
     index = warray_length ( self ) + index;
     }
@@ -269,6 +273,7 @@ void warray_remove ( warray * self, long index ) {
       }
     else {
       /* Index is out of bounds ( between the segments ). */
+      return &warray_no_elem;
       }
     }
   else {
@@ -287,20 +292,28 @@ void warray_remove ( warray * self, long index ) {
       }
     else {
       /* Index is out of bounds. */
+      return &warray_no_elem;
       }
     }
+  return w_ok;
   }
 
-wval warray_get ( warray * self, long index ) {
-  return *warray_index ( self, index );
-  }
-
-wval warray_set ( warray * self, long index, wval val ) {
-  wval * to_set = warray_index ( self, index );
-  if ( to_set != NULL ) {
-    *to_set = val;
+werror * warray_get ( warray * self, long index, wval * elem ) {
+  wval * elem_ptr;
+  werror * e = warray_index ( self, index, &elem_ptr );
+  if ( e == w_ok ) {
+    *elem = *elem_ptr;
     }
-  return val;
+  return e;
+  }
+
+werror * warray_set ( warray * self, long index, wval val ) {
+  wval * elem_ptr;
+  werror * e = warray_index ( self, index, &elem_ptr );
+  if ( e == w_ok ) {
+    *elem_ptr = val;
+    }
+  return e;
   }
 
 
@@ -327,11 +340,25 @@ bool warray_good ( warray_iter * self ) {
   }
 
 wval warray_deref ( warray_iter * self ) {
-  return warray_get ( self->parent, self->index );
+  wval elem;
+  werror * e = warray_get ( self->parent, self->index, &elem );
+  if (e == w_ok) {
+    return elem;
+    }
+  else {
+    assert ( false );
+    }
   }
 
 wval * warray_at ( warray_iter * self, long rel_idx ) {
-  return warray_index ( self->parent, self->index + rel_idx );
+  wval * elem_ptr;
+  werror * e = warray_index ( self->parent, self->index + rel_idx, &elem_ptr );
+  if ( e == w_ok ) {
+    return elem_ptr;
+    }
+  else {
+    return NULL;
+    }
   }
 
 bool warray_good_at ( warray_iter * self, long rel_idx ) {
@@ -345,7 +372,7 @@ bool warray_good_at ( warray_iter * self, long rel_idx ) {
     }
   }
 
-void warray_remove_at ( warray_iter * self, long rel_idx ) {
+werror * warray_remove_at ( warray_iter * self, long rel_idx ) {
   return warray_remove ( self->parent, self->index + rel_idx );
   }
 

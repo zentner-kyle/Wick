@@ -14,8 +14,8 @@
 #include <wtable.h>
 
 enum wparser_state {
-  wparser_expr_start,
-  wparser_op_pending
+  wparser_prefix_context,
+  wparser_infix_context
   };
 
 def_struct ( wparser ) {

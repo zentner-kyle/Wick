@@ -1,29 +1,22 @@
 #include <assert.h>
 #include <stdio.h>
-#include <wcall.h>
+#include <werror.h>
 #include <wbuiltins.h>
 
 #define warray_elem_t int
 #define warray_elem_kind integer
 #include <warray.h>
 
-bool error = false;
-
-werror * report_error ( wval * ignored ) {
-  error = true;
-  return &werror_generic;
-  }
-
 int main ( ) {
   wbuiltins_init ( );
+  werror * e = w_ok;
   warray_int a;
-  wcall error_wcall = null_wcall;
-  error_wcall.func = report_error;
-  warray_int_init ( &a, &error_wcall );
+  werr ( e, warray_int_init ( &a ) );
   int i = 100;
-  warray_int_push_back ( &a, i, &error_wcall );
-  int i2 = warray_int_get ( &a, 0 );
+  werr ( e, warray_int_push_back ( &a, i ) );
+  int i2;
+  werr ( e, warray_int_get ( &a, 0, &i2 ) );
   printf ( "i2 = %d\n", i2 );
   assert ( i2 == 100 );
-  return error;
+  return e != w_ok;
   }

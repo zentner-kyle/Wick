@@ -21,7 +21,9 @@ wobj * wast_remove_rightmost ( wast * w ) {
     return c;
     }
   else if ( wobj_cast ( wast_list, w ) ) {
-    return warray_wobj_ptr_pop_back ( wobj_cast ( wast_list, w )->children, &null_wcall );
+    wobj * child = NULL;
+    warray_wobj_ptr_pop_back ( wobj_cast ( wast_list, w )->children, &child );
+    return child;
     }
   else {
     assert ( 0 );
@@ -37,8 +39,7 @@ void wast_add_rightmost ( wast * w, wobj * o ) {
     }
   else if ( wobj_cast ( wast_list, w ) ) {
     warray_wobj_ptr_push_back ( wobj_cast ( wast_list, w )->children,
-                                o,
-                                &null_wcall );
+                                o );
     }
   else {
     assert ( 0 );
@@ -51,7 +52,7 @@ wast_list * wast_list_new ( wtoken * op ) {
   w->parent = NULL;
   w->op = op;
   w->primary = NULL;
-  w->children = warray_wobj_ptr_new ( &null_wcall );
+  w->children = warray_wobj_ptr_new ( );
   return w;
   }
 
@@ -78,17 +79,12 @@ void wast_print_inner ( wobj * w, int indent ) {
     } wvar_end
   else wvar_of ( wl, wast_list, w ) {
     wstr_println ( *wl->op->text );
-    wprint_indent ( indent + 1 );
-    printf ( "[\n" );
     wast_print_inner ( wl->primary, indent + 1 );
     warray_wobj_ptr_iter i = warray_wobj_ptr_start ( (( wast_list * ) w)->children );
     while ( warray_wobj_ptr_good ( &i ) ) {
       wast_print_inner ( warray_wobj_ptr_deref ( &i ), indent + 1 );
       warray_wobj_ptr_next ( &i );
       }
-    printf ( "  " );
-    wprint_indent ( indent );
-    printf ( "]\n" );
     } wvar_end
   else {
     wstr_println ( * ( ( wtoken * ) w )->text );

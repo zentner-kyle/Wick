@@ -42,11 +42,11 @@ def_struct ( warray_iter_struct ) {
   warray_iter iter;
   };
 
-bool method( init ) ( warray_struct * self, wcall * error );
-bool method( init_to_size ) ( warray_struct * self, long num_elems, wcall * error );
+werror * method( init ) ( warray_struct * self );
+werror * method( init_to_size ) ( warray_struct * self, long num_elems );
 
-warray_struct * method ( new ) ( wcall * error );
-warray_struct * method ( new_to_size ) ( long num_elems, wcall * error );
+warray_struct * method ( new ) ( void );
+warray_struct * method ( new_to_size ) ( long num_elems );
 
 void method ( deinit ) ( warray_struct * self );
 void method ( delete ) ( warray_struct * self );
@@ -55,18 +55,18 @@ void method ( delete ) ( warray_struct * self );
 bool method ( empty ) ( warray_struct * self );
 bool method ( full ) ( warray_struct * self );
 
-void method ( push_back ) ( warray_struct * self, warray_elem_t elem, wcall * error );
-void method ( push_front ) ( warray_struct * self, warray_elem_t elem, wcall * error );
+werror * method ( push_back ) ( warray_struct * self, warray_elem_t elem );
+werror * method ( push_front ) ( warray_struct * self, warray_elem_t elem );
 
-warray_elem_t method ( pop_back ) ( warray_struct * self, wcall * error );
-warray_elem_t method ( pop_front ) ( warray_struct * self, wcall * error );
+werror * method ( pop_back ) ( warray_struct * self, warray_elem_t * elem );
+werror * method ( pop_front ) ( warray_struct * self, warray_elem_t * elem );
 
 long method ( length ) ( warray_struct * self );
 bool method ( good_index ) ( warray_struct * self, long index );
-warray_elem_t * method ( index ) ( warray_struct * self, long index );
-void method ( remove ) ( warray_struct * self, long index );
-warray_elem_t method ( get ) ( warray_struct * self, long index );
-warray_elem_t method ( set ) ( warray_struct * self, long index, warray_elem_t val );
+werror * method ( index ) ( warray_struct * self, long index, warray_elem_t ** elem );
+werror * method ( remove ) ( warray_struct * self, long index );
+werror * method ( get ) ( warray_struct * self, long index, warray_elem_t * elem );
+werror * method ( set ) ( warray_struct * self, long index, warray_elem_t val );
 
 warray_iter_struct method ( start ) ( warray_struct * parent );
 warray_iter_struct method ( end ) ( warray_struct * parent );
@@ -78,7 +78,7 @@ bool method ( good ) ( warray_iter_struct * self );
 warray_elem_t method ( deref ) ( warray_iter_struct * self );
 warray_elem_t * method ( at ) ( warray_iter_struct * self, long rel_index );
 bool method ( good_at ) ( warray_iter_struct * self, long rel_index );
-void method ( remove_at ) ( warray_iter_struct * self, long rel_index );
+werror * method ( remove_at ) ( warray_iter_struct * self, long rel_index );
 
 
 long method ( index_of ) ( warray_struct * self, warray_elem_t to_find );

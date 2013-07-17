@@ -107,7 +107,7 @@ wtoken_prefix * wtoken_prefix_new ( wstr * text, int rbp ) {
   return t;
   }
 
-wtoken_infix * wtoken_infix_new ( wstr * text, int lbp, int rbp ) {
+wtoken_infix * wtoken_infix_new ( wstr * text, int lbp, int rbp, bool starts_indent ) {
   if ( ! text ) {
     return NULL;
     }
@@ -118,6 +118,7 @@ wtoken_infix * wtoken_infix_new ( wstr * text, int lbp, int rbp ) {
     }
   t->type = wtype_wtoken_infix;
   t->text = text;
+  t->starts_indent = starts_indent;
   t->lbp = lbp;
   t->rbp = rbp;
   return t;

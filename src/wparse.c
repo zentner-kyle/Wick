@@ -16,20 +16,25 @@ werror wparser_inactive;
 werror wparser_invalid_token;
 
 werror * wparser_update ( wparser * self, wtoken * t );
+werror * wparser_update_indent ( wparser * self, wtoken * t );
 
 void wparser_error ( wparser * self, werror * error ) {
   self->stop = true;
   }
 
+void wparser_debug_state ( wparser * self, wtoken * token ) {
+  printf ( "pushing token '" );
+  wstr_print ( *token->text );
+  printf ( "'\n" );
+  self->last_token = token;
+  printf ( "Before update: \n" );
+  wast_print ( ( wast * ) self->root );
+  printf ( "self->accum = \n");
+  wast_print ( self->accum );
+  }
+
 bool wparser_push_token ( wparser * self, wtoken * token ) {
-  /*printf ( "pushing token '" );*/
-  /*wstr_print ( *token->text );*/
-  /*printf ( "'\n" );*/
-  /*self->last_token = token;*/
-  /*printf ( "Before update: \n" );*/
-  /*wast_print ( ( wast * ) self->root );*/
-  /*printf ( "self->accum = \n");*/
-  /*wast_print ( self->accum );*/
+  wparser_debug_state ( self, token );
   wparser_update ( self, token );
   return ! self->stop;
   }
@@ -106,7 +111,8 @@ werror * wparser_lex_indent ( wparser * restrict self ) {
   if ( e == w_ok ) {
     self->text.start = str.past_end;
     /*printf ( "indent " );*/
-    wparser_push_token ( self, token );
+    /*wparser_push_token ( self, token );*/
+    return wparser_update_indent ( self, token );
     }
   return e;
   }
@@ -143,15 +149,12 @@ werror * lex_from_trie ( wparser * self, wstr_trie * node ) {
 
 werror * lex_op_from_trie ( wparser * self ) {
   switch ( self->state ) {
-    case wparser_op_pending: {
+    case wparser_infix_context: {
       return lex_from_trie ( self, self->prefix_table );
       }
-    case wparser_expr_start: {
+    case wparser_prefix_context: {
       return lex_from_trie ( self, self->infix_table );
       }
-    default:
-      assert ( false );
-      return w_ok;
     }
   }
 
@@ -209,7 +212,7 @@ wtoken new_line;
 wtoken start_of_file;
 wtoken end_of_file;
 wtoken root;
-wtoken colon;
+/*wtoken colon;*/
 wtoken comma;
 wtoken_left lparen;
 wtoken_right rparen;
@@ -246,52 +249,54 @@ werror * wparser_table_init ( wparser * self ) {
     char * text;
     int lbp;
     int rbp;
+    bool starts_indent;
   } infix_table[] = {
-      { "="    , 10 , 10 } , 
-      { "++"   , 60 , 60 } , 
-      { "<+>"  , 60 , 60 } , 
-      { "--"   , 60 , 60 } , 
-      { "<->"  , 60 , 60 } , 
-      { "**"   , 70 , 69 } , 
-      { "<*>"  , 70 , 70 } , 
-      { "/"    , 70 , 70 } , 
-      { "//"   , 70 , 70 } , 
-      { "</>"  , 70 , 70 } , 
-      { "%"    , 70 , 70 } , 
-      { "%%"   , 70 , 70 } , 
-      { "<%>"  , 70 , 70 } , 
-      { "<-"   , 10 , 10 } , 
-      { "->"   , 10 , 10 } , 
-      { "<<"   , 60 , 60 } , 
-      { ">>"   , 60 , 60 } , 
-      { "<<<"  , 60 , 60 } , 
-      { ">>>"  , 60 , 60 } , 
-      { "<"    , 50 , 50 } , 
-      { ">"    , 50 , 50 } , 
-      { ">="   , 50 , 50 } , 
-      { "<="   , 50 , 50 } , 
-      { "=>"   , 50 , 50 } , 
-      { "=="   , 50 , 50 } , 
-      { "!="   , 50 , 50 } , 
-      { "and"  , 30 , 30 } , 
-      { "or"   , 30 , 30 } , 
-      { "."    , 90 , 90 } , 
-      { "::"   , 20 , 20 } , 
-      { ".."   , 60 , 60 } , 
-      { "*"    , 70 , 70 } , 
-      { "+"    , 60 , 60 } , 
-      { "-"    , 60 , 60 } , 
-      { "!"    , 40 , 40 } , 
-      { "!!"   , 40 , 40 } , 
-      { "\\"   , 10 , 10 } , 
-      { "\\\\" , 10 , 10 } , 
-      { "@"    , 20 , 20 } , 
-      { "^"    , 40 , 40 } , 
-      { "&"    , 40 , 40 } , 
-      { "|"    , 40 , 40 } , 
-      { "~"    , 40 , 40 } , 
-      { "$"    , 20 , 20 } , 
-      { ""     ,  0 ,  0 } ,
+      { "="    ,  5 ,  5 ,  true } , 
+      { "<-"   , 10 , 10 ,  true } , 
+      { "->"   , 10 , 10 ,  true } , 
+      { ":"    , 15 , 15 ,  true } , 
+      { "\\"   , 10 , 10 , false } , 
+      { "\\\\" , 10 , 10 , false } , 
+      { "++"   , 60 , 60 , false } , 
+      { "<+>"  , 60 , 60 , false } , 
+      { "--"   , 60 , 60 , false } , 
+      { "<->"  , 60 , 60 , false } , 
+      { "**"   , 70 , 69 , false } , 
+      { "<*>"  , 70 , 70 , false } , 
+      { "/"    , 70 , 70 , false } , 
+      { "//"   , 70 , 70 , false } , 
+      { "</>"  , 70 , 70 , false } , 
+      { "%"    , 70 , 70 , false } , 
+      { "%%"   , 70 , 70 , false } , 
+      { "<%>"  , 70 , 70 , false } , 
+      { "<<"   , 60 , 60 , false } , 
+      { ">>"   , 60 , 60 , false } , 
+      { "<<<"  , 60 , 60 , false } , 
+      { ">>>"  , 60 , 60 , false } , 
+      { "<"    , 50 , 50 , false } , 
+      { ">"    , 50 , 50 , false } , 
+      { ">="   , 50 , 50 , false } , 
+      { "<="   , 50 , 50 , false } , 
+      { "=>"   , 50 , 50 , false } , 
+      { "=="   , 50 , 50 , false } , 
+      { "!="   , 50 , 50 , false } , 
+      { "and"  , 30 , 30 , false } , 
+      { "or"   , 30 , 30 , false } , 
+      { "."    , 90 , 90 , false } , 
+      { "::"   , 20 , 20 , false } , 
+      { ".."   , 60 , 60 , false } , 
+      { "*"    , 70 , 70 , false } , 
+      { "+"    , 60 , 60 , false } , 
+      { "-"    , 60 , 60 , false } , 
+      { "!"    , 40 , 40 , false } , 
+      { "!!"   , 40 , 40 , false } , 
+      { "@"    , 20 , 20 , false } , 
+      { "^"    , 40 , 40 , false } , 
+      { "&"    , 40 , 40 , false } , 
+      { "|"    , 40 , 40 , false } , 
+      { "~"    , 40 , 40 , false } , 
+      { "$"    , 20 , 20 , false } , 
+      { ""     ,  0 ,  0 , false } ,
     };
 
   for ( int i = 0; infix_table[i].text[0]; i++ ) {
@@ -299,7 +304,8 @@ werror * wparser_table_init ( wparser * self ) {
     werr ( e, wstr_trie_insert_token (
         self->infix_table,
         ( wtoken * ) wtoken_infix_new ( str,
-            infix_table[i].lbp, infix_table[i].rbp ) ) );
+            infix_table[i].lbp, infix_table[i].rbp,
+            infix_table[i].starts_indent ) ) );
     }
 
   struct {
@@ -355,7 +361,7 @@ werror * wparser_table_init ( wparser * self ) {
   werr ( e, wparser_insert_pair ( self, &lbracket, &rbracket ) );
 
   werr ( e, wstr_trie_insert_token ( self->infix_table, &comma ) );
-  werr ( e, wstr_trie_insert_token ( self->infix_table, &colon ) );
+  /*werr ( e, wstr_trie_insert_token ( self->infix_table, &colon ) );*/
 
   return e;
   } 
@@ -456,7 +462,7 @@ wparser * wparser_new ( wstr * text ) {
   werr ( e, wtoken_init ( &end_of_file, wstr_new ( "(end of file)", 0 ) ) );
   werr ( e, wtoken_init ( &root, wstr_new ( "(root)", 0 ) ) );
   werr ( e, wtoken_init ( &comma, wstr_new ( ",", 0 ) ) );
-  werr ( e, wtoken_init ( &colon, wstr_new ( ":", 0 ) ) );
+  /*werr ( e, wtoken_init ( &colon, wstr_new ( ":", 0 ) ) );*/
   if ( e != w_ok )
     {
     return NULL;
@@ -489,7 +495,7 @@ wparser * wparser_new ( wstr * text ) {
     }
   p->root = wast_list_new ( &root );
   p->accum = ( wast * ) p->root;
-  p->state = wparser_expr_start;
+  p->state = wparser_prefix_context;
 
   wparser_table_init ( p );
   wparser_push_token ( p, &start_of_file );
@@ -498,25 +504,24 @@ wparser * wparser_new ( wstr * text ) {
 
 werror * wparser_update_atom ( wparser * self, wtoken * t ) {
   switch ( self->state ) {
-    case wparser_expr_start: {
+    case wparser_prefix_context: {
       self->accum = wast_parent_exprlist ( self->accum );
       wast_add_rightmost ( self->accum, wobj_of ( t ) );
       break;
       }
-    case wparser_op_pending: {
+    case wparser_infix_context: {
       wast_prefix * prefix = wobj_cast ( wast_prefix, self->accum );
       if ( prefix ) {
         prefix->child = wobj_of ( t );
-        self->state = wparser_expr_start;
+        self->state = wparser_prefix_context;
         break;
         }
       wast_infix * infix = wobj_cast ( wast_infix, self->accum );
       if ( infix ) {
         infix->right = wobj_of ( t );
-        self->state = wparser_expr_start;
+        self->state = wparser_prefix_context;
         break;
         }
-      assert ( false );
       }
     }
   return w_ok;
@@ -546,7 +551,7 @@ werror * wparser_update_infix ( wparser * self, wtoken_infix * t ) {
   w->right = NULL;
   wast_add_rightmost ( self->accum, wobj_of ( w ) );
   self->accum = ( wast * ) w;
-  self->state = wparser_op_pending;
+  self->state = wparser_infix_context;
   return w_ok;
   }
 
@@ -567,7 +572,7 @@ werror * wparser_update_left ( wparser * self, wtoken_left * t ) {
     return &wick_out_of_memory;
     }
   switch ( self->state ) {
-    case wparser_expr_start: {
+    case wparser_prefix_context: {
       while ( wparser_get_rbp ( self->accum->op ) >= t->lbp ) {
         self->accum = self->accum->parent;
         }
@@ -575,14 +580,14 @@ werror * wparser_update_left ( wparser * self, wtoken_left * t ) {
       wast_add_rightmost ( self->accum, wobj_of ( w ) );
       w->parent = self->accum;
       self->accum = ( wast * ) w;
-      self->state = wparser_expr_start;
+      self->state = wparser_prefix_context;
       break;
       }
-    case wparser_op_pending: {
+    case wparser_infix_context: {
       w->parent = self->accum;
       wast_add_rightmost ( self->accum, wobj_of ( w ) );
       self->accum = ( wast * ) w;
-      self->state = wparser_expr_start;
+      self->state = wparser_prefix_context;
       break;
       }
     }
@@ -602,6 +607,39 @@ werror * wparser_update_comma ( wparser * self, wtoken * t ) {
   wtoken * ao = self->accum->op;
   if ( ! wobj_cast ( wtoken_left, ao ) ) {
     return &wparser_invalid_token;
+    }
+  return w_ok;
+  }
+
+werror * wparser_update_indent ( wparser * self, wtoken * t ) {
+  switch ( self->state ) {
+    case wparser_prefix_context: {
+      wvar_of ( wl, wast_list, self->accum ) {
+        while ( wl->op != t &&
+                ( *wl->op->text->start == ' ' ||
+                  *wl->op->text->start == '\t' ) )  {
+          wl = ( wast_list * ) wast_parent_exprlist ( ( wast * ) wl );
+          }
+        self->accum = (wast * ) wl;
+        self->state = wparser_prefix_context;
+        } wvar_end
+      break;
+      }
+    case wparser_infix_context: {
+      wvar_of ( wi, wast_infix, self->accum ) {
+        if ( wi->op->starts_indent ) {
+          wast_list * w = wast_list_new ( t );
+          if ( ! w ) {
+            return &wick_out_of_memory;
+            }
+          w->parent = self->accum;
+          wi->right = wobj_of ( w );
+          self->accum = ( wast * ) w;
+          self->state = wparser_infix_context;
+          }
+        } wvar_end
+      break;
+      }
     }
   return w_ok;
   }
