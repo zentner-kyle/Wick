@@ -18,6 +18,12 @@ def_struct ( wtoken ) {
   wstr * text;
   };
 
+def_struct ( wtoken_indent ) {
+  wtype * type;
+  wstr * text;
+  };
+
+
 def_struct ( wtoken_infix ) {
   wtype * type;
   wstr * text;
@@ -52,16 +58,24 @@ wtoken * wtoken_new ( wstr * text );
 werror * wtoken_init ( wtoken * self, wstr * text );
 werror * wtoken_left_init ( wtoken_left * self, wstr * text, int lbp );
 werror * wtoken_right_init ( wtoken_right * self, wstr * text );
+werror * wtoken_infix_init (
+    wtoken_infix * self,
+    wstr * text,
+    int lbp,
+    int rbp,
+    bool starts_indent );
 wtoken_infix * wtoken_infix_new (
     wstr * text,
     int lbp,
     int rbp,
-    bool starts_index );
+    bool starts_indent );
 wtoken_prefix * wtoken_prefix_new ( wstr * text, int rbp );
 wtoken_left * wtoken_left_new ( wstr * text );
 wtoken_right * wtoken_right_new ( wstr * text );
+wtoken * wtoken_indent_new ( wstr * text );
 
 wdeclare_composite ( wtoken );
+wdeclare_composite ( wtoken_indent );
 wdeclare_composite ( wtoken_infix );
 wdeclare_composite ( wtoken_prefix );
 wdeclare_composite ( wtoken_left );

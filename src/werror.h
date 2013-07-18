@@ -17,6 +17,7 @@ wdeclare_composite ( werror );
 extern werror wcast_error;
 extern werror * w_ok;
 extern werror werror_generic;
+extern werror werror_internal;
 
 
 #endif /* end of include guard: WERROR_H */

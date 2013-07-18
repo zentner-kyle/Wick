@@ -35,6 +35,7 @@ wdefine_composite ( wast_infix );
 wdefine_composite ( wast_list );
 
 wdefine_composite ( wtoken );
+wdefine_composite ( wtoken_indent );
 wdefine_composite ( wtoken_infix );
 wdefine_composite ( wtoken_prefix );
 wdefine_composite ( wtoken_left );
@@ -75,6 +76,7 @@ void wbuiltins_init ( ) {
   winit_composite ( wast_list );
 
   winit_composite ( wtoken );
+  winit_composite ( wtoken_indent );
   winit_composite ( wtoken_infix );
   winit_composite ( wtoken_prefix );
   winit_composite ( wtoken_left );

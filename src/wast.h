@@ -5,6 +5,7 @@
 #include <wmacros.h>
 #include <wtype.h>
 #include <wtoken.h>
+#include <werror.h>
 
 def_struct ( wast ) {
   wtype * type;
@@ -45,7 +46,7 @@ wdeclare_composite ( wast_list );
 
 wast * wast_parent_exprlist ( wast * ast );
 wobj * wast_remove_rightmost ( wast * w );
-void wast_add_rightmost ( wast * w, wobj * o );
+werror * wast_add_rightmost ( wast * w, wobj * o );
 wast_list * wast_list_new ( wtoken * op );
 void wast_print ( wast * w );
 

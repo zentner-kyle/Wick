@@ -32,6 +32,20 @@ wtoken * wtoken_new ( wstr * text ) {
   return t;
   }
 
+wtoken * wtoken_indent_new ( wstr * text ) {
+  if ( ! text ) {
+    return NULL;
+    }
+  wtoken_indent * t = walloc_simple ( wtoken_indent , 1 );
+  if ( ! t ) {
+    free ( text );
+    return NULL;
+    }
+  t->type = wtype_wtoken_indent;
+  t->text = text;
+  return ( wtoken * ) t;
+  }
+
 wtoken_left * wtoken_left_new ( wstr * text ) {
   if ( ! text ) {
     return NULL;
@@ -107,6 +121,21 @@ wtoken_prefix * wtoken_prefix_new ( wstr * text, int rbp ) {
   return t;
   }
 
+werror * wtoken_infix_init (
+    wtoken_infix * self,
+    wstr * text,
+    int lbp,
+    int rbp,
+    bool starts_indent
+  ) {
+  self->type = wtype_wtoken_infix;
+  self->text = text;
+  self->starts_indent = starts_indent;
+  self->lbp = lbp;
+  self->rbp = rbp;
+  return w_ok;
+  }
+
 wtoken_infix * wtoken_infix_new ( wstr * text, int lbp, int rbp, bool starts_indent ) {
   if ( ! text ) {
     return NULL;
@@ -114,13 +143,10 @@ wtoken_infix * wtoken_infix_new ( wstr * text, int lbp, int rbp, bool starts_ind
   wtoken_infix * t = walloc_simple ( wtoken_infix , 1 );
   if ( ! t ) {
     free ( text );
-    return NULL;
     }
-  t->type = wtype_wtoken_infix;
-  t->text = text;
-  t->starts_indent = starts_indent;
-  t->lbp = lbp;
-  t->rbp = rbp;
+  else {
+    wtoken_infix_init ( t, text, lbp, rbp, starts_indent );
+   }
   return t;
   }
 

@@ -15,7 +15,8 @@
 
 enum wparser_state {
   wparser_prefix_context,
-  wparser_infix_context
+  wparser_infix_context,
+  wparser_line_start_context
   };
 
 def_struct ( wparser ) {
@@ -29,7 +30,6 @@ def_struct ( wparser ) {
   wtable_wstr_ptr_to_wtoken_ptr * indent_table;
   wast * accum;
   wast_list * root;
-  wtoken * last_token;
   bool stop;
   enum wparser_state state;
   };
