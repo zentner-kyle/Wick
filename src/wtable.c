@@ -7,45 +7,33 @@ wtable_elem_interface wtable_interface = {
   &wtable_key_compare
   };
 
-wtable_struct * method ( new ) ( ) {
+wtable_struct * method ( new ) ( void ) {
   return (wtable_struct *) wtable_new (
       wtable_key_wtype,
       wtable_val_wtype,
       &wtable_interface );
   }
 
-bool method ( init_to_size ) (
+werror * method ( init_to_size ) (
     wtable_struct * self,
-    size_t predicted_elems,
-    wcall * on_error
+    size_t predicted_elems
   ) {
   return wtable_init_to_size (
       wtable_struct_to_table ( self ),
       wtable_key_wtype,
       wtable_val_wtype,
       predicted_elems,
-      &wtable_interface,
-      on_error );
+      &wtable_interface );
   }
 
-bool method ( init ) (
-    wtable_struct * self,
-    wcall * on_error
+werror * method ( init ) (
+    wtable_struct * self
   ) {
   return wtable_init (
       wtable_struct_to_table ( self ),
       wtable_key_wtype,
       wtable_val_wtype,
-      &wtable_interface,
-      on_error );
-  }
-
-wtable_val_t method ( lookup ) ( wtable_struct * self, wtable_key_t key ) {
-  return wtable_backcast_val ( wtable_lookup_hash (
-      wtable_struct_to_table ( self ),
-      wtable_cast_key ( key ),
-      wtable_key_hash ( wtable_cast_key ( key ) )
-      ) );
+      &wtable_interface );
   }
 
 werror * method ( get ) ( wtable_struct * self, wtable_key_t key, wtable_val_t * dst ) {
@@ -57,53 +45,49 @@ werror * method ( get ) ( wtable_struct * self, wtable_key_t key, wtable_val_t *
       );
   }
 
-wtable_val_t method ( lookup_or_add ) (
+werror * method ( get_or_add ) (
     wtable_struct * self,
     wtable_key_t key,
-    wcall * on_missing,
-    wcall * on_error
+    wtable_val_t * dst,
+    wcall * on_missing
   ) {
-  return wtable_backcast_val ( wtable_lookup_or_add_hash (
+  return wtable_get_or_add_hash (
       wtable_struct_to_table ( self ),
       wtable_cast_key ( key ),
+      ( wval * ) dst,
       on_missing,
-      on_error,
-      wtable_key_hash ( wtable_cast_key ( key ) )
-      ) );
+      wtable_key_hash ( wtable_cast_key ( key ) ) );
   }
 
-wtable_val_t method ( lookup_default ) (
+werror * method ( get_default ) (
     wtable_struct * self,
     wtable_key_t key,
-    wtable_val_t default_value,
-    wcall * on_error
+    wtable_val_t * dst,
+    wtable_val_t default_value
   ) {
-  return wtable_backcast_val ( wtable_lookup_default_hash (
+  return wtable_get_default_hash (
       wtable_struct_to_table ( self ),
       wtable_cast_key ( key ),
+      ( wval * ) dst,
       wtable_cast_val ( default_value ),
-      on_error,
-      wtable_key_hash ( wtable_cast_key ( key ) )
-      ) );
+      wtable_key_hash ( wtable_cast_key ( key ) ) );
   }
 
-void method ( set ) (
+werror * method ( set ) (
     wtable_struct * self,
     wtable_key_t key,
-    wtable_val_t val,
-    wcall * on_error
+    wtable_val_t val
   ) {
-  wtable_set_hash (
+  return wtable_set_hash (
       wtable_struct_to_table ( self ),
       wtable_cast_key ( key ),
       wtable_cast_val ( val ),
-      on_error,
       wtable_key_hash ( wtable_cast_key ( key ) )
       );
   }
 
-void method ( delete ) ( wtable_struct * self ) {
-  wtable_delete ( wtable_struct_to_table ( self ) );
+werror * method ( delete ) ( wtable_struct * self ) {
+  return wtable_delete ( wtable_struct_to_table ( self ) );
   }
 
 

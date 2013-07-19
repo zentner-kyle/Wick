@@ -16,9 +16,9 @@ int main ( ) {
   wstr * str = wstr_new ( test_string, NULL );
   wtable_wstr_ptr_to_wstr_ptr table;
   int iterations = 10 * 1000;
-  wtable_wstr_ptr_to_wstr_ptr_init ( &table, &null_wcall );
+  wtable_wstr_ptr_to_wstr_ptr_init ( &table );
   for ( long long i = 0; i < iterations; i++ ) {
-    wtable_wstr_ptr_to_wstr_ptr_set ( &table, str, str, &null_wcall );
+    wtable_wstr_ptr_to_wstr_ptr_set ( &table, str, str );
     }
   return 0;
   }

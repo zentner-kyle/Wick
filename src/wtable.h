@@ -91,43 +91,38 @@ extern wtable_elem_interface wtable_interface;
     };
   #endif
 
-wtable_struct * method ( new ) ( );
+wtable_struct * method ( new ) ( void );
 
-bool method ( init_to_size ) (
+werror * method ( init_to_size ) (
     wtable_struct * self,
-    size_t predicted_elems,
-    wcall * on_error );
+    size_t predicted_elems );
 
-bool method ( init ) (
-    wtable_struct * self,
-    wcall * on_error );
-
-wtable_val_t method ( lookup ) ( wtable_struct * self, wtable_key_t key );
+werror * method ( init ) (
+    wtable_struct * self );
 
 werror * method ( get ) (
     wtable_struct * self,
     wtable_key_t key,
     wtable_val_t * dst );
 
-wtable_val_t method ( lookup_or_add ) (
+werror * method ( get_or_add ) (
     wtable_struct * self,
     wtable_key_t key,
-    wcall * on_missing,
-    wcall * on_error );
+    wtable_val_t * dst,
+    wcall * on_missing );
 
-wtable_val_t method ( lookup_default ) (
+werror * method ( get_default ) (
     wtable_struct * self,
     wtable_key_t key,
-    wtable_val_t default_value,
-    wcall * on_error );
+    wtable_val_t * dst,
+    wtable_val_t default_value );
 
-void method ( set ) (
+werror * method ( set ) (
     wtable_struct * self,
     wtable_key_t key,
-    wtable_val_t value,
-    wcall * on_error );
+    wtable_val_t value );
 
-void method ( delete ) ( wtable_struct * self );
+werror * method ( delete ) ( wtable_struct * self );
 
 #ifndef wtable_source
   #undef wtable_backcast_key

@@ -11,10 +11,10 @@
 int main ( ) {
   wtable_wstr_ptr_to_wstr_ptr table;
   int iterations = 100;
-  wtable_wstr_ptr_to_wstr_ptr_init ( &table, &null_wcall );
+  wtable_wstr_ptr_to_wstr_ptr_init ( &table );
   for ( long long i = 0; i < iterations; i++ ) {
     wstr * str = wstr_from_llong( i );
-    wtable_wstr_ptr_to_wstr_ptr_set ( &table, str, str, &null_wcall );
+    wtable_wstr_ptr_to_wstr_ptr_set ( &table, str, str );
     }
   return 0;
   }

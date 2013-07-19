@@ -40,66 +40,59 @@ wtable * wtable_new (
     wtable_elem_interface * hash_interface
     );
 
-bool wtable_init_to_size (
+werror * wtable_init_to_size (
     wtable * self,
     wtype * key_type,
     wtype * val_type,
     size_t predicted_elems,
-    wtable_elem_interface * hash_interface,
-    wcall * on_error );
+    wtable_elem_interface * hash_interface );
 
-bool wtable_init (
+werror * wtable_init (
     wtable * self,
     wtype * key_type,
     wtype * val_type,
-    wtable_elem_interface * hash_interface,
-    wcall * on_error );
+    wtable_elem_interface * hash_interface );
 
-wval wtable_lookup ( wtable * self, wval key );
-wval wtable_lookup_hash ( wtable * self, wval key, whash hash );
-
-werror * wtable_gt ( wtable * self, wval key, wval * dst );
+werror * wtable_get ( wtable * self, wval key, wval * dst );
 werror * wtable_get_hash ( wtable * self, wval key, wval * dst, whash hash );
 
 
-wval wtable_lookup_or_add (
+werror * wtable_get_or_add (
     wtable * self,
     wval key,
-    wcall * on_missing,
-    wcall * on_error );
+    wval * dst,
+    wcall * on_missing );
 
-wval wtable_lookup_or_add_hash (
+werror * wtable_get_or_add_hash (
     wtable * self,
     wval key,
+    wval * dst,
     wcall * on_missing,
-    wcall * on_error,
     whash hash );
 
-wval wtable_lookup_default (
+werror * wtable_get_default (
     wtable * self,
     wval key,
-    wval default_value,
-    wcall * on_error );
-wval wtable_lookup_default_hash (
+    wval * dst,
+    wval default_value );
+werror * wtable_get_default_hash (
     wtable * self,
     wval key,
+    wval * dst,
     wval default_value,
-    wcall * on_error,
     whash hash );
 
-void wtable_delete ( wtable * self );
-
-void wtable_set (
+werror * wtable_set (
+    wtable * self,
+    wval key,
+    wval value );
+werror * wtable_set_hash (
     wtable * self,
     wval key,
     wval value,
-    wcall * on_error );
-void wtable_set_hash (
-    wtable * self,
-    wval key,
-    wval value,
-    wcall * on_error,
     whash hash );
+
+werror * wtable_delete ( wtable * self );
 
 
 #endif /* end of include guard: WTABLE_H */

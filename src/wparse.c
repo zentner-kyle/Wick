@@ -103,7 +103,7 @@ werror * wparser_unique_wtoken (
     wstr * str_cpy = wstr_copy ( str );
     *token = on_missing ( str_cpy );
     if ( *token ) {
-      wtable_wstr_ptr_to_wtoken_ptr_set ( table, str_cpy, *token, &null_wcall );
+      wtable_wstr_ptr_to_wtoken_ptr_set ( table, str_cpy, *token );
       return w_ok;
       }
     else {

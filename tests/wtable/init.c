@@ -9,6 +9,6 @@
 
 int main ( ) {
   wtable_wstr_ptr_to_wstr_ptr table;
-  wtable_wstr_ptr_to_wstr_ptr_init ( &table, &null_wcall );
+  wtable_wstr_ptr_to_wstr_ptr_init ( &table );
   return 0;
   }
