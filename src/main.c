@@ -34,7 +34,7 @@ int main ( int argc, char *argv[] ) {
                              /*"}"*/
                              /*);*/
   /*wstr to_parse = wstr_lit ( "a0 =\n  1\n  2" );*/
-  /*wstr to_parse = wstr_lit ( "a0 =\n  1\n  2" );*/
+  /*wstr to_parse = wstr_lit ( "1,2,3,,4" );*/
   wparser * parser = wparser_new ( &to_parse );
   for ( int i = 0; i < 1; i++ ) {
     wparser_parse ( parser );

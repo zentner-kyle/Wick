@@ -30,10 +30,10 @@ char * wparser_get_state_name ( enum wparser_state state ) {
   }
 
 void wparser_set_state ( wparser * self, enum wparser_state state ) {
-  char * old_state = wparser_get_state_name ( self->state );
-  char * new_state = wparser_get_state_name ( state );
-  printf ( "state change from %s to %s\n",
-      old_state, new_state );
+  /*char * old_state = wparser_get_state_name ( self->state );*/
+  /*char * new_state = wparser_get_state_name ( state );*/
+  /*printf ( "state change from %s to %s\n",*/
+      /*old_state, new_state );*/
   self->state = state;
   }
 
@@ -128,9 +128,14 @@ werror * wparser_lex_indent ( wparser * restrict self ) {
   werr ( e, wparser_unique_wtoken ( &str, &token, wtoken_indent_new, self->indent_table ) );
   if ( e == w_ok ) {
     self->text.start = str.past_end;
-    return wparser_update_indent ( self, token );
+    e = wparser_update_indent ( self, token );
     }
-  return e;
+  if ( e == w_ok && wstr_size ( str ) == 0 ) {
+    return &wparser_inactive;
+    }
+  else {
+    return e;
+    }
   }
 
 werror * lex_from_trie ( wparser * self, wstr_trie * node ) {
@@ -222,11 +227,7 @@ werror * wparser_lex_from_trie ( wparser * self ) {
     }
   }
 
-/*wtoken new_line;*/
-/*wtoken start_of_file;*/
-/*wtoken end_of_file;*/
 wtoken root;
-/*wtoken colon;*/
 wtoken comma;
 wtoken_infix space;
 wtoken_left lparen;
@@ -361,6 +362,28 @@ werror * wparser_table_init ( wparser * self ) {
         ( wtoken * ) wtoken_prefix_new ( str, prefix_table[i].rbp ) ) );
     }
 
+  struct {
+    char * text;
+    int rbp;
+  } prefix_keywords[] = {
+      { "if"     , 13 } ,
+      { "for"    , 13 } ,
+      { "import" , 13 } ,
+      { "while"  , 13 } ,
+      { ""       ,  0 } ,
+    };
+
+  for ( int i = 0; prefix_keywords[i].text[0]; i++ ) {
+    wstr * str = wstr_new ( prefix_keywords[i].text, 0);
+    if ( ! str ) {
+      e = &wick_out_of_memory;
+      }
+    werr ( e, wtable_wstr_ptr_to_wtoken_ptr_set (
+        self->identifier_table,
+        str,
+        ( wtoken * ) wtoken_prefix_new ( str, prefix_keywords[i].rbp ) ) );
+    }
+
   
   int pair_lbp = 80;
   werr ( e, wtoken_left_init ( &lparen, wstr_new ( "(", 0 ), pair_lbp ) );
@@ -460,9 +483,10 @@ werror * wparser_parse ( wparser * self ) {
       }
     active |= wparser_lex_literal ( self ) == w_ok;
     }
-  /*if ( self->text.start == self->text.past_end ) {*/
-    /*wparser_push_token ( self, &end_of_file );*/
-    /*}*/
+  if ( wstr_size ( self->text ) != 0 ) {
+    printf ( "Could not parse " );
+    wstr_println ( self->text );
+    }
   return w_ok;
   }
 
@@ -510,7 +534,6 @@ wparser * wparser_new ( wstr * text ) {
   p->state = wparser_line_start_context;
 
   wparser_table_init ( p );
-  /*wparser_push_token ( p, &start_of_file );*/
   return p;
   }
 

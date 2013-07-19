@@ -15,14 +15,14 @@ two_of_three = ( a :: Number, b :: Number, c :: Number ) ->
 top_two = (args :: [Number]) ->
   @doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.')
   ordered:
-    x, y = 0, 0
+    (x, y) = (0, 0)
     x <- args highest !! remove
     y <- args highest !! remove 
     x*x + y*y >> out
 
 top_two = (args :: [Number]) ->
   @doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.')
-  rest, x = *(args highest) !! remove
+  (rest, x) = *(args highest) !! remove
   y = args highest
   x*x + y*y >> out
 
@@ -30,7 +30,7 @@ highest = (args :: [Number]) ->
   assert arg.length > 0
   ordered:
     highest <- &arg.first # Alternatively, &arg[0]
-    for a, arg:
+    for (a, arg):
       if a > *highest:
         highest <- &a
     highest >> out
@@ -74,7 +74,7 @@ week_two = module {
   square = x -> x * x
   product = ( n, term ) ->
     (if n == 1: term( n ) else: term( n ) * product( n - 1, term )) >> out
-  factorial = n -> product( n, x -> x )
+  factorial = n -> product( (n, x) -> x )
   accumulate = ( combiner, start, n, term ) ->
     if n == 1: 
       term( start ) >> out
