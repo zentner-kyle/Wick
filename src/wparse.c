@@ -51,7 +51,7 @@ void wparser_debug_state ( wparser * self, wtoken * token ) {
   }
 
 werror * wparser_push_token ( wparser * self, wtoken * token ) {
-  wparser_debug_state ( self, token );
+  /*wparser_debug_state ( self, token );*/
   return wparser_update ( self, token );
   }
 
@@ -116,9 +116,7 @@ werror * wparser_unique_wtoken (
 werror * wparser_lex_indent ( wparser * restrict self ) {
   werror * e = w_ok;
   wtoken * token;
-  printf ("indent lex.\n");
   if (self->state != wparser_line_start_context ) {
-    printf ("not in line start context\n");
     return &wparser_inactive;
     }
   wstr str = wstr_empty ();
@@ -130,11 +128,9 @@ werror * wparser_lex_indent ( wparser * restrict self ) {
   werr ( e, wparser_unique_wtoken ( &str, &token, wtoken_indent_new, self->indent_table ) );
   if ( e == w_ok ) {
     self->text.start = str.past_end;
-    printf ("indent ");
     e = wparser_push_token ( self, token );
     }
   else {
-    printf ("Error in indent lex.\n");
     }
   return e;
   /*if ( e == w_ok && wstr_size ( str ) == 0 ) {*/
@@ -238,7 +234,6 @@ werror * wparser_lex_from_trie ( wparser * self ) {
 
 wtoken root;
 wtoken_infix comma;
-/*wtoken_infix colon;*/
 wtoken_infix space;
 wtoken_left lparen;
 wtoken_right rparen;
@@ -415,8 +410,6 @@ werror * wparser_table_init ( wparser * self ) {
   werr ( e, wparser_insert_pair ( self, &lbracket, &rbracket ) );
 
   werr ( e, wstr_trie_insert_token ( self->infix_table, ( wtoken * ) &comma ) );
-  /*werr ( e, wstr_trie_insert_token ( self->infix_table, ( wtoken * ) &colon ) );*/
-  /*werr ( e, wstr_trie_insert_token ( self->infix_table, &colon ) );*/
 
   return e;
   } 
@@ -485,7 +478,6 @@ werror * wparser_parse ( wparser * self ) {
       }
     active |= wparser_lex_indent ( self ) == w_ok;
     while (inner_loop) {
-      printf ("inner\n");
       inner_loop = wparser_lex_from_trie ( self ) == w_ok;
       if (self->stop) {
         return w_ok;
@@ -503,7 +495,6 @@ werror * wparser_parse ( wparser * self ) {
     active |= wparser_lex_literal ( self ) == w_ok;
     }
   if ( wstr_size ( self->text ) != 0 ) {
-    printf ( "Could not parse " );
     wstr_println ( self->text );
     return &wparser_bad_expr;
     }
@@ -512,14 +503,9 @@ werror * wparser_parse ( wparser * self ) {
 
 wparser * wparser_new ( wstr * text ) {
   werror * e = w_ok;
-  /*werr ( e, wtoken_init ( &new_line, wstr_new ( "\n", 0 ) ) );*/
   werr ( e, wtoken_infix_init ( &space, wstr_new ( "(space)", 0 ), 90, 90, false ) );
-  /*werr ( e, wtoken_init ( &start_of_file, wstr_new ( "(start of file)", 0 ) ) );*/
-  /*werr ( e, wtoken_init ( &end_of_file, wstr_new ( "(end of file)", 0 ) ) );*/
   werr ( e, wtoken_init ( &root, wstr_new ( "(root)", 0 ) ) );
   werr ( e, wtoken_infix_init ( &comma, wstr_new ( ",", 0 ), 19, 19, false ) );
-  /*werr ( e, wtoken_infix_init ( &colon, wstr_new ( ":", 0 ), 14, 15, false ) );*/
-  /*werr ( e, wtoken_init ( &colon, wstr_new ( ":", 0 ) ) );*/
   if ( e != w_ok )
     {
     return NULL;
@@ -686,31 +672,11 @@ werror * wparser_update_comma ( wparser * self, wtoken_infix * t ) {
   return e;
   }
 
-/*werror * wparser_update_colon ( wparser * self, wtoken_infix * t ) {*/
-  /*wast_infix * w = walloc_simple ( wast_infix, 1 );*/
-  /*w->op = t;*/
-  /*w->type = wtype_wast_infix;*/
-  /*while ( ! wobj_cast ( wtoken_indent, self->accum->op ) && */
-          /*wparser_get_rbp ( self->accum->op ) >= t->lbp ) {*/
-    /*self->accum = self->accum->parent;*/
-    /*}*/
-  /*w->parent = self->accum;*/
-  /*w->left = wast_remove_rightmost ( self->accum );*/
-  /*w->right = NULL;*/
-  /*wast_add_rightmost ( self->accum, wobj_of ( w ) );*/
-  /*self->accum = ( wast * ) w;*/
-  /*wparser_set_state ( self, wparser_prefix_context );*/
-  /*return w_ok;*/
-  /*}*/
-
 werror * wparser_update_indent ( wparser * self, wtoken_indent * t ) {
   switch ( self->state ) {
     case wparser_line_start_context: 
-      printf ("line start context\n");
     case wparser_prefix_context:
-      printf ("prefix context\n");
     case wparser_infix_context: 
-      printf ("infix context\n");
       {
       wvar_of ( wi, wast_infix, self->accum ) {
         if ( wi->op->starts_indent && wi->right == NULL ) {
@@ -734,55 +700,38 @@ werror * wparser_update_indent ( wparser * self, wtoken_indent * t ) {
         self->accum = self->accum->parent;
         self->accum = wast_parent_exprlist ( self->accum );
         }
-      /*break;*/
       }
-        /*{*/
-      /*break;*/
-      /*}*/
     }
   return w_ok;
   }
 
 werror * wparser_update ( wparser * self, wtoken * t ) {
   if ( t == ( wtoken * ) &comma ) {
-    printf ("update comma\n");
     return wparser_update_comma ( self, &comma );
     }
-  /*else if ( t == ( wtoken * ) &colon ) {*/
-    /*printf ("update colon\n");*/
-    /*return wparser_update_colon ( self, &colon );*/
-    /*}*/
   else if ( wstr_compare ( *t->text, wstr_lit ( "EOF" ) ) == 0 ) {
-    printf ( "EOF encountered.\n" );
     self->stop = true;
     return w_ok;
     }
   else wvar_of ( wi, wtoken_infix, t ) {
-    printf ("update infix\n");
     return wparser_update_infix ( self, wi );
     } wvar_end
   else wvar_of ( wp, wtoken_prefix, t ) {
-    printf ("update prefix\n");
     return wparser_update_prefix ( self, wp );
     } wvar_end
   else wvar_of ( windent, wtoken_indent, t ) {
-    printf ("hit indent case\n");
     return wparser_update_indent ( self, windent );
     } wvar_end
   else wvar_of ( wl, wtoken_left, t ) {
-    printf ("update left\n");
     return wparser_update_left ( self, wl );
     } wvar_end
   else wvar_of ( wr, wtoken_right, t ) {
-    printf ("update right\n");
     return wparser_update_right ( self, wr );
     } wvar_end
   else if ( *t->text->start == '#' ) {
-    printf ("update comment\n");
     wparser_update_comment ( self, t );
     }
   else {
-    printf ("update atom\n");
     wparser_update_atom ( self, t );
     }
   return w_ok;
