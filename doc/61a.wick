@@ -1,6 +1,5 @@
 #!/usr/bin/env wick0
 
-
 week_one = module {
 import core.math
 
@@ -10,27 +9,22 @@ a_plus_abs_b = ( a :: Number, b :: Number ) ->
 
 two_of_three = ( a :: Number, b :: Number, c :: Number ) ->
   @doc( 'Return x*x + y*y, where x and y are the two largest of a, b, c.')
-  sort( [a, b, c] ) last( 2 ) map( x -> x * x ) reduce( ( x, y ) -> x + y ) >> out
+  [a, b, c] sort() last( 2 ) map( x -> x * x ) reduce( ( x, y ) -> x + y ) >> out
 
-top_two = (args :: [Number]) ->
-  @doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.')
-  ordered:
-    (x, y) = (0, 0)
-    x <- args highest !! remove
-    y <- args highest !! remove 
-    x*x + y*y >> out
-
-top_two = (args :: [Number]) ->
-  @doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.')
-  (rest, x) = *(args highest) !! remove
-  y = args highest
+top_two = args@[...] :: [Number] ->
+  @doc( 'Return x*x + y*y, where x and y are the two largest of the arguments.' )
+  var x, y
+  if args length == 2:
+    x, y = args
+  else:
+    x, y = args sort() last( 2 )
   x*x + y*y >> out
 
 highest = (args :: [Number]) ->
   assert arg.length > 0
   ordered:
     highest <- &arg.first # Alternatively, &arg[0]
-    for (a, arg):
+    for a, arg:
       if a > *highest:
         highest <- &a
     highest >> out
@@ -46,7 +40,7 @@ if_function = args@( condition, true_result, false_result ) ->
 with_if_statement =
   if c():
     t()
-  else
+  else:
     f()
 
 with_if_function =
@@ -74,7 +68,7 @@ week_two = module {
   square = x -> x * x
   product = ( n, term ) ->
     (if n == 1: term( n ) else: term( n ) * product( n - 1, term )) >> out
-  factorial = n -> product( (n, x) -> x )
+  factorial = n -> product( n, x -> x )
   accumulate = ( combiner, start, n, term ) ->
     if n == 1: 
       term( start ) >> out
@@ -93,7 +87,7 @@ week_two = module {
       x -> f( inner( x ) ) >> out
   compose1 = ( f, g ) ->
     x -> f( g( x ) )
-  module church_numerals = {
+  church_numerals = module {
     zero = f -> x -> x
     one = f -> x -> f( x )
     two = f -> x -> f( f( x ) )
@@ -104,7 +98,7 @@ week_two = module {
 }
 
 week_three = module {
-  Interval = class: { low :: Number, high :: Number }
+  Interval = class { low :: Number, high :: Number }
   str_interval = ( x ) ->
     format.[ int, ' to ', int ]( lower_bound( x ), upper_bound( x ) )
   add_interval = ( x, y ) ->
@@ -149,7 +143,7 @@ week_three = module {
                                              lower_bound( x )*upper_bound( y ) ),
                                         max( upper_bound( x )*upper_bound( y ),
                                              lower_bound( x )*lower_bound( y ) ) ) >> out
-  make_center_width = ( c, w ) -> interval( c - w, c + w )
+  make_center_width = ( c, w ) -> interval ( c - w, c + w )
   center = x -> (upper_bound( x ) + lower_bound( x )) >> 2
   width = x -> (upper_bound( x ) - lower_bound( x )) >> 2
   make_center_percent = (c, p) -> make_center_width( c, c*2*p/100 )

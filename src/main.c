@@ -35,11 +35,18 @@ int main ( int argc, char *argv[] ) {
                              /*);*/
   /*wstr to_parse = wstr_lit ( "a0 =\n  1\n  2" );*/
   /*wstr to_parse = wstr_lit ( "1,2,3,,4" );*/
+  /*wstr to_parse = wstr_lit ( "a,b = b,a" );*/
+  /*wstr to_parse = wstr_lit ( "\n( (  ) )\na = 1\n" );*/
+  /*wstr to_parse = wstr_lit ( "\n    add_church = ( m, n ) -> f -> m( n( f ) )\n    mul_church = ( m, n ) -> f -> repeated( m, church_to_int( n ) )\n" );*/
+  /*wstr to_parse = wstr_lit ( "\nchurch_to_int = c -> c( x -> x + 1, 0 )\na = 1\n" );*/
   wparser * parser = wparser_new ( &to_parse );
+  werror * e = w_ok;
   for ( int i = 0; i < 1; i++ ) {
-    wparser_parse ( parser );
+    e = wparser_parse ( parser );
     }
-  printf ( "Final ast:\n" );
-  wast_print ( ( wast * ) parser->root );
+  if ( e == w_ok ) {
+    printf ( "Final ast:\n" );
+    wast_print ( ( wast * ) parser->root );
+    }
   return 0;
   }
