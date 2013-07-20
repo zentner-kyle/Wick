@@ -16,7 +16,6 @@ werror wparser_inactive;
 werror wparser_invalid_token;
 
 werror * wparser_update ( wparser * self, wtoken * t );
-werror * wparser_update_indent ( wparser * self, wtoken * t );
 
 char * wparser_get_state_name ( enum wparser_state state ) {
   switch ( state ) {
@@ -51,10 +50,9 @@ void wparser_debug_state ( wparser * self, wtoken * token ) {
   wast_print ( self->accum );
   }
 
-bool wparser_push_token ( wparser * self, wtoken * token ) {
+werror * wparser_push_token ( wparser * self, wtoken * token ) {
   /*wparser_debug_state ( self, token );*/
-  wparser_update ( self, token );
-  return ! self->stop;
+  return wparser_update ( self, token );
   }
 
 bool is_ident_start_char ( uint32_t c ) {
@@ -81,8 +79,7 @@ werror * wparser_lex_comment ( wparser * restrict self ) {
   str.past_end = self->text.start;
   wtoken * token = wtoken_new ( wstr_copy ( &str ) );
   if ( token ) {
-    wparser_push_token ( self, token );
-    return w_ok;
+    return wparser_push_token ( self, token );
     }
   else {
     return &wick_out_of_memory;
@@ -128,7 +125,7 @@ werror * wparser_lex_indent ( wparser * restrict self ) {
   werr ( e, wparser_unique_wtoken ( &str, &token, wtoken_indent_new, self->indent_table ) );
   if ( e == w_ok ) {
     self->text.start = str.past_end;
-    e = wparser_update_indent ( self, token );
+    e = wparser_push_token ( self, token );
     }
   if ( e == w_ok && wstr_size ( str ) == 0 ) {
     return &wparser_inactive;
@@ -161,8 +158,7 @@ werror * lex_from_trie ( wparser * self, wstr_trie * node ) {
     }
   if ( token ) {
     self->text.start = last + 1;
-    wparser_push_token ( self, token );
-    return w_ok;
+    return wparser_push_token ( self, token );
     }
   return &wparser_inactive;
   }
@@ -204,7 +200,7 @@ werror * lex_identifier ( wparser * self ) {
     
   werr ( e, wparser_unique_wtoken ( &str, &token, wtoken_new, self->identifier_table ) );
   if ( e == w_ok ) {
-    wparser_push_token ( self, token );
+    e = wparser_push_token ( self, token );
     self->text.start = str.past_end;
     }
   return e;
@@ -422,7 +418,7 @@ werror * wparser_lex_quote ( wparser * self ) {
   ++str.past_end;
   werr ( e, wparser_unique_wtoken ( &str, &token, wtoken_new, self->literal_table ) );
   if ( e == w_ok ) {
-    wparser_push_token ( self, token );
+    e = wparser_push_token ( self, token );
     self->text.start = str.past_end;
     }
   return e;
@@ -439,7 +435,7 @@ werror * wparser_lex_number ( wparser * self ) {
     }
   werr ( e, wparser_unique_wtoken ( &str, &token, wtoken_new, self->literal_table ) );
   if ( e == w_ok ) {
-    wparser_push_token ( self, token );
+    e = wparser_push_token ( self, token );
     self->text.start = str.past_end;
     }
   return e;
@@ -634,7 +630,7 @@ werror * wparser_update_comma ( wparser * self, wtoken * t ) {
   return w_ok;
   }
 
-werror * wparser_update_indent ( wparser * self, wtoken * t ) {
+werror * wparser_update_indent ( wparser * self, wtoken_indent * t ) {
   switch ( self->state ) {
     case wparser_infix_context: 
     case wparser_line_start_context: {
@@ -642,7 +638,7 @@ werror * wparser_update_indent ( wparser * self, wtoken * t ) {
         self->accum = wast_parent_exprlist ( self->accum );
         }
       while ( wobj_cast ( wtoken_indent, self->accum->op ) &&
-              self->accum->op != t ) {
+              self->accum->op != ( wtoken * ) t ) {
         self->accum = self->accum->parent;
         self->accum = wast_parent_exprlist ( self->accum );
         }
@@ -651,7 +647,7 @@ werror * wparser_update_indent ( wparser * self, wtoken * t ) {
     case wparser_prefix_context: {
       wvar_of ( wi, wast_infix, self->accum ) {
         if ( wi->op->starts_indent ) {
-          wast_list * w = wast_list_new ( t );
+          wast_list * w = wast_list_new ( ( wtoken * ) t );
           if ( ! w ) {
             return &wick_out_of_memory;
             }
@@ -675,6 +671,9 @@ werror * wparser_update ( wparser * self, wtoken * t ) {
     } wvar_end
   else wvar_of ( wp, wtoken_prefix, t ) {
     return wparser_update_prefix ( self, wp );
+    } wvar_end
+  else wvar_of ( windent, wtoken_indent, t ) {
+    return wparser_update_indent ( self, windent );
     } wvar_end
   else wvar_of ( wl, wtoken_left, t ) {
     return wparser_update_left ( self, wl );
