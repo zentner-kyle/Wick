@@ -15,9 +15,9 @@ werror wparser_internal_error;
 werror wparser_inactive;
 werror wparser_invalid_token;
 
-werror * wparser_update ( wparser * self, wtoken * t );
+static werror * wparser_update ( wparser * self, wtoken * t );
 
-char * wparser_get_state_name ( enum wparser_state state ) {
+static char * wparser_get_state_name ( enum wparser_state state ) {
   switch ( state ) {
     case wparser_prefix_context:
     return "prefix";
@@ -31,7 +31,7 @@ char * wparser_get_state_name ( enum wparser_state state ) {
   return "unknown";
   }
 
-void wparser_set_state ( wparser * self, enum wparser_state state ) {
+static void wparser_set_state ( wparser * self, enum wparser_state state ) {
   /*char * old_state = wparser_get_state_name ( self->state );*/
   /*char * new_state = wparser_get_state_name ( state );*/
   /*printf ( "state change from %s to %s\n",*/
@@ -39,11 +39,7 @@ void wparser_set_state ( wparser * self, enum wparser_state state ) {
   self->state = state;
   }
 
-void wparser_error ( wparser * self, werror * error ) {
-  self->stop = true;
-  }
-
-void wparser_debug_state ( wparser * self, wtoken * token ) {
+static void wparser_debug_state ( wparser * self, wtoken * token ) {
   printf ( "pushing token '" );
   wstr_print ( *token->text );
   printf ( "'\n" );
@@ -53,12 +49,12 @@ void wparser_debug_state ( wparser * self, wtoken * token ) {
   wast_print ( self->accum );
   }
 
-werror * wparser_push_token ( wparser * self, wtoken * token ) {
+static werror * wparser_push_token ( wparser * self, wtoken * token ) {
   /*wparser_debug_state ( self, token );*/
   return wparser_update ( self, token );
   }
 
-bool is_ident_start_char ( uint32_t c ) {
+static bool is_ident_start_char ( uint32_t c ) {
   if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_')) {
     return true;
   } else {
@@ -66,11 +62,11 @@ bool is_ident_start_char ( uint32_t c ) {
     }
   }
 
-bool is_ident_char ( uint32_t c ) {
+static bool is_ident_char ( uint32_t c ) {
   return isdigit ( c ) || is_ident_start_char ( c );
   }
 
-werror * wparser_lex_comment ( wparser * restrict self ) {
+static werror * wparser_lex_comment ( wparser * restrict self ) {
   if ( *self->text.start != '#' ) {
     return &wparser_inactive;
     }
@@ -89,7 +85,7 @@ werror * wparser_lex_comment ( wparser * restrict self ) {
     }
   }
 
-werror * wparser_unique_wtoken (
+static werror * wparser_unique_wtoken (
     wstr * str,
     wtoken ** token,
     wtoken * (* on_missing)( wstr * ),
@@ -116,7 +112,7 @@ werror * wparser_unique_wtoken (
     }
   }
 
-werror * wparser_lex_indent ( wparser * restrict self ) {
+static werror * wparser_lex_indent ( wparser * restrict self ) {
   werror * e = w_ok;
   wtoken * token;
   if (self->state != wparser_line_start_context ) {
@@ -136,15 +132,9 @@ werror * wparser_lex_indent ( wparser * restrict self ) {
   else {
     }
   return e;
-  /*if ( e == w_ok && wstr_size ( str ) == 0 ) {*/
-    /*return &wparser_inactive;*/
-    /*}*/
-  /*else {*/
-    /*return e;*/
-    /*}*/
   }
 
-werror * lex_from_trie ( wparser * self, wstr_trie * node ) {
+static werror * lex_from_trie ( wparser * self, wstr_trie * node ) {
   wstr_trie * prev_node = NULL;
   wtoken * token = NULL;
   const char * c = self->text.start;
@@ -172,7 +162,7 @@ werror * lex_from_trie ( wparser * self, wstr_trie * node ) {
   return &wparser_inactive;
   }
 
-werror * lex_op_from_trie ( wparser * self ) {
+static werror * lex_op_from_trie ( wparser * self ) {
   switch ( self->state ) {
     case wparser_infix_context: {
       return lex_from_trie ( self, self->infix_table );
@@ -187,7 +177,7 @@ werror * lex_op_from_trie ( wparser * self ) {
   return &werror_internal;
   }
 
-werror * lex_identifier ( wparser * self ) {
+static werror * lex_identifier ( wparser * self ) {
   werror * e = w_ok;
   wtoken * token;
   wstr str = wstr_empty ();
@@ -219,7 +209,7 @@ werror * lex_identifier ( wparser * self ) {
   return e;
   }
 
-werror * wparser_lex_from_trie ( wparser * self ) {
+static werror * wparser_lex_from_trie ( wparser * self ) {
   werror * status1 = lex_identifier ( self );
   werror * status2 = lex_op_from_trie ( self );
   if ( status1 == status2 ) {
@@ -246,7 +236,7 @@ wtoken_right rbrace;
 wtoken_left lbracket;
 wtoken_right rbracket;
 
-werror * wstr_trie_insert_token ( wstr_trie * node, wtoken * token ) {
+static werror * wstr_trie_insert_token ( wstr_trie * node, wtoken * token ) {
   node = wstr_trie_enter ( node, token->text );
   if ( ! node ) {
     return &wick_out_of_memory;
@@ -255,7 +245,7 @@ werror * wstr_trie_insert_token ( wstr_trie * node, wtoken * token ) {
   return w_ok;
   }
 
-werror * wparser_insert_pair ( wparser * self, wtoken_left * left, wtoken_right * right ) {
+static werror * wparser_insert_pair ( wparser * self, wtoken_left * left, wtoken_right * right ) {
   werror * e = w_ok;
   werr ( e, wstr_trie_insert_token ( self->prefix_table, ( wtoken * ) left ) );
   werr ( e, wstr_trie_insert_token ( self->infix_table, ( wtoken * ) left ) );
@@ -268,7 +258,7 @@ werror * wparser_insert_pair ( wparser * self, wtoken_left * left, wtoken_right 
   return e;
   }
 
-werror * wparser_table_init ( wparser * self ) {
+static werror * wparser_table_init ( wparser * self ) {
   werror * e = w_ok;
   struct {
     char * text;
@@ -418,7 +408,7 @@ werror * wparser_table_init ( wparser * self ) {
   return e;
   } 
 
-werror * wparser_lex_quote ( wparser * self ) {
+static werror * wparser_lex_quote ( wparser * self ) {
   werror * e = w_ok;
   wtoken * token;
   wstr str = wstr_empty ();
@@ -442,7 +432,7 @@ werror * wparser_lex_quote ( wparser * self ) {
   return e;
   }
 
-werror * wparser_lex_number ( wparser * self ) {
+static werror * wparser_lex_number ( wparser * self ) {
   werror * e = w_ok;
   wtoken * token;
   wstr str = wstr_empty ();
@@ -459,7 +449,7 @@ werror * wparser_lex_number ( wparser * self ) {
   return e;
   }
 
-werror * wparser_lex_literal ( wparser * self ) {
+static werror * wparser_lex_literal ( wparser * self ) {
   if ( *self->text.start == '\'' || *self->text.start == '"' || *self->text.start == '`') {
     return wparser_lex_quote ( self );
     }
@@ -548,7 +538,7 @@ wparser * wparser_new ( wstr * text ) {
   return p;
   }
 
-int wparser_get_rbp ( wtoken * t ) {
+static int wparser_get_rbp ( wtoken * t ) {
   wvar_of ( wi, wtoken_infix, t ) {
     return wi->rbp;
     } wvar_end
@@ -560,7 +550,7 @@ int wparser_get_rbp ( wtoken * t ) {
     }
   }
 
-werror * wparser_update_infix ( wparser * self, wtoken_infix * t ) {
+static werror * wparser_update_infix ( wparser * self, wtoken_infix * t ) {
   wast_infix * w = walloc_simple ( wast_infix, 1 );
   w->op = t;
   w->type = wtype_wast_infix;
@@ -577,7 +567,7 @@ werror * wparser_update_infix ( wparser * self, wtoken_infix * t ) {
   return w_ok;
   }
 
-werror * wparser_update_prefix ( wparser * self, wtoken_prefix * t ) {
+static werror * wparser_update_prefix ( wparser * self, wtoken_prefix * t ) {
   wast_prefix * w = walloc_simple ( wast_prefix, 1 );
   w->type = wtype_wast_prefix;
   w->op = t;
@@ -588,8 +578,8 @@ werror * wparser_update_prefix ( wparser * self, wtoken_prefix * t ) {
   return w_ok;
   }
 
-bool keep_comments = false;
-werror * wparser_update_comment ( wparser * self, wtoken * t ) {
+static bool keep_comments = false;
+static werror * wparser_update_comment ( wparser * self, wtoken * t ) {
   if ( keep_comments ) {
     wast * w = wast_parent_exprlist ( self->accum );
     return wast_add_rightmost ( w, wobj_of ( t ) );
@@ -599,7 +589,7 @@ werror * wparser_update_comment ( wparser * self, wtoken * t ) {
     }
   }
 
-werror * wparser_update_atom ( wparser * self, wtoken * t ) {
+static werror * wparser_update_atom ( wparser * self, wtoken * t ) {
   switch ( self->state ) {
     case wparser_infix_context:
       wparser_update_infix ( self, &space );
@@ -615,7 +605,7 @@ werror * wparser_update_atom ( wparser * self, wtoken * t ) {
   }
 
 
-werror * wparser_update_left ( wparser * self, wtoken_left * t ) {
+static werror * wparser_update_left ( wparser * self, wtoken_left * t ) {
   wast_list * w = wast_list_new ( ( wtoken * ) t );
   if ( ! w ) {
     return &wick_out_of_memory;
@@ -644,7 +634,7 @@ werror * wparser_update_left ( wparser * self, wtoken_left * t ) {
   return w_ok;
   }
 
-werror * wparser_update_right ( wparser * self, wtoken_right * t ) {
+static werror * wparser_update_right ( wparser * self, wtoken_right * t ) {
   self->accum = wast_parent_exprlist ( self->accum );
   if ( self->accum->op == ( wtoken * ) &comma ) {
     self->accum = self->accum->parent;
@@ -658,7 +648,7 @@ werror * wparser_update_right ( wparser * self, wtoken_right * t ) {
   return w_ok;
   }
 
-werror * wparser_update_comma ( wparser * self, wtoken_infix * t ) {
+static werror * wparser_update_comma ( wparser * self, wtoken_infix * t ) {
   wast * parent_exprlist = wast_parent_exprlist ( self->accum );
   werror * e = w_ok;
   if (parent_exprlist->op == ( wtoken * ) &comma) {
@@ -679,7 +669,7 @@ werror * wparser_update_comma ( wparser * self, wtoken_infix * t ) {
   return e;
   }
 
-werror * wparser_update_indent ( wparser * self, wtoken_indent * t ) {
+static werror * wparser_update_indent ( wparser * self, wtoken_indent * t ) {
   switch ( self->state ) {
     case wparser_line_start_context: 
     case wparser_prefix_context:
@@ -712,7 +702,7 @@ werror * wparser_update_indent ( wparser * self, wtoken_indent * t ) {
   return w_ok;
   }
 
-werror * wparser_update ( wparser * self, wtoken * t ) {
+static werror * wparser_update ( wparser * self, wtoken * t ) {
   if ( t == ( wtoken * ) &comma ) {
     return wparser_update_comma ( self, &comma );
     }
