@@ -25,7 +25,10 @@ char * wparser_get_state_name ( enum wparser_state state ) {
     return "infix";
     case wparser_line_start_context:
     return "line start";
+    default:
+      {}
     }
+  return "unknown";
   }
 
 void wparser_set_state ( wparser * self, enum wparser_state state ) {
@@ -181,6 +184,7 @@ werror * lex_op_from_trie ( wparser * self ) {
       return lex_from_trie ( self, self->prefix_table );
       }
     }
+  return &werror_internal;
   }
 
 werror * lex_identifier ( wparser * self ) {
@@ -604,7 +608,10 @@ werror * wparser_update_atom ( wparser * self, wtoken * t ) {
       wparser_set_state ( self, wparser_infix_context );
       return wast_add_rightmost ( self->accum, wobj_of ( t ) );
       }
+    default:
+        {}
     }
+  return &werror_internal;
   }
 
 

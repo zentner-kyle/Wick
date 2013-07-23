@@ -14,7 +14,7 @@ int main ( ) {
   werr ( e, warray_int_init ( &a ) );
   int i = 100;
   werr ( e, warray_int_push_back ( &a, i ) );
-  int i2;
+  int i2 = 0;
   werr ( e, warray_int_get ( &a, 0, &i2 ) );
   printf ( "i2 = %d\n", i2 );
   assert ( i2 == 100 );

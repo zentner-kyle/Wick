@@ -238,7 +238,10 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
   opbunch opcode;
   uint8_t used_in_opcode = 0;
   while ( ! warray_opbunch_empty ( uncollapsed_code ) ) {
-    warray_opbunch_pop_front ( uncollapsed_code, &opcode );
+    if (warray_opbunch_pop_front ( uncollapsed_code, &opcode ) != w_ok) {
+      free (code);
+      return NULL;
+      }
     uint8_t size = wopcode_args[opcode & 0xff] + 1;
     if ( used_in_opcode + size > sizeof ( opbunch ) ) {
       while ( used_in_opcode < sizeof ( opbunch ) ) {
