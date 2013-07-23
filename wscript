@@ -68,6 +68,7 @@ def common_configure(conf):
     ]
     add_cflags(conf, '-std=gnu99', ['-std=c99', '-std=gnu89', '-std=c89'])
     add_cflags(conf, warning_flags)
+    add_cflags(conf, '-Wno-unused-function')
 
     if conf.options.computed_gotos in ['yes', 'try']:
         need_computed_gotos = conf.options.computed_gotos == 'yes'

@@ -25,6 +25,8 @@ def check(file_stream):
                 # print('Undef: {0}'.format(name))
                 current_defs.remove(name)
             except KeyError:
+                print ('#undefed unknown macro {}'
+                        .format(s_line.split(' ')[1]))
                 pass
     if current_defs:
         print('Style error, {0} still #defined.'.format(', '.join(current_defs)))
