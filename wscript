@@ -7,7 +7,7 @@ out = 'wbuild'
 
 from waf_extensions import declare_variants
 
-declare_variants('debug', 'release')
+declare_variants('debug', 'release', 'micro')
 
 def options(opt):
     opt.add_option('--cc',
@@ -21,7 +21,6 @@ def options(opt):
                    choices=['yes', 'no', 'try'],
                    help='Whether to use computed gotos or not.')
     opt.load('compiler_c')
-    opt.recurse('deps')
     opt.recurse('src')
     opt.recurse('tests')
 
@@ -64,7 +63,6 @@ def common_configure(conf):
     version = '-std=gnu99'
     warning_flags = [
         '-Wall',
-        #'-Wextra'
     ]
     add_cflags(conf, '-std=gnu99', ['-std=c99', '-std=gnu89', '-std=c89'])
     add_cflags(conf, warning_flags)
@@ -107,10 +105,16 @@ def configure_release(conf):
     add_cflags(conf, '-DWICK_RELEASE')
     add_cflags(conf, '-O4', ['-O3'])
 
+def configure_micro(conf):
+    conf.setenv('micro')
+    profiling = False
+    common_configure(conf)
+    add_cflags(conf, '-Os')
+
 def configure(conf):
     configure_debug(conf)
     configure_release(conf)
-    conf.recurse('deps')
+    configure_micro(conf)
     conf.recurse('src')
     conf.recurse('tests')
 
@@ -120,8 +124,8 @@ def build(bld):
         from waflib.Scripting import run_command
         run_command('build_debug')
         run_command('build_release')
+        run_command('build_micro')
     else:
-        bld.recurse('deps')
         bld.recurse('src')
         if build_tests:
             bld.recurse('tests')
