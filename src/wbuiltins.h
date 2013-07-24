@@ -26,18 +26,21 @@ typedef unsigned short unsigned_short;
 
 void wbuiltins_init ( );
 
+wdeclare_base ( size_t );
+wdeclare_base ( int );
+
+#ifndef WICK_MICRO
 wdeclare_base ( bool );
 wdeclare_base ( char );
 wdeclare_base ( double );
 wdeclare_base ( float );
-wdeclare_base ( int );
 wdeclare_base ( long );
 wdeclare_base ( long_double );
 wdeclare_base ( long_long );
 wdeclare_base ( short );
-wdeclare_base ( size_t );
 wdeclare_base ( unsigned );
 wdeclare_base ( unsigned_long );
 wdeclare_base ( unsigned_short );
+#endif /* WICK_MICRO */
 
 #endif /* end of include guard: WBUILTINS_H */

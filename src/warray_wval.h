@@ -18,9 +18,9 @@
 def_struct ( warray ) {
   wtype * type;
   wtype * warray_elem_type;
-  long space;
-  long past_end;
-  long start;
+  size_t space;
+  size_t past_end;
+  size_t start;
   wval * data;
   };
 

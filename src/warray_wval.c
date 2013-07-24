@@ -396,7 +396,7 @@ void warray_debug_print ( warray * self ) {
   printf ( ".start = %zd\n", self->start );
   printf ( ".data = %p\n", self->data );
   printf ( "data contents:\n" );
-  uint32_t * data = ( uint32_t * ) self->data;
+  unsigned * data = ( unsigned * ) self->data;
   for ( int i = 0; i < self->space; i++ ) {
     printf ( "%.8x ", data[ i ] );
     }

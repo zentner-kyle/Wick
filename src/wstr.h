@@ -33,9 +33,11 @@ wstr wstr_from_static ( const char * literal );
 
 wstr wstr_from_dynamic ( const char * dynamic );
 
+#ifndef WICK_MICRO
 wstr wstr_from_filename ( wstr filename );
 
 wstr wstr_from_file ( FILE * file );
+#endif
 
 int wstr_compare ( wstr a, wstr b );
 

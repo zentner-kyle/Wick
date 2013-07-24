@@ -25,12 +25,6 @@
 
 wdefine_base ( opbunch );
 
-static const char * wopcode_names[] = {
-  #define OPCODE_LIST
-  #define OPCODE_NAME
-  #include <wopcodes.c>
-  };
-
 static const char wopcode_args[] = {
   #define OPCODE_LIST
   #define OPCODE_ARGS
@@ -70,6 +64,14 @@ void wexec_code ( opbunch * c ) {
 exit:
   printf ( "Exiting wexec_code\n" );
   }
+
+#ifndef WICK_MICRO
+static const char * wopcode_names[] = {
+  #define OPCODE_LIST
+  #define OPCODE_NAME
+  #include <wopcodes.c>
+  };
+
 
 void print_opcodes ( void ) {
   for ( int i = 0; i < 0xff; i++ ) {
@@ -268,3 +270,4 @@ opbunch * wbytecode_from_filename ( wstr filename ) {
   printf ( "\n" );
   return code;
   }
+#endif /* WICK_MICRO */

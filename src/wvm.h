@@ -19,6 +19,8 @@ void wexec_code ( opbunch * c );
 
 #define OP_MAX_ARGS 3
 
+#ifndef WICK_MICRO
 opbunch * wbytecode_from_filename ( wstr filename );
+#endif
 
 #endif /* end of include guard: WVM_H */

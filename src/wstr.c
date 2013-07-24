@@ -35,6 +35,7 @@ wstr wstr_from_dynamic ( const char * dynamic ) {
   return out;
   }
 
+#ifndef WICK_MICRO
 long int wick_get_file_size ( FILE * file ) {
   fpos_t start_position;
   long int file_size;
@@ -79,6 +80,7 @@ wstr wstr_from_filename ( wstr filename ) {
     }
   return out;
   }
+#endif
 
 size_t wstr_code_length ( const wstr str ) {
   size_t count = 0;
