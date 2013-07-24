@@ -27,8 +27,9 @@ wdefine_base ( unsigned );
 wdefine_base ( unsigned_long );
 wdefine_base ( unsigned_short );
 wdefine_base ( wval );
-
 wdefine_composite ( wobj );
+
+#ifndef WICK_MICRO
 wdefine_composite ( wast );
 wdefine_composite ( wast_prefix );
 wdefine_composite ( wast_infix );
@@ -40,6 +41,7 @@ wdefine_composite ( wtoken_infix );
 wdefine_composite ( wtoken_prefix );
 wdefine_composite ( wtoken_left );
 wdefine_composite ( wtoken_right );
+#endif /* WICK_MICRO */
 
 void wbuiltins_init ( ) {
   if ( wbuiltins_initialized ) {
@@ -63,12 +65,14 @@ void wbuiltins_init ( ) {
   winit_base ( wval );
 
   winit_composite ( wstr );
-  winit_composite ( wtoken );
   winit_composite ( wtype );
   winit_composite ( wcall );
-  winit_composite ( wstr_trie );
   winit_composite ( werror );
   winit_composite ( wobj );
+
+#ifndef WICK_MICRO
+  winit_composite ( wstr_trie );
+  winit_composite ( wtoken );
 
   winit_composite ( wast );
   winit_composite ( wast_prefix );
@@ -81,6 +85,7 @@ void wbuiltins_init ( ) {
   winit_composite ( wtoken_prefix );
   winit_composite ( wtoken_left );
   winit_composite ( wtoken_right );
+#endif /* WICK_MICRO */
 
   }
 

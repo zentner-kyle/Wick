@@ -1,3 +1,4 @@
+#ifndef WICK_MICRO
 #ifndef WSTR_TRIE_H
 
 #define WSTR_TRIE_H
@@ -33,3 +34,4 @@ void wstr_trie_print ( wstr_trie * node );
 void wstr_trie_free ( wstr_trie * );
 
 #endif /* end of include guard: WSTR_TRIE_H */
+#endif /* WICK_MICRO */

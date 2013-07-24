@@ -1,3 +1,4 @@
+#ifndef WICK_MICRO
 #ifndef WTOKEN_H
 
 #define WTOKEN_H
@@ -84,3 +85,4 @@ wdeclare_composite ( wtoken_right );
 void wtokens_print ( warray_wobj_ptr * self );
 
 #endif /* end of include guard: WTOKEN_H */
+#endif /* WICK_MICRO */

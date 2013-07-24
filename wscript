@@ -95,8 +95,8 @@ def common_configure(conf):
 def configure_debug(conf):
     conf.setenv('debug')
     common_configure(conf)
-    add_cflags(conf, '-g')
     add_cflags(conf, '-DWICK_DEBUG')
+    add_cflags(conf, '-g')
 
 def configure_release(conf):
     conf.setenv('release')
@@ -109,12 +109,14 @@ def configure_micro(conf):
     conf.setenv('micro')
     profiling = False
     common_configure(conf)
+    add_cflags(conf, '-DWICK_RELEASE')
     add_cflags(conf, '-Os')
 
 def configure(conf):
     configure_debug(conf)
     configure_release(conf)
     configure_micro(conf)
+    add_cflags(conf, '-DWICK_MICRO')
     conf.recurse('src')
     conf.recurse('tests')
 

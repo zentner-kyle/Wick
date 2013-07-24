@@ -1,3 +1,8 @@
+#ifndef WICK_MICRO
+#ifndef WPARSE_H
+
+#define WPARSE_H
+
 #include <wmacros.h>
 #include <wcall.h>
 #include <wtoken.h>
@@ -39,3 +44,6 @@ wdeclare_composite ( wparser );
 wparser * wparser_new ( wstr * text );
 
 werror * wparser_parse ( wparser * self );
+
+#endif /* end of include guard: WPARSE_H */
+#endif /* WICK_MICRO */

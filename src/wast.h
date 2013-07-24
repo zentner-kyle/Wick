@@ -1,3 +1,4 @@
+#ifndef WICK_MICRO
 #ifndef WAST_H
 
 #define WAST_H
@@ -51,3 +52,4 @@ wast_list * wast_list_new ( wtoken * op );
 void wast_print ( wast * w );
 
 #endif /* end of include guard: WAST_H */
+#endif /* WICK_MICRO */
