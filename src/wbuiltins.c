@@ -10,6 +10,7 @@
 #include <wstr_trie.h>
 #include <werror.h>
 #include <wast.h>
+#include <wint_trie.h>
 
 bool wbuiltins_initialized = false;
 
@@ -45,6 +46,8 @@ wdefine_composite ( wtoken_infix );
 wdefine_composite ( wtoken_prefix );
 wdefine_composite ( wtoken_left );
 wdefine_composite ( wtoken_right );
+
+wdefine_composite ( wint_trie );
 #endif /* WICK_MICRO */
 
 void wbuiltins_init ( ) {

@@ -48,6 +48,7 @@ def build(bld):
         'wtoken.c',
         'wtype.c',
         'wutf8.c',
+        'wint_trie.c',
     ]
 
     if bld.variant == 'micro':
@@ -58,6 +59,7 @@ def build(bld):
             'wstr_trie.c',
             'wtoken.c',
             'wutf8.c',
+            'wint_trie.c',
             ]
         for source in to_remove:
             wick_sources.remove(source)

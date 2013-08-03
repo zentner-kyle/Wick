@@ -12,3 +12,4 @@ wdefine_composite ( werror );
 werror * w_ok = 0;
 werror werror_generic;
 werror werror_internal;
+werror werror_not_implemented;

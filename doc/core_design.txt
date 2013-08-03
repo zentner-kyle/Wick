@@ -1,0 +1,45 @@
+The current wick design is focused around the use of writes, reactions, and transactions.
+There are multiple kinds of writes, which interact with reactions and transactions differently.
+
+The following write types exist:
+  Initializing
+    These writes can only occur to sites known to not be initialized (their type prior to the write is "uninitialized").
+    These writes are performed with '='.
+    Using '=' with an unknown identifier defines the identifier to be the value assigned to it.
+
+  Duplicating
+    These writes are done by placing a site to the left of an expression.
+    They result in the left site being duplicated.
+    However, resulting reactions do not cause further duplications but act on the duplicated values.
+    These writes are usually used in a way similar to function calls.
+
+  Mutating
+    These writes are performed using the '<-' operator.
+    They result in the site on the left changing to the value of the expression on the right.
+    These writes are usually used in a way similar to normal assignment.
+
+The type system must not be so complex as to be a full programming language in its own right, since that would be too hard to implement and design. As a result, the type system only checks a restricted number of constraints.
+The following constraints are supported:
+  Ancestor / Descendant:
+    The given value is guaranteed to be a descendant of the given ancestor.
+    This relationship is written <:, and is similar to subtyping / inheritance.
+
+  Strict Ancestor / Descendant:[M#U<]
+    The given value is guaranteed to be a descendant of the given ancestor without any additional fields
+    This relationship is useful because it guarantees a particular size. 
+    This relationship is written <=:, and is also similar to subtyping / inheritance.
+
+  Syntactic / Structural equality:
+    This is used to check that a given value is (structurally) equal to another value.
+    There is no recursion limit to this check.
+
+  The two constraints above probably correspond to checking Presburger arithmetic, and thus should be implementable.
+  If additional constraints are needed, and how these constraints are composed and implemented exactly is the current main task.
+
+The design of reactions is relatively straightforward. Essentially, there is a match pattern which causes another write to be triggered. However, how they interact fully with transactions has yet to be determined. Probably the most important aspect of this is precisely when (if ever) code will see mutated values due to a "sub transaction."
+
+How to compose and control transactions fluidly is still up for significance yet. <--- I fell asleep while writing this.
+
+The "compilation" algorithm works as follows. First, a graph like structure is built up from the AST, with the vertices as sites and the edges as writes. Then, sets of possible tags (critical ancestors) are propagated through the graph, starting at vertices corresponding to known constructors (literals, mostly).
+
+The main difficulty with this approach is dependant types don't work right. A more complex solution is needed
