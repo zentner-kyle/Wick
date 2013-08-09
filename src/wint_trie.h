@@ -3,8 +3,8 @@
 #include <werror.h>
 #include <walloc.h>
 #include <stdbool.h>
+#include <wval.h>
 
-/*typedef uint64_t wint_trie_int;*/
 typedef size_t wint_trie_int;
 
 declare_struct ( wint_trie_node );
@@ -18,6 +18,13 @@ struct wint_trie_node {
   wint_trie_child_t children[2];
   wint_trie_int mask; /* If bottom bit is set, children both contain leaves. */
   wint_trie_int prefix;
+  };
+
+def_struct( wint_trie_leaf ) {
+  wint_trie_child_t children[2];
+  wint_trie_int mask; /* If bottom bit is set, children both contain leaves. */
+  wint_trie_int prefix;
+  wval values[2];
   };
 
 def_struct (wint_trie) {
