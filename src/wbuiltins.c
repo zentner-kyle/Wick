@@ -16,6 +16,7 @@ bool wbuiltins_initialized = false;
 
 wdefine_base ( wval );
 wdefine_composite ( wobj );
+wdefine_composite ( wint_trie );
 
 wdefine_base ( size_t );
 wdefine_base ( int );
@@ -47,7 +48,6 @@ wdefine_composite ( wtoken_prefix );
 wdefine_composite ( wtoken_left );
 wdefine_composite ( wtoken_right );
 
-wdefine_composite ( wint_trie );
 #endif /* WICK_MICRO */
 
 void wbuiltins_init ( ) {

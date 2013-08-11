@@ -32,5 +32,10 @@ def_union ( wval ) {
 
 wdeclare_base ( wval );
 
+#define wval_int( val ) ( ( wval ) { .integer = ( wint ) val } )
+#define wval_uint( val ) ( ( wval ) { .uinteger = ( wuint ) val } )
+#define wval_float( val ) ( ( wval ) { .floating = ( wfloat ) val } )
+#define wval_pointer( val ) ( ( wval ) { .pointer = ( wobj * ) val } )
+
 
 #endif /* end of include guard: WVAL_H */

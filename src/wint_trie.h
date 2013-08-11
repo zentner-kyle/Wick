@@ -34,3 +34,7 @@ def_struct (wint_trie) {
 
 wdeclare_composite ( wint_trie );
 
+werror * wint_trie_init ( wint_trie * t );
+wint_trie * wint_trie_new ( void );
+werror * wint_trie_insert ( wint_trie * t, wint_trie_int i, wval val );
+werror * wint_trie_get ( wint_trie * t, wint_trie_int i, wval ** val );
