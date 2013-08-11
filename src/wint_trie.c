@@ -43,9 +43,6 @@ static wint_trie_int get_mask ( wint_trie_int x, wint_trie_int y ) {
    * See http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
    */
 
-  wdbg_prnt ( "0x%lx", x );
-  wdbg_prnt ( "0x%lx", y );
-  wdbg_prnt ( "0x%lx", o );
   o |= o >>  1;
   o |= o >>  2;
   o |= o >>  4;
@@ -204,14 +201,6 @@ werror * wint_trie_insert ( wint_trie * t, wint_trie_int i, wval val ) {
     else {
       child ( pn, i ).pointer = branch;
       }
-    wdbg_prnt ( "0x%lx", ( ( i ^ n->prefix ) & ~( ( mask << 1 ) - 1 ) ) );
-    wdbg_prnt ( "0x%lx", ( i ^ n->prefix ) );
-    wdbg_prnt ( "0x%lx", ~( ( mask << 1 ) - 1 ) );
-    wdbg_prnt ( "0x%lx", i );
-    wdbg_prnt ( "0x%lx", n->prefix );
-    wdbg_prnt ( "0x%lx", n->mask );
-    wdbg_prnt ( "0x%lx", branch->mask );
-    wint_trie_debug_print ( branch, 1 );
     assert ( branch->mask > n->mask && "Newly created branch should diverge earlier.\n");
     assert ( branch->children [ 1 ].pointer->prefix != 0 &&
              "Leaf with set bit should not have 0 prefix.\n");
@@ -264,8 +253,6 @@ werror * wint_trie_insert ( wint_trie * t, wint_trie_int i, wval val ) {
     assert ( branch->children [ 1 ].pointer->prefix != 0 &&
              "Leaf with set bit should not have 0 prefix.\n");
     }
-  printf ( "After insert ( 0x%lx ):\n", i );
-  wint_trie_debug_print ( t->root, 1 );
   return w_ok;
   }
 
