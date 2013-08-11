@@ -48,7 +48,6 @@ def test(ctxt):
     stdout_logs = dict()
     for filename in all_tests:
         p = Popen(filename, stdout=PIPE, stderr=PIPE)
-        p.wait()
         output = p.communicate()
         ret = p.returncode
         if ret == 0:

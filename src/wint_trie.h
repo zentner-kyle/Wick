@@ -38,3 +38,4 @@ werror * wint_trie_init ( wint_trie * t );
 wint_trie * wint_trie_new ( void );
 werror * wint_trie_insert ( wint_trie * t, wint_trie_int i, wval val );
 werror * wint_trie_get ( wint_trie * t, wint_trie_int i, wval ** val );
+void wint_trie_debug_print ( wint_trie_node * n, int indent );
