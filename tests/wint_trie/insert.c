@@ -26,6 +26,5 @@ int main (void) {
   for ( int i = 30; i >= 22; i -= 2) {
     INSERT;
     }
-  wint_trie_debug_print ( t->root, 1 );
   return 0;
   }
