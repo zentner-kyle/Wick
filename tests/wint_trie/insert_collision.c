@@ -2,34 +2,25 @@
 #include <wval.h>
 #include <stdio.h>
 
+#define INSERT \
+  printf ( "Inserting %d\n", i ); \
+  fflush ( stdout ); \
+  if ( wint_trie_insert ( t, i, wval_int ( i ) ) != w_ok ) { \
+    return 1; \
+    }
+
 int insert_a_bunch ( wint_trie * t ) {
-  for ( int i = 0; i <= 100; i++ ) {
-    printf ( "Inserting %d\n", i );
-    fflush ( stdout );
-    if ( wint_trie_insert ( t, i, wval_int ( i ) ) != w_ok ) {
-      return 1;
-      }
+  for ( int i = 0; i <= 10; i++ ) {
+    INSERT;
     }
-  for ( int i = 200; i > 100; i--) {
-    printf ( "Inserting %d\n", i );
-    fflush ( stdout );
-    if ( wint_trie_insert ( t, i, wval_int ( i ) ) != w_ok ) {
-      return 1;
-      }
+  for ( int i = 20; i > 10; i--) {
+    INSERT;
     }
-  for ( int i = 210; i <= 1000; i += 10 ) {
-    printf ( "Inserting %d\n", i );
-    fflush ( stdout );
-    if ( wint_trie_insert ( t, i, wval_int ( i ) ) != w_ok ) {
-      return 1;
-      }
+  for ( int i = 21; i <= 30; i += 2 ) {
+    INSERT;
     }
-  for ( int i = 995; i > 200; i -= 10) {
-    printf ( "Inserting %d\n", i );
-    fflush ( stdout );
-    if ( wint_trie_insert ( t, i, wval_int ( i ) ) != w_ok ) {
-      return 1;
-      }
+  for ( int i = 30; i >= 22; i -= 2) {
+    INSERT;
     }
   return 0;
   }

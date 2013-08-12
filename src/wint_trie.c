@@ -56,10 +56,31 @@ static wint_trie_int get_mask ( wint_trie_int x, wint_trie_int y ) {
   }
 
 #define left_bits( i ) (~( ( ( i ) << 1 ) - 1 ))
+#define leaf_mask( i ) ( ( i ) == 0x1 ? ( i ) : ( ( i ) & ~0x1UL ) )
 
 static wint_trie_int get_prefix ( wint_trie_int x, wint_trie_int mask ) {
   return left_bits ( mask ) & x;
   /*return ((~mask) & (~(mask - 1))) & x;*/
+  }
+
+void wint_trie_check ( wint_trie_node * n, wint_trie_int prefix ) {
+  if ( ! n ) {
+    return;
+    }
+  if ( ( prefix & n->prefix & left_bits ( leaf_mask ( n->mask ) ) ) !=
+       ( prefix & left_bits ( leaf_mask ( n->mask ) ) ) ) {
+    printf ("Prefix inconcistency.\n");
+    wdbg_prnt ( "0x%lx", prefix );
+    wdbg_prnt ( "0x%lx", n->prefix );
+    wdbg_prnt ( "0x%lx", prefix & n->prefix );
+    wdbg_prnt ( "0x%lx", ( prefix & n->prefix & left_bits ( leaf_mask ( n->mask ) ) ) );
+    wdbg_prnt ( "0x%lx", ( n->prefix & left_bits ( leaf_mask ( n->mask ) ) ) );
+    assert ( ! ( ( prefix & n->prefix & left_bits ( leaf_mask ( n->mask ) ) ) ) );
+    }
+  if ( ! (n->mask & 1) ) {
+    wint_trie_check ( n->children [ 0 ].pointer, prefix );
+    wint_trie_check ( n->children [ 1 ].pointer, prefix | n->mask );
+    }
   }
 
 void wint_trie_debug_print ( wint_trie_node * n, int indent ) {
@@ -206,9 +227,14 @@ werror * wint_trie_insert ( wint_trie * t, wint_trie_int i, wval val ) {
              "Leaf with set bit should not have 0 prefix.\n");
     }
   else if ( (n->mask & 0x1) && (n->children [ idx ].integer == i ) ) {
+    printf ( "Replacing [0x%lx => " wint_format "] with [0x%lx => " wint_format "]\n",
+             n->children[ idx ].integer,
+             ( ( wint_trie_leaf * ) n )->values [ idx ].integer,
+             i, val.integer );
     ( ( wint_trie_leaf * ) n )->values[ idx ] = val;
     }
   else {
+    printf ("Three node case.\n");
 
     /* 
      * Create a new branch node, and a new half-leaf. Re-arrange the three keys
@@ -223,7 +249,7 @@ werror * wint_trie_insert ( wint_trie * t, wint_trie_int i, wval val ) {
       free ( leaf );
       return &wick_out_of_memory;
       }
-    branch->mask = n->mask;
+    branch->mask = n->mask & ~0x1UL;
     branch->prefix = n->prefix;
 
     /* 
@@ -246,13 +272,29 @@ werror * wint_trie_insert ( wint_trie * t, wint_trie_int i, wval val ) {
     n->mask = 0x1;
     n->prefix = n->children [ ! idx ].integer;
     n->children[ idx ].integer = n->children [ ! idx ].integer;
-    /* No need to fixup n->values[ idx ]. */
+    ( ( wint_trie_leaf * ) n )->values [ idx ] = ( ( wint_trie_leaf * ) n )->values [ ! idx ];
 
+    /* 
+     * This way of doing it, blindly unifying the half-leaf, is probably more
+     * efficient than checking if the change of mask results in the key's
+     * needing to change location. 
+     */
+
+    assert ( ! (branch->mask & 0x1) && "Branch should not have leaf bit set.\n" );
     assert ( branch->mask > n->mask && "Branch mask should be greater.\n" );
     assert ( branch->mask > leaf->mask && "Branch mask should be greater.\n" );
     assert ( branch->children [ 1 ].pointer->prefix != 0 &&
              "Leaf with set bit should not have 0 prefix.\n");
+    if ( ! pn ) {
+      t->root = branch;
+      }
+    else {
+      child ( pn, i ).pointer = branch;
+      }
     }
+  printf ("After insert:\n");
+  wint_trie_debug_print ( t->root, 1 );
+  wint_trie_check ( t->root, 0 );
   return w_ok;
   }
 
@@ -264,21 +306,28 @@ werror * wint_trie_get ( wint_trie * t, wint_trie_int i, wval ** val ) {
     }
   if ( ! n ) {
     *val = NULL;
+    printf ("Could not find value.\n");
     return w_ok;
     }
-  mask = n->mask;
-  if ( mask != 0x1 ) {
-    mask = mask - 1;
-    }
+  mask = (n->mask == 0x1) ? n->mask : n->mask & ~0x1UL;
 
   /* There should now be only the branching bit set in mask. */
 
-  if ( child ( n, i ).integer == i ) {
+  if ( n->children[ mask_idx ( mask, i ) ].integer == i ) {
     *val = &( ( wint_trie_leaf * ) n )->values[ mask_idx ( mask, i ) ];
+    printf ("Got from leaf:\n");
+    wint_trie_debug_print ( n , 1 );
     return w_ok;
     }
+  else {
+    printf ("Could not find 0x%lx.\n", i);
+    wint_trie_debug_print ( t->root, 1 );
+    printf ("Found leaf:\n");
+    wint_trie_debug_print ( n, 1 );
+    }
+
   *val = NULL;
-  return w_ok;
+  return &werror_generic;
   }
 
 bool wint_trie_has_key ( wint_trie * t, wint_trie_int i ) {
