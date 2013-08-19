@@ -61,7 +61,6 @@ def add_cflags(conf, flags, alternatives=tuple()):
 
 def common_configure(conf):
     if conf.find_program(conf.options.cc):
-    #if True:
         conf.env['CC'] = conf.options.cc
         conf.env['CC_NAME'] = conf.options.cc
         conf.env['COMPILER_CC'] = conf.options.cc
@@ -78,7 +77,6 @@ def common_configure(conf):
     conf.env['core_cflags'] = ''
     if has_cflag(conf, '-fno-gcse'):
         conf.env.append_value('core_cflags', ['-fno-gcse'])
-    conf.env['use_no_gcse_for_core'] = has_cflag(conf, '-fno-gcse')
     if 'mingw' in conf.env['CC']:
         configure_mingw(conf)
     else:
