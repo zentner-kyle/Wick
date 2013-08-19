@@ -14,6 +14,19 @@ def options(opt):
                    action='store',
                    default='clang',
                    help='The C Compiler to use.')
+    opt.add_option('--cflags',
+                   action='store',
+                   default='',
+                   help='Extra cflags.')
+    opt.add_option('--strip-micro',
+                   action='store',
+                   default='yes',
+                   choices=['yes', 'no', 'try'],
+                   help='Strip micro library.')
+    opt.add_option('--strip',
+                   action='store',
+                   default='strip',
+                   help='Program to use to strip micro library.')
     opt.add_option('--computed-gotos',
                    '--use-computed-gotos',
                    action='store',
@@ -27,14 +40,15 @@ def options(opt):
 profiling = False
 build_tests = True
 
-def configure_gcc(conf):
-    conf.env['use_no_gcse_for_core'] = True
-
-def configure_non_gcc(conf):
-    conf.env['use_no_gcse_for_core'] = False
-
 def configure_mingw(conf):
     conf.env['cprogram_PATTERN'] = '%s.exe'
+
+def has_cflag(conf, flag):
+    try:
+        conf.check(feature='cc cprogram cstdlib', cflags=flag)
+        return True
+    except Exception as e:
+        return False
 
 def add_cflags(conf, flags, alternatives=tuple()):
     try:
@@ -46,20 +60,31 @@ def add_cflags(conf, flags, alternatives=tuple()):
         conf.env.append_value('CFLAGS', flags)
 
 def common_configure(conf):
-    conf.load('compiler_c')
     if conf.find_program(conf.options.cc):
+    #if True:
         conf.env['CC'] = conf.options.cc
         conf.env['CC_NAME'] = conf.options.cc
         conf.env['COMPILER_CC'] = conf.options.cc
         conf.env['LINK_CC'] = conf.options.cc
-    if conf.env['CC'] == 'gcc':
-        configure_gcc(conf)
+    conf.load('compiler_c')
+    if conf.find_program(conf.options.strip):
+        conf.env['strip'] = conf.options.strip
+        conf.env['strip_micro'] = 'yes'
+    elif (conf.options.strip_micro == 'yes' or
+          conf.options.strip != 'strip'):
+        conf.fatal('Could not find {}.'.format(conf.options.strip))
     else:
-        configure_non_gcc(conf)
-    if conf.env['CC'].find('mingw') != -1:
+        conf.env['strip_micro'] = 'no'
+    conf.env['core_cflags'] = ''
+    if has_cflag(conf, '-fno-gcse'):
+        conf.env.append_value('core_cflags', ['-fno-gcse'])
+    conf.env['use_no_gcse_for_core'] = has_cflag(conf, '-fno-gcse')
+    if 'mingw' in conf.env['CC']:
         configure_mingw(conf)
     else:
         add_cflags(conf, '-fPIC')
+    for flag in conf.options.cflags.split(' '):
+        add_cflags(conf, flag)
     version = '-std=gnu99'
     warning_flags = [
         '-Wall',
@@ -111,6 +136,10 @@ def configure_micro(conf):
     common_configure(conf)
     add_cflags(conf, '-DWICK_RELEASE')
     add_cflags(conf, '-Os')
+    if has_cflag(conf, '-O4'):
+        conf.env.append_value('core_cflags', ['-O4'])
+    elif has_cflag(conf, '-O3'):
+        conf.env.append_value('core_cflags', ['-O3'])
 
 def configure(conf):
     configure_debug(conf)

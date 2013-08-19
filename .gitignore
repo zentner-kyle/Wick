@@ -85,4 +85,6 @@ tramp
 .org-id-locations
 *_archive
 
+*.dis
+
 

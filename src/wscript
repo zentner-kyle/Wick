@@ -1,19 +1,89 @@
 #! /usr/bin/env python3
 # encoding: utf-8
 
-from waflib.TaskGen import feature, after
-from waflib.Task import Task
+from pprint import pprint
+from waflib.TaskGen import feature, after, before, after_method
+import waflib.Task
+#from waflib.Task import Task
+#pprint.pprint(waflib.Task.__dict__)
 
-class Strip(Task):
-    run_str = 'strip -s ${SRC}'
+def file_exists(filename):
+    try:
+        with open(filename) as f:
+            return True
+    except IOError:
+        return False
+
+class Strip(waflib.Task.Task):
+
+    run_str = '${strip} -s ${SRC}'
     color   = 'BLUE'
+    #after   = ['apply_link']
+    #quiet   = True
+
+    #def scan(self):
+        #o = waflib.Task.Task.scan(self)
+        #print('Reporting', o)
+        #return o
+        #print('Reporting:', (self.inputs, [str(input) for input in self.inputs]))
+        #return (self.inputs, [str(input) for input in self.inputs])
+
+    def runnable_status(self):
+        if file_exists(self.inputs[0].nice_path()):
+            return waflib.Task.RUN_ME
+        else:
+            return waflib.Task.ASK_LATER
+        #print('Checking status')
+        #print('self.inputs', self.inputs)
+        #if len(self.inputs) != 1:
+            #return waflib.Task.SKIP_ME
+            #return waflib.Task.ASK_LATER
+        #else:
+            #return waflib.Task.Task.runnable_status(self)
+            #super(self, )
+        #if file_exists(self.inputs[0].nice_path()):
+            #return waflib.Task.RUN_ME
+        #else:
+            #return waflib.Task.ASK_LATER
+
+        #lib = self.inputs[0]
+        #try:
+            #with open(self.inputs[0].nice_path()) as f:
+                #return waflib.Task.RUN_ME
+        #except IOError:
+            #return waflib.Task.ASK_LATER
+        #print(lib)
+        #print(dir(lib))
+        #return waflib.Task.RUN_ME
 
 @feature('strip')
-@after('cshlib')
+@after('apply_link')
 def strip(self):
+    #print ('HERE')
+    #print(self)
+    #print(type(self))
+    #pprint(dir(self))
+    #for field in dir(self):
+        #print(field, getattr(self, field))
+    #pprint(self.__dict__)
+    #pprint(type(self).__dict__)
     libs = [task.outputs[0] for task in self.tasks]
-    if libs:
-        self.create_task('Strip', libs)
+    #waflib.Task.simple_task_type(
+            #'strip',
+            #rule  = '{} -s ${{SRC}}'.format(self.env['strip']),
+            #color = 'blue',
+            #after = 'cshlib')
+    #class Strip(waflib.Task.Task):
+        #run_str = '{STRIP} -s ${SRC}'
+        #color   = 'BLUE'
+    #print(Strip.__dict__)
+    #if libs:
+        #self.k
+    self.create_task('Strip', libs)
+    #tsk = self.create_task('Strip', libs)
+        #print(tsk)
+        #print(type(tsk))
+        #tsk.strip = self.env['strip']
 
 def options(opt):
     pass
@@ -52,7 +122,20 @@ def build(bld):
     ]
 
     if bld.variant == 'micro':
-        lib_features.append('strip')
+        #bld(
+           #rule = '{} -s ${{SRC}}'.format(bld.env['strip']),
+           #source = 'wick'
+        #)
+
+        #waflib.Task.task_factory(
+            #'strip',
+            #func  = '{} -s ${{SRC}}'.format(bld.env['strip']),
+            #color = 'blue',
+            #after = 'cshlib')
+        if bld.env['strip_micro']  == 'yes':
+            #print('HERE')
+            #bld.env['STRIP'] = 'strip'
+            lib_features.append('strip')
         to_remove = [
             'wast.c',
             'wparse.c',
@@ -66,7 +149,7 @@ def build(bld):
     bld.objects(
         source   = 'wvm.c',
         target   = 'wvm_core',
-        cflags   = '-fno-gcse' if bld.env['use_no_gcse_for_core'] else '',
+        cflags   = bld.env['core_cflags'],
         includes = '.',
         )
     
@@ -76,11 +159,18 @@ def build(bld):
         includes = '.',
     )
     
-    bld(
+    wick = bld(
         features = lib_features,
         use    = 'wick_objects wvm_core',
         target = 'wick',
+        #target = 'blargh'
     )
+    #print(t)
+    #print(t.__dict__)
+    #print(wick)
+    #print(wick.__dict__)
+    #print(wick.name)
+    #print(wick.outputs[0].name)
 
     bld.program(
         source = 'main.c',
@@ -97,3 +187,35 @@ def build(bld):
         source = 'unicode_gen.py',
         target = 'is_letter_tree.c',
     )
+
+    #if bld.variant == 'micro':
+        #class Strip(waflib.Task.Task):
+
+            #color  = 'BLUE'
+            ##quiet  = True
+            #before = ['cshlib']
+
+            #def run(self):
+                ##self.set_inputs('libwick.so')
+                ##print(type(self.generator.to_nodes(self.inputs)[0]))
+                #cmd = '{} -s {}'.format(bld.env['strip'],
+                        #self.generator.to_nodes('wick')[0].abspath())
+                ##print(self)
+                ##pprint.pprint(self.__dict__)
+                ##print(self.generator)
+                #print()
+                #out = bld.cmd_and_log(cmd)
+        #strip = Strip(env=bld.env.derive(), generator=wick)
+        #wick.tasks.append(strip)
+        ##strip.set_inputs
+
+        ##bld(
+           ##rule = '{} -s ${{SRC}}'.format(bld.env['strip']),
+           #####source = 'wick'
+           #####source = t
+           ###source = 'wick'
+           ###source = wick.to_nodes('wick').abspath()
+           ##source = 'libwick.so'
+           ####use  = 'wick'
+        ##)
+        ##print (t.__dict__)
