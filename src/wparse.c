@@ -341,16 +341,6 @@ static werror * wparser_table_init ( wparser * self ) {
       { "~"    , 40 } , 
       { ".."   , 60 } , 
       { "$"    , 20 } , 
-      { "!"    , 40 } , 
-      { "!!"   , 40 } , 
-      { "\\"   , 10 } , 
-      { "\\\\" , 10 } , 
-      { "@"    , 20 } , 
-      { "^"    , 40 } , 
-      { "&"    , 40 } , 
-      { "|"    , 40 } , 
-      { "~"    , 40 } , 
-      { "$"    , 20 } , 
       { ""     ,  0 } ,
     };
 
@@ -500,8 +490,7 @@ wparser * wparser_new ( wstr * text ) {
   werr ( e, wtoken_infix_init ( &space, wstr_new ( "(space)", 0 ), 90, 90, false ) );
   werr ( e, wtoken_init ( &root, wstr_new ( "(root)", 0 ) ) );
   werr ( e, wtoken_infix_init ( &comma, wstr_new ( ",", 0 ), 19, 19, false ) );
-  if ( e != w_ok )
-    {
+  if ( e != w_ok ) {
     return NULL;
     }
   wparser * p = walloc_simple ( wparser, 1 );
