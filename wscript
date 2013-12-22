@@ -68,7 +68,7 @@ def common_configure(conf):
     conf.load('compiler_c')
     if conf.find_program(conf.options.strip):
         conf.env['strip'] = conf.options.strip
-        conf.env['strip_micro'] = 'yes'
+        conf.env['strip_micro'] = conf.options.strip_micro
     elif (conf.options.strip_micro == 'yes' or
           conf.options.strip != 'strip'):
         conf.fatal('Could not find {}.'.format(conf.options.strip))

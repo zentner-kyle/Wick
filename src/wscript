@@ -14,14 +14,8 @@ def file_exists(filename):
 
 class Strip(waflib.Task.Task):
 
-    run_str = '${strip} -s ${SRC}'
+    run_str = '${strip} --strip-unneeded ${SRC}'
     color   = 'BLUE'
-
-    def runnable_status(self):
-        if file_exists(self.inputs[0].nice_path()):
-            return waflib.Task.RUN_ME
-        else:
-            return waflib.Task.ASK_LATER
 
 @feature('strip')
 @after('apply_link')
