@@ -1,0 +1,103 @@
+#!/usr/bin/env wick0
+
+fib = fn ([n] [a] {
+  while ({n != 0}
+    {
+      n = n
+      a = 0
+      b = 1
+    }
+    {
+      a = b
+      b = a + b
+      n = n - 1
+    })
+  })
+
+print = fn([n] [] {
+  import (sys)
+  for ([i] n
+    {
+      sys.out.message (string.of (i))
+    })
+  })
+
+start -> {
+  fib50 = fib (50)
+  print (fib50)
+  }
+
+# primitives:
+
+
+# application performs simple variable binding
+
+assert (core.apply ({ .i = x } { x = 0 }).i == 0)
+
+# assert never evaluates, since write to .i never triggers
+
+assert (core.apply ({.i = x} {}).i == undefined)
+
+assert (core.apply ({
+  self = here
+  n == 0 -> core.apply (self {.out = a})
+  n != 0 -> core.apply (self {
+    n = n - 1
+    a = b
+    b = a + b
+    })
+  } {
+  a = 0
+  b = 1
+  n = 50
+  } ) == fib (50))
+
+syntax.prefix ('*' { core.apply (core.parent (here) .in) })
+
+assert (core.apply ({
+  n == 0 -> *{.out = a}
+  n != 0 -> *{
+    n = n - 1
+    a = b
+    b = a + b
+    }
+  } {
+  a = 0
+  b = 1
+  n = 50
+  } ) == fib (50))
+
+fib = fn ([n] [out] {
+  n = n
+  a = 0
+  b = 1
+  here (
+    n != 0 -> &(
+      a <- b
+      b <- a + b
+      n <- n - 1
+    )
+    n == 0 -> out = a
+  )})
+
+
+So if we picture fibonacci, we basically have an initial setup transaction, which is initially fed into the reaction loop. The reaction loop is actually a transaction which is performing a duplicating unification with itself. The tricky part is describing the topology of this operation, since the duplicated yarn needs to repeat this process for an arbitrary amount. However, it also needs to stop.
+
+
+fib = fn ([in] [out] {
+  initial = {
+    n = in
+    a = 0
+    b = 1
+    }
+  step = {
+    a = b
+    b = a + b
+    n = n - 1
+    }
+  recur = {
+    n == 0 -> {out = a}
+    free n -> {recur (*step (here))}
+    }
+  recur (*initial)
+  })
