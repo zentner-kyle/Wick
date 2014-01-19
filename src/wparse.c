@@ -353,12 +353,12 @@ static werror * wparser_table_init ( wparser * self ) {
     char * text;
     int rbp;
   } prefix_keywords[] = {
-      { "if"      , 13 } ,
-      { "for"     , 13 } ,
-      { "import"  , 13 } ,
-      { "while"   , 13 } ,
-      { "var"     , 13 } ,
-      { "assert"  , 13 } ,
+      /*{ "if"      , 13 } ,*/
+      /*{ "for"     , 13 } ,*/
+      /*{ "import"  , 13 } ,*/
+      /*{ "while"   , 13 } ,*/
+      /*{ "var"     , 13 } ,*/
+      /*{ "assert"  , 13 } ,*/
       { ""        ,  0 } ,
     };
 
