@@ -295,8 +295,6 @@ static werror * wparser_table_init ( wparser * self ) {
       { "=>"   , 50 , 50 , false } , 
       { "=="   , 50 , 50 , false } , 
       { "!="   , 50 , 50 , false } , 
-      { "and"  , 30 , 30 , false } , 
-      { "or"   , 30 , 30 , false } , 
       { "."    , 90 , 90 , false } , 
       { "::"   , 20 , 20 , false } , 
       { ".."   , 60 , 60 , false } , 
@@ -374,6 +372,28 @@ static werror * wparser_table_init ( wparser * self ) {
         str,
         ( wtoken * ) wtoken_prefix_new ( str, prefix_keywords[i].rbp ) ) );
     }
+
+  struct {
+    char * text;
+    int lbp;
+    int rbp;
+    bool starts_indent;
+  } infix_keywords[] = {
+      { "and"  , 30 , 30 , false } , 
+      { "or"   , 30 , 30 , false } , 
+      { ""     ,  0 ,  0 , false } ,
+    };
+
+  for ( int i = 0; infix_keywords[i].text[0]; i++ ) {
+    wstr * str = wstr_new ( infix_keywords[i].text, 0);
+    werr ( e, wtable_wstr_ptr_to_wtoken_ptr_set (
+        self->identifier_table,
+        str,
+        ( wtoken * ) wtoken_infix_new ( str,
+            infix_keywords[i].lbp, infix_keywords[i].rbp,
+            infix_keywords[i].starts_indent ) ) );
+    }
+
   wstr * ellipsis_str = wstr_new ( "...", 0 );
   werr ( e, wstr_trie_insert_token (
         self->prefix_table,
@@ -479,6 +499,7 @@ werror * wparser_parse ( wparser * self ) {
     active |= wparser_lex_literal ( self ) == w_ok;
     }
   if ( wstr_size ( self->text ) != 0 ) {
+    wstr_println ( wstr_lit ( "error: could not parse:" ) );
     wstr_println ( self->text );
     return &wparser_bad_expr;
     }
