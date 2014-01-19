@@ -1,25 +1,10 @@
 #!/usr/bin/env wick0
-
-fib = fn ([n] [a] {
-  while ({n != 0}
-    {
-      n = n
-      a = 0
-      b = 1
-    }
-    {
-      a = b
-      b = a + b
-      n = n - 1
-    })
-  })
-
 print = fn([n] [] {
   import (sys)
   for ([i] n
-    {
+    [
       sys.out.message (string.of (i))
-    })
+    ])
   })
 
 start -> {
@@ -101,3 +86,103 @@ fib = fn ([in] [out] {
     }
   recur (*initial)
   })
+
+fn = ${
+  $inputs
+  $outputs
+  $body
+  here (args) -> here = outputs (*body (*inputs (here)))
+  }
+
+core.assert (fib (8) == 21)
+
+--------------------------------------------------------------------------------
+
+
+fn = {
+  here (inputs output) = {
+    res = output \ inputs
+    here (*args) = if (is (inputs, var) or length (i ^ (i <- args)) == length (i)
+      {
+        *((inputs <- args)[res] & output)
+      }
+      {
+        error ('Missing arguments.')
+      })
+    }
+  here (inputs output body) = {
+    prev = inputs
+    # Create lexical structure
+    last = for (stat body
+      [
+        prev = stat \ prev
+      ]).prev
+    here (*args) = if (is (inputs, var) or length (i ^ (i <- args)) == length (i)
+      {
+        *((inputs <- args)[last] & output)
+      }
+      {
+        error ('Missing arguments.')
+      })
+    }
+  }
+
+# Verbose definition of do
+# do = fn (statements res [
+#   last_stat = {}
+#   res = for (stat statements
+#       {
+#         last_stat = stat \ last_stat
+#       }
+#       {
+#         *last_stat
+#       })
+#   ])
+
+# Equivalently
+do = fn (statements last_stat [
+  last_stat = {}
+  i = 0
+  *while (statements[i] != nil [
+    last_stat = statements[i] \ last_stat
+    i = i + 1
+    ])
+  ])
+
+
+fib = fn ([n] a [
+  a = 0
+  b = 1
+  while (n != 0
+    [{
+      a = b
+      b = a + b
+      n = n - 1
+    }])
+  ])
+
+for = {
+  here (pat seq body) =
+    (common <- [pat seq body]).w
+  here (pat seq body end) =
+    end & (common <- [pat seq body]).w
+  common = [pat seq body] | {
+    prev = {}
+    w = while (seq[i] != nil [
+      res = [pat, body] <- [seq[i], (body \ pat \ prev)]
+      prev = res[body]
+      ])
+    }
+  }
+
+
+unless = fn ([cond body alt] | {alt = {}} if (!cond body alt))
+
+# This doesn't work.
+# The lack of known execution order (among other things) makes this an impractical way of implementing the top level.
+# In the first place, the idea was 
+main = fn (args ret [
+  fib50 = fib (50)
+  print (fib50)
+  ret = 0
+  ])
