@@ -1,0 +1,122 @@
+Create the root object
+This involves going through each assignment, and adding the appropriate field to a map.
+The real question, is how do we deal with determining when an object is ready to be evaulated.
+After all, basic builtins like fn are themselves fields that need to be defined before they can be called.
+
+Strategy: Assignments in an object always indicate that the corresponding field exists in that object.
+Therefore, we could create our tree of lexical objects, filling in only the keys.
+Then, we could make a second pass.
+If a required variable is defined in any upper scope, we skip the current evaluation.
+We keep making passes until we've evaluated everything.
+
+This strategy sucks for two reasons:
+  - It can't handle mutual recursion.
+  - It's impossible to make local variables shadow global ones.
+
+
+Alternatively, we create all the objects, using variable objects to represent variables.
+Then, when a field is requested, we lazily check if the necessary variables have valid lookups.
+It would be really hard to ensure the semantics of this were consistent.
+
+Another strategy: take all of the fields, and create a graph of their top-level only dependencies.
+Attempt to create perform a partial topological sort. Evaluate fields in the order of the sort one step (this eliminates all of the top-level dependencies).
+If we cannot create such an ordering, fail.
+
+So the following won't work:
+  a = b({})
+  b = a({})
+
+But this will:
+  fn = {}
+  fib = fn({})
+
+What is a step?
+
+Let's work through a simplified example.
+
+fn = {
+  here (inputs, output, body) = {
+    here (*args) = {
+        # Create lexical structure
+        prev = (inputs <- args)
+        last = for (stat, body,
+          [
+            prev = stat <- prev
+          ]).prev
+        res = *(ouput <- last)
+      }.res
+    }
+  }
+
+fib = fn ([n], a, [
+  a = 0
+  b = 1
+  while (n != 0,
+    [{
+      a = b
+      b = a + b
+      n = n - 1
+    }])
+  ])
+
+--------------------------------------------------------------------------------
+
+sort (fib -> fn) = [fn, fib]
+
+fn = {
+  # obj0
+  }
+
+fib = {
+  # obj0
+  } ( ...
+
+
+
+
+a = { here(arg) = c (arg) }
+b = a (test)
+c = 0
+
+--------------------------------------------------------------------------------
+
+sort ( b -> a ) = [a, b, c]
+
+--------------------------------------------------------------------------------
+
+
+Another strategy, which acts similar to the previous one.
+Create the lexical tree, filling in keys, and placeholders.
+Begin evaluating an arbitrary object (for example, the first one).
+If we come across a variable which is needed, we look it up.
+If there is a placeholder node in its place, we pause evaluating our current object, storing which object we have paused on a stack.
+Unless the current object is already on the stack, in which case we have a circular dependency, and error.
+Then we evaluate the object whose placeholder we found, using the same recursive process.
+As soon as we have evaluated it, we try to pop an object off the stack to evaluate it.
+This prevents identifying false circular dependencies.
+Repeat this on any remaining placeholders.
+
+Once this has been done, the object graph has been contructed, and the main start point can be triggered.
+
+pseudocode
+
+def obj_from_filename (filename):
+  text = load_file (filename)
+  ast = parse (text)
+  placeholders = []
+  obj = obj_from_root (ast, placeholders)
+
+def obj_from_root (ast, placeholders):
+  out = make_obj ()
+  for child in ast:
+    if child.text == '=':
+      placeholder = make_placeholder (out, child.right)
+      placeholders.push (placeholder)
+      out.add_field (child.left.text, placeholder)
+    else:
+      throw WickException ('There should only be assignments at the top-level.')
+  return out
+
+def obj_from_ast (ast, obj_stack, placeholders):
+  if ast.type == 'primitive':
+    return ast

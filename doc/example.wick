@@ -2,25 +2,26 @@
 
 fn = {
   here (inputs, output) = {
-    res = output \ inputs
     here (*args) = if (is (inputs, var) or length (i ^ (i <- args)) == length (i),
       {
-        *((inputs <- args)[res] & output)
+        *(output <- (input <- args))
       },
       {
         error ('Missing arguments.')
       })
     }
   here (inputs, output, body) = {
-    prev = inputs
-    # Create lexical structure
-    last = for (stat, body,
-      [
-        prev = stat \ prev
-      ]).prev
-    here (*args) = if (is (inputs, var) or length (i ^ (i <- args),) == length (i,),
+    here (*args) = if (is (inputs, var) or length (i ^ (i <- args)) == length (i),
       {
-        *((inputs <- args)[last] & output)
+        *{
+          # Create lexical structure
+          prev = (inputs <- args)
+          last = for (stat, body,
+            [
+              prev = stat <- prev
+            ]).prev
+          res = *(ouput <- last)
+        }.res
       },
       {
         error ('Missing arguments.')
@@ -32,12 +33,11 @@ fn = {
 do = fn (statements, last_stat, [
   last_stat = {}
   i = 0
-  *while (statements[i] != nil [
-    last_stat = statements[i] \ last_stat
+  *while (statements[i] != nil, [
+    last_stat = statements[i] <- last_stat
     i = i + 1
     ])
   ])
-
 
 fib = fn ([n], a, [
   a = 0
@@ -57,10 +57,9 @@ for = {
     end & (common <- [pat, seq, body]).w
   common = [pat, seq, body] | {
     prev = {}
-    w = while (seq[i] != nil [
-      res = [pat, body] <- [seq[i], (body \ pat \ prev)]
-      prev = res[body]
-      ])
+    w = while (seq[i] != nil, [
+      prev = body <- (prev <- (pat <- seq[i]))
+      ]).prev
     }
   }
 
